@@ -192,9 +192,9 @@
 		 Read_Positions(Box, Particles, mc_time);
 
 		 // read orientation config file
-		 //Read_Orientations(Box, Particles, mc_time);
+		 Read_Orientations(Box, Particles, mc_time);
 		 //Read_Orientations_EULER(Box, Particles);
-		 Read_Orientations_Axis_Angle(Box, Particles, mc_time);
+		 //Read_Orientations_Axis_Angle(Box, Particles, mc_time);
 		 
 		 // read former state of random number generator
 		 Read_Random_State(r,r01, mc_time);
