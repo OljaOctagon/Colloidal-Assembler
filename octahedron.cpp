@@ -171,8 +171,9 @@
 	
 	void octahedron::Set_Lengths(){		
 			
-	    Lx = 1.0;
-	   
+	    //Lx = 1.0;
+		Lx = 2.0/sqrt(2.0);
+		
 	    //height = (sqrt(3.0)/2.)*Lx;
 	    height = (1./sqrt(2))*Lx;
 	    

@@ -1,57 +1,59 @@
 #include "particles.h"
 
-	void particles::Check_Cell(int id, int &c_id, box* Box){
+	void particles::Check_Cell(int id, int cell_id, box* Box){
 		 
-		 Cell[c_id].left_count = 0;
-		 Cell[c_id].right_count = 0;
+		 Cell[cell_id].left_count = 0;
+		 Cell[cell_id].right_count = 0;
 	   
-		 Cell[c_id].front_count = 0;
-		 Cell[c_id].back_count = 0;
+		 Cell[cell_id].front_count = 0;
+		 Cell[cell_id].back_count = 0;
 	   
-		 Cell[c_id].top_count = 0;
-		 Cell[c_id].bottom_count = 0;
+		 Cell[cell_id].top_count = 0;
+		 Cell[cell_id].bottom_count = 0;
 	  
-		 N_Particle[id].cell_out = 0;
-	  
+		 N_Particle[cell_id].cell_out = 0;
+		 
 		
-	   
+		 Cell[cell_id].edges_from_center();
+	  
 		 id_x_center = N_Particle[id].x_center;
 		 id_y_center = N_Particle[id].y_center;
 		 id_z_center = N_Particle[id].z_center;
 	   
 	   
-		 if(id_x_center > Cell[c_id].x[1]){
+		 if(id_x_center > Cell[cell_id].x[1]){
 			 Cell[c_id].right_count = 1;
 			}
 
-		 if(id_x_center < Cell[c_id].x[0]){
+		 if(id_x_center < Cell[cell_id].x[0]){
 			 Cell[c_id].left_count = 1; 
 			}
 
-		 if(id_y_center > Cell[c_id].y[2]){
+		 if(id_y_center > Cell[cell_id].y[2]){
 			 Cell[c_id].back_count = 1; 
 			}
 		
-		 if(id_y_center < Cell[c_id].y[0]){
+		 if(id_y_center < Cell[cell_id].y[0]){
 			 Cell[c_id].front_count = 1; 
 			}
 		
-		 if(id_z_center > Cell[c_id].z[4]){
+		 if(id_z_center > Cell[cell_id].z[4]){
 			 Cell[c_id].top_count = 1; 
 			}
 		
-		 if(id_z_center < Cell[c_id].z[0]){
+		 if(id_z_center < Cell[cell_id].z[0]){
 			 Cell[c_id].bottom_count = 1; 
 			}  
 		
-		 N_Particle[id].cell_out = Cell[c_id].right_count + Cell[c_id].left_count 
-								+  Cell[c_id].back_count + Cell[c_id].front_count  
-								+  Cell[c_id].bottom_count + Cell[c_id].top_count; 
+		 N_Particle[id].cell_out = Cell[cell_id].right_count + Cell[cell_id].left_count 
+								+  Cell[cell_id].back_count + Cell[cell_id].front_count  
+								+  Cell[cell_id].bottom_count + Cell[cell_id].top_count; 
 		
 		
 		
 		}	 
-
+		
+		
     void particles::Make_Cell_List(box* Box){
 		
 		 N_c = rint(pow(number_of_cells,1./3.));
@@ -67,43 +69,14 @@
 		    }
 		
 		
-		 //Write out Cell Positions
- 
-		 int M = Cell[0].edge_N +1;	
-		
-		 ofstream cell_xyz_out("Cell_Positions_0.xyz");
-		
-		 for(int k=0;k<number_of_cells;k++){
-		
-			 cell_xyz_out<<M<<endl;
-			 cell_xyz_out<<"Cell"<<k<<endl;
-			 cell_xyz_out<<k<<"     "<<Cell[k].x_center<<"     "<<Cell[k].y_center<<"     "<<Cell[k].z_center<<endl;
-			
-			 for(int j=0;j<Cell[k].edge_N;j++){
-				 cell_xyz_out<<k<<"       "<<Cell[k].x[j]<<"   "<<Cell[k].y[j]<<"   "<<Cell[k].z[j]<<endl;
-			    }   
-	  
-	        }
-		
-		 cell_xyz_out<<M<<endl;
-		 cell_xyz_out<<"Box"<<endl;
-		 cell_xyz_out<<number_of_cells<<"     "<<Box->x_center<<"     "<<Box->y_center<<"     "<<Box->z_center<<endl;
-			
-		 for(int j=0;j<Box->edge_N;j++){
-			 cell_xyz_out<<number_of_cells<<"       "<<Box->x[j]<<"   "<<Box->y[j]<<"   "<<Box->z[j]<<endl;
-			}   
-	   
-		 cell_xyz_out.close();
-	
-		
 		 // Link id of particle to id of cell
 		 for(int id =0; id<Box->N;id++){
 			
 			 Check_Periodic_CM(id, Box);
 			 
-			 Id_Cell_x = floor((N_Particle[id].x_center + N_Particle[id].cm_left_count*Box->Lx - N_Particle[id].cm_right_count*Box->Lx - Box->x[0])/double(Cell[0].Lx + 1e-14));
-			 Id_Cell_y = floor((N_Particle[id].y_center + N_Particle[id].cm_front_count*Box->Ly - N_Particle[id].cm_back_count*Box->Ly - Box->y[0])/double(Cell[0].Ly + 1e-14)); 
-			 Id_Cell_z = floor((N_Particle[id].z_center + N_Particle[id].cm_bottom_count*Box->Lz - N_Particle[id].cm_top_count*Box->Lz - Box->z[0])/double(Cell[0].Lz + 1e-14));
+			 Id_Cell_x = floor((N_Particle[id].x_center - Box->x[0])/double(Cell[0].Lx));
+			 Id_Cell_y = floor((N_Particle[id].y_center - Box->y[0])/double(Cell[0].Ly)); 
+			 Id_Cell_z = floor((N_Particle[id].z_center - Box->z[0])/double(Cell[0].Lz));
 			
 			 Id_Cell_List[id]  =  Id_Cell_x + Id_Cell_y*N_c + Id_Cell_z*N_c*N_c;
 			
@@ -150,7 +123,7 @@
 		 for(int c_id = 0; c_id<number_of_cells;c_id++){
            
 			 Cell[c_id].Cell_x = c_id%N_c; 
-			 Cell[c_id].Cell_y = (c_id%(N_c*N_c))/N_c;
+			 Cell[c_id].Cell_y = (c_id/N_c)%N_c;
 			 Cell[c_id].Cell_z = c_id/(N_c*N_c);
 		
 			 for( int n_x = 0; n_x<3;n_x++){
@@ -179,16 +152,20 @@
 	
 		 c_id = Id_Cell_List[id];
 		
+	     Id_Cell_List_old[id] = c_id;
+		
 		 //Test if particle is outside its cell
 		 Check_Periodic_CM(id, Box);
 		 Check_Cell(id, c_id,  Box);
+		 
 		
 		 if(N_Particle[id].cell_out >= 1){
 			
 			 // find cell id of new cell
-			 Cell_nx =  (Cell[c_id].Cell_x - Cell[c_id].left_count + Cell[c_id].right_count + N_c)% N_c;
-			 Cell_ny =  (Cell[c_id].Cell_y - Cell[c_id].front_count + Cell[c_id].back_count + N_c)% N_c;
-			 Cell_nz =  (Cell[c_id].Cell_z - Cell[c_id].bottom_count + Cell[c_id].top_count + N_c)% N_c;
+			 	 
+			 Cell_nx = floor((N_Particle[id].x_center - Box->x[0])/double(Cell[0].Lx));
+			 Cell_ny = floor((N_Particle[id].y_center - Box->y[0])/double(Cell[0].Ly)); 
+			 Cell_nz = floor((N_Particle[id].z_center - Box->z[0])/double(Cell[0].Lz));
 				  
 				  
 			 n_id = Cell_nx + Cell_ny*N_c + Cell_nz*N_c*N_c;  
@@ -283,24 +260,7 @@
 	
 	void particles::Reset_Cell_List(box* Box){
 		 
-		 //Cell coordinates
-		 for(int id = 0; id<number_of_cells; id++){
-				
-			 Cell[id].x_center = Cell_old[id].x_center;
-			 Cell[id].y_center = Cell_old[id].y_center;
-			 Cell[id].z_center = Cell_old[id].z_center;
-				
-			 for(int j=0;j<Cell[id].edge_N;j++){
-					
-				 Cell[id].x[j] = Cell_old[id].x[j];
-				 Cell[id].y[j] = Cell_old[id].y[j];
-				 Cell[id].z[j] = Cell_old[id].z[j];
-					
-				}	
-				
-			
-			}
-			
+		
 	     // Link id of particle to id of cell
 		 for(int id =0; id<Box->N;id++){
 			 Id_Cell_List[id]  =  Id_Cell_List_old[id];	
@@ -320,13 +280,17 @@
 		 		
 			if(N_Particle[id].cell_out>=1){
 				
+				 n_id = Id_Cell_List[id];
+				 c_id = Id_Cell_List_old[id];
+				
+				
 				 cell_counter = Cell_List[n_id][0];
 				 Cell_List[n_id][cell_counter] = -100;	
 					
 				 Cell_List[c_id][0] = Cell_List_old[c_id][0];
 				 Cell_List[n_id][0] = Cell_List_old[n_id][0];
 				
-				 Id_Cell_List[id]  =  c_id;
+				 Id_Cell_List[id]  =  Id_Cell_List_old[id];
 				
 				 for(int i = id_num;i<MAX_cell_members;i++){
 					 Cell_List[c_id][i] = Cell_List_old[c_id][i];
@@ -451,7 +415,7 @@
 		 //reset Collision_List
 		 double Cut_Off_Squared;
 		 
-		 Cut_Off_Squared = Cut_Off*Cut_Off + 0.1;
+		 Cut_Off_Squared = Cut_Off*Cut_Off;
 		 //cout<<"Cut_Off_Squared: "<<Cut_Off_Squared<<endl;
 		 	
 		 for(int i=0;i<MAX_coll_p;i++){

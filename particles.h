@@ -163,7 +163,7 @@ void Check_Periodic_CM(int id, box* Box);
 
 void Make_Cell_List(box* Box);
 void Update_Cell_List(int id, box* Box);
-void Check_Cell(int id, int &c_id, box* Box);
+void Check_Cell(int id, int cell_id, box* Box);
 void Make_Cell_Neighbour_List();
 
 //void Calculate_Collision_Partners(int id, box* Box);

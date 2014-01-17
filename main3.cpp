@@ -70,6 +70,40 @@ int main(int argc, char * argv[]){
 			
 	    }
 	    
+	    if(strcmp(runtype, former_runtype)==0){
+
+			//initialize former box
+			Fileio.Read_Box(Box, checkpoint_time);
+			Box->Startconfig_former(Fileio.N_in, Fileio.P_sigma_in);
+			Box->edges_from_center();
+			
+			//random state initialize
+			Fileio.Read_Random_State(r,r01, checkpoint_time);
+			
+			//gsl_rng_set(r01,Fileio.seed1_in);
+			//gsl_rng_set(r, Fileio.seed2_in);
+
+			// initialize former positions
+			Particles.Startconfig(Box);
+			Fileio.Read_Positions(Box, Particles, checkpoint_time);
+			Fileio.Read_Orientations(Box, Particles, checkpoint_time);
+			
+			
+			
+			Particles.Set_former_Config(Box);
+			
+			Particles.Make_Cell_List(Box);
+			Particles.Set_Cell_List(Box);
+			Particles.Make_Cell_Neighbour_List(); 
+			
+		
+	    
+	    }
+	    
+	    
+	    
+	    
+	    
 	    int time;
 	    
 	    time = start_time;
@@ -97,7 +131,7 @@ int main(int argc, char * argv[]){
 		do{  
 			
 			time = time + 1;
-			cout<<"time:"<<time<<endl;
+			
 			
 			MC_cycle_time = Move.mt_sum;
 			
@@ -119,9 +153,16 @@ int main(int argc, char * argv[]){
 				
 			}
 			
+			if(time%calc_frequency==0){
+			  
+				Move.Calculate_Acceptances(time);
+			    Fileio.Write_Acceptances(time, Move.accept_translate_procent, Move.accept_rotate_procent, Move.accept_iso_vol_procent, Move.accept_complete_procent);
+				Fileio.Write_NPT(time, Box);
+				
+		    }
 		
 			if((time%checkpoint_frequency==0)||(time == start_time +1 )){
-				
+				cout<<"time:"<<time<<endl;
 				Fileio.Save_Config(Box, Particles, Move.r, Move.r01, Move.dmax_t, Move.dmax_alpha, Move.dmax_beta, Move.dmax_gamma, Move.dmax_V, Move.dmax_L, time); 
 				N_check_points = N_check_points + 1;
 				

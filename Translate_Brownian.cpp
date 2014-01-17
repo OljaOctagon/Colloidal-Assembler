@@ -18,12 +18,14 @@
 		 // is center of mass outside of the box?
 		Particles.Check_Periodic_CM(id, Box);
 
+		Update_Periodic_Positions(Particles, Box, id);	
+
+
 		Particles.N_Particle[id].Calculate_Axis();
+
 
 		Particles.Update_Cell_List(id, Box);
 		
-		 
-		Update_Periodic_Positions(Particles, Box, id);
 				
 		Particles.Collision_List[id].Calculate(Box, id, Particles.Id_Cell_List, Particles.Cell_List, Particles.Cell, Particles.N_Particle, Particles.N_Particle[0].cut_off, Particles.MAX_coll_p);	
 		

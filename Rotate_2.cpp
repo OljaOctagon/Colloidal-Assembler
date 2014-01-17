@@ -29,6 +29,10 @@
 		 Rot_Update_Positions(Particles, id, Rot_mat);
 		 //Which edges are outside the box	
 		 Particles.Check_Periodic_CM(id, Box);
+		 
+		 // is particle center outside the box?
+		 Update_Periodic_Positions(Particles, Box, id);
+		 
 		  	
 		 //update axis 
 	     Particles.N_Particle[id].Calculate_Axis();
@@ -36,8 +40,7 @@
 		 //update cell list
 		 Particles.Update_Cell_List(id, Box);	
 		 
-		  // is particle center outside the box?
-		 Update_Periodic_Positions(Particles, Box, id);
+		 
 		 
 		 	
 		//TEST 
