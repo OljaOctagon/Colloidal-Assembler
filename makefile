@@ -20,8 +20,8 @@ LIBS=-lm -lstdc++ -lgsl -lgslcblas
 
 all: McPoly
 
-McPoly:  polyhedra.o cube.o octahedron.o cuboid.o particles.o move.o Translate_Brownian.o Rotate_2.o box.o fileio.o cell_list.o cell.o main3.o order_parameter_2.o cluster_1.o Vol_move.o alg_struct.o Collision_Test.o tis_window.o
-	$(CC) $(CFLAGS) polyhedra.o cube.o octahedron.o particles.o cuboid.o move.o Translate_Brownian.o Rotate_2.o box.o fileio.o cell_list.o cell.o main3.o order_parameter_2.o cluster_1.o Vol_move.o alg_struct.o Collision_Test.o tis_window.o $(INCLUDES) $(LDFLAGS) $(LIBS) -o McPoly 
+McPoly:  polyhedra.o cube.o octahedron.o cuboid.o truncated_cube.o particles.o move.o Translate_Brownian.o Rotate_2.o box.o fileio.o cell_list.o cell.o main3.o order_parameter_2.o cluster_1.o Vol_move.o alg_struct.o Collision_Test.o tis_window.o
+	$(CC) $(CFLAGS) polyhedra.o cube.o octahedron.o particles.o cuboid.o truncated_cube.o move.o Translate_Brownian.o Rotate_2.o box.o fileio.o cell_list.o cell.o main3.o order_parameter_2.o cluster_1.o Vol_move.o alg_struct.o Collision_Test.o tis_window.o $(INCLUDES) $(LDFLAGS) $(LIBS) -o McPoly 
 
 cube.o: cube.cpp
 	$(CC) $(CFLAGS) -c cube.cpp  
@@ -80,6 +80,10 @@ tis_window.o: tis_window.cpp
 
 octahedron.o: octahedron.cpp
 	$(CC) $(CFLAGS) -c octahedron.cpp
+
+truncated_cube.o: truncated_cube.cpp
+	$(CC) $(CFLAGS) -c truncated_cube.cpp
+
 
 clean:
 	rm -rf *o McPoly
