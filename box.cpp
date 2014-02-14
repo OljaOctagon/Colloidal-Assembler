@@ -66,8 +66,8 @@ void box::Startconfig(int N_in, double P_sigma_in, double packing_fraction_in, d
       //V_p = 1.0;
       
       T = 1.0;
-      P = P_sigma/(3.*sqrt(3.)/8.);
-      
+      //P = P_sigma/(3.*sqrt(3.)/8.);
+      P=P_sigma;
       //V = double(N)*V_p/packing_fraction;
       
 	  V = double(N)*V_p/packing_fraction;

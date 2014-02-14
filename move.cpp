@@ -51,7 +51,7 @@
 		dmax_V = delta_Vmax;
 		kappa= delta_rmax; 
 			
-		cout<<"kappa"<<endl;	
+		cout<<"kappa"<<kappa<<endl;	
 			
 		Unity[0] = 1.0;
 		Unity[1] = 0.0;

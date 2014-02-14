@@ -76,7 +76,8 @@
 				
 				}
 			  
-				Box->packing_fraction = Particles.N_Particle[0].V*double(Box->N)/Box->V;
+				Box->packing_fraction = (Particles.N_Particle[0].V*double(Box->N))/Box->V;
+				//cout<<"Particle V: "<<Particles.N_Particle[0].V<<endl;
 					
 					
 				for(int id=0;id<Box->N;id++){  
@@ -247,7 +248,7 @@
 					}
 							
 				    accept_iso_vol = accept_iso_vol +1;
-			        Box->packing_fraction = Particles.N_Particle[0].V*double(Box->N)/Box->V;
+			        Box->packing_fraction = (Particles.N_Particle[0].V*double(Box->N))/Box->V;
 			        Particles.Set_Cell_List(Box);
 			        
 			        

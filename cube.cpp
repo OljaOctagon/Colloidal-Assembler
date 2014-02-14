@@ -7,6 +7,8 @@
  
 		 edge_N = 8; 
 		 N_independent_faces=3;
+		 N_cross_edges = 3;
+		 edge_N_vec = 3;
  
 		 x = new double[edge_N];
 		 y = new double[edge_N];
@@ -20,10 +22,8 @@
 		 new_dist_y = new double[edge_N];
 		 new_dist_z = new double[edge_N];
 		 
-		 
+		 edges= new m_vector[edge_N_vec];
 		 facenormal = new m_vector[N_independent_faces];
-		 
-		 //trans_init = new double[3];
 		 
 		 edge_out = new int[edge_N];
 		 
@@ -200,15 +200,52 @@
 		facenormal[0].z = ax_1.z;
 		
 		facenormal[1].x = ax_2.x;
-		facenormal[1].y = ax_2.x;
-		facenormal[1].z = ax_2.x;
+		facenormal[1].y = ax_2.y;
+		facenormal[1].z = ax_2.z;
 		
 		facenormal[2].x = ax_3.x;
-		facenormal[2].y = ax_3.x;
-		facenormal[2].z = ax_3.x;
+		facenormal[2].y = ax_3.y;
+		facenormal[2].z = ax_3.z;
+		
+		
+		edges[0].x = ax_1.x;
+		edges[0].y = ax_1.y;
+		edges[0].z = ax_1.z;
+		
+		edges[1].x = ax_2.x;
+		edges[1].y = ax_2.y;
+		edges[1].z = ax_2.z;
+		
+		edges[2].x = ax_3.x;
+		edges[2].y = ax_3.y;
+		edges[2].z = ax_3.z;
+		
+		
 		
 	
     }		
+
+
+
+
+	double cube::Calculate_Projection_to_Separating_Axis(m_vector laxis){
+		
+		double Rp;
+	
+		
+		Rp = (fabs(ax_1.x*laxis.x + ax_1.y*laxis.y + ax_1.z*laxis.z) + 
+			  fabs(ax_2.x*laxis.x + ax_2.y*laxis.y + ax_2.z*laxis.z) + 
+			  fabs(ax_3.x*laxis.x + ax_3.y*laxis.y + ax_3.z*laxis.z) )*(Lx/2.0);
+		
+	
+		
+		return Rp;
+		
+		
+	}	
+		
+		
+		
 
 
 

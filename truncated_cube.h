@@ -1,5 +1,5 @@
-# ifndef _octahedron_h_included_
-# define _octahedron_h_included_
+# ifndef _truncated_cube_h_included_
+# define _truncated_cube_h_included_
 
 
 
@@ -18,21 +18,22 @@ using namespace std;
 
 
 
-class octahedron : public polyhedra
+class truncated_cube : public polyhedra
 { 
 
 
 public:  
 
-octahedron();
-~ octahedron();
+truncated_cube();
+~ truncated_cube();
 
 
 double Lx;
-
+double edge_R;
 double V;
 int  edge_N_vec;
-double height;
+
+double lx,ly,lz;
 
 int N_independent_faces;
 int N_cross_edges;

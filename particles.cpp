@@ -30,8 +30,13 @@
 		 //N_Particle_old = new cube[size];
 		 
 		 
-		 N_Particle = new octahedron[size];
-		 N_Particle_old = new octahedron[size];
+		 //N_Particle = new octahedron[size];
+		 //N_Particle_old = new octahedron[size];
+		 
+		 N_Particle = new truncated_cube[size];
+		 N_Particle_old = new truncated_cube[size];
+		 
+		 
 		 
 		
 		 Cell = new cell[number_of_cells];
@@ -55,9 +60,10 @@
 		    N_Particle[id].Set_Lengths();
 		    N_Particle_old[id].Set_Lengths();
 		    
-		    
+		    cout<<"N_Particle[0].V: "<<N_Particle[0].V<<endl;
+		    cout<<"N_Particle[0].Lx: "<<N_Particle[0].Lx<<endl;
+		    cout<<"N_Particle[0].cut_off: "<<N_Particle[0].cut_off<<endl;
 			
-		    //V_p= N_Particle[id].Lx*N_Particle[id].Lx*N_Particle[id].Lx
 			
 		}	
 			

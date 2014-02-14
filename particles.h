@@ -17,6 +17,7 @@ using namespace std;
 
 # include "cube.h"
 # include "octahedron.h"
+# include "truncated_cube.h"
 
 //# include "cuboid.h"
 # include "box.h"
@@ -70,8 +71,12 @@ double LXC;
 
 
 void Calculate(box* Box, int id, int* Id_Cell_List, int** Cell_List, cell* Cell, octahedron* N_Particle, double Cut_Off, int MAX_coll_p);
+void Calculate(box* Box, int id, int* Id_Cell_List, int** Cell_List, cell* Cell, cube* N_Particle, double Cut_Off, int MAX_coll_p);
+
+
 void Calculate_Neighbours(double Cut_Off);
 void Calculate_Neighbours_Cubic(double Cut_Off, octahedron* N_particle, int id);
+void Calculate_Neighbours_Cubic(double Cut_Off, cube* N_particle, int id);
 
 
 	
@@ -79,8 +84,10 @@ void Calculate_Neighbours_Cubic(double Cut_Off, octahedron* N_particle, int id);
 
 
 
+class particles: public truncated_cube {
+//class particles : public octahedron  {
+//class particles: public cube {
 
-class particles : public octahedron {
 
   
 public:  
@@ -88,8 +95,15 @@ particles();
 particles(int number_of_cells_in, int size, int MAX_coll_p_in, int MAX_fshell_in);
 ~particles();
 
-octahedron* N_Particle;
-octahedron* N_Particle_old;
+//octahedron* N_Particle;
+//octahedron* N_Particle_old;
+
+//cube* N_Particle;
+//cube* N_Particle_old;
+
+
+truncated_cube* N_Particle;
+truncated_cube* N_Particle_old;
 
 collision_list* Collision_List;
 

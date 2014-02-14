@@ -415,6 +415,9 @@
 		 //reset Collision_List
 		 double Cut_Off_Squared;
 		 
+		 
+		
+		 
 		 Cut_Off_Squared = Cut_Off*Cut_Off;
 		 //cout<<"Cut_Off_Squared: "<<Cut_Off_Squared<<endl;
 		 	
@@ -484,4 +487,137 @@
 		
 	    }	
 	
+void collision_list::Calculate_Neighbours_Cubic(double Cut_Off, cube* N_Particle, int id){
+		
+		NNm = 0;
+		
+		
+		Cutoff_box.Lx=Cut_Off;
+		
+		
+		//Calculate eges for Cutoff_box
+			
+		Cutoff_box.x_center = N_Particle[id].x_center;
+		Cutoff_box.y_center = N_Particle[id].y_center;
+		Cutoff_box.z_center = N_Particle[id].z_center;
+		
+		Scaleing = Cutoff_box.Lx/N_Particle[id].Lx;
 	
+		for(int i=0;i<=N_Particle[id].edge_N;i++){
+			Cutoff_box.x[i] = (N_Particle[id].x[i] - N_Particle[id].x_center)*Scaleing;
+		}
+		
+	
+		//Calculate Axis of particle id
+		N_Particle[id].Calculate_Axis();
+			
+		for (int i=0;i<Nm;i++){
+			
+			Elements[i].is_neighbour=0;			 
+		
+			nbd.x = Elements[i].distance.x; 
+			nbd.y = Elements[i].distance.y; 
+			nbd.z = Elements[i].distance.z; 
+						
+			//calculate distance.x, distance.y, distance.z in body centered coordinate system of particle id	
+			NC.x = N_Particle[id].ax_1.x*nbd.x + N_Particle[id].ax_2.x*nbd.y + N_Particle[id].ax_3.x*nbd.z;
+			NC.y = N_Particle[id].ax_1.y*nbd.x + N_Particle[id].ax_2.y*nbd.y + N_Particle[id].ax_3.y*nbd.z;
+			NC.z = N_Particle[id].ax_1.z*nbd.x + N_Particle[id].ax_2.z*nbd.y + N_Particle[id].ax_3.z*nbd.z;
+			
+			
+			LXC= Cutoff_box.Lx;
+			
+			if((fabs(NC.x)<=LXC)&&(fabs(NC.y)<=LXC)&&(fabs(NC.z)<=LXC)){
+				Elements[i].is_neighbour=1; 
+				NNm = NNm +1;   
+			
+			}
+			
+		}	 	
+		 	
+		
+	}	
+
+	
+
+	void collision_list::Calculate(box* Box, int id, int* Id_Cell_List, int** Cell_List, cell* Cell, cube* N_Particle, double Cut_Off, int MAX_coll_p){
+	
+		 n_id = Id_Cell_List[id];	
+		 //cout<<"n_id "<<n_id<<endl;
+		 //reset Collision_List
+		 double Cut_Off_Squared;
+		 
+		 
+		
+		 
+		 Cut_Off_Squared = Cut_Off*Cut_Off;
+		 cout<<"Cut_Off_Squared: "<<Cut_Off_Squared<<endl;
+		 	
+		 for(int i=0;i<MAX_coll_p;i++){
+			 Elements[i].nl_id = -100;	
+			}
+				
+		 Nm = 0;
+	     coll_member_counter = 0;
+		
+		
+		
+		 for( int n_x = 0; n_x<3;n_x++){
+			 for(int n_y = 0; n_y<3; n_y++){
+				 for(int n_z = 0; n_z<3; n_z++){
+					
+					 //cout<<"Cell[n_id].Neighbour[n_x][n_y][n_z]: "<<Cell[n_id].Neighbour[n_x][n_y][n_z]<<endl; 	
+					 p_id = Cell[n_id].Neighbour[n_x][n_y][n_z]; 	
+					
+					
+								
+					 for(int j=1;j<=Cell_List[p_id][0];j++){
+							
+							//cout<<"Cell_List["<<p_id<<"][0]"<<Cell_List[p_id][0]<<endl;
+							
+									
+					     cell_j = Cell_List[p_id][j];	
+								
+												 	
+						 	//for(int cell_j=0; cell_j<Box->N;cell_j++){
+						 	
+							 particle_dist_x =  N_Particle[id].x_center - N_Particle[cell_j].x_center;
+							 particle_dist_y =  N_Particle[id].y_center - N_Particle[cell_j].y_center;
+							 particle_dist_z =  N_Particle[id].z_center - N_Particle[cell_j].z_center;
+								
+							 particle_dist_x =  particle_dist_x - Box->Lx*rint( particle_dist_x/Box->Lx );
+							 particle_dist_y =  particle_dist_y - Box->Ly*rint( particle_dist_y/Box->Ly );
+							 particle_dist_z =  particle_dist_z - Box->Lz*rint( particle_dist_z/Box->Lz );
+									
+							 particle_dist_squared = particle_dist_x*particle_dist_x + particle_dist_y*particle_dist_y + particle_dist_z*particle_dist_z;
+									
+							 if(particle_dist_squared<=(Cut_Off_Squared)){
+						
+								 Elements[coll_member_counter].nl_id = cell_j;
+								 Elements[coll_member_counter].distance.x = particle_dist_x;
+								 Elements[coll_member_counter].distance.y = particle_dist_y;
+								 Elements[coll_member_counter].distance.z = particle_dist_z;
+								 Elements[coll_member_counter].distance_norm = Elements[coll_member_counter].distance.norm();
+								 //cout<<"Elements[coll_member_counter].distance.norm() "<<Elements[coll_member_counter].distance.norm()<<endl;
+											
+								 coll_member_counter = coll_member_counter+1;
+								
+					            }	
+					            
+					            
+					        //}    
+
+						}   
+
+					    
+					}
+				}	
+			}			
+	
+		 Nm = coll_member_counter;
+	
+		
+		
+	    }	
+		
+

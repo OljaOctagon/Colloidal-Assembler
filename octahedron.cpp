@@ -172,15 +172,17 @@
 	void octahedron::Set_Lengths(){		
 			
 	    //Lx = 1.0;
-		Lx = 2.0/sqrt(2.0);
-		
-	    //height = (sqrt(3.0)/2.)*Lx;
-	    height = (1./sqrt(2))*Lx;
+		Lx = sqrt(2.0);
+		height = 1.0;
 	    
 	    
 		cut_off = 2.0*height;
+		
 		cut_off_squared = cut_off*cut_off;
-		V = (sqrt(2.0)/3.0)*Lx*Lx*Lx;
+		//V = (sqrt(2.0)/3.0)*Lx*Lx*Lx;
+		V=4.0/3.0;
+		
+		
 		
 	}
 
@@ -216,41 +218,7 @@
 		
 		
 	}
-	/*
-	void octahedron::Set_Start_Lattice_Position(int id, double box_Lx, int N_box){
-		
-		//for cubic lattice
-		
-		int N_sitesp1, N_sitesp2, N_sitesp3;
-		double N_sitesp1_float, N_sitesp2_float, N_sitesp3_float;
-		double l_distp;
-		
-		double box_Ly, box_Lz;
-		box_Ly = box_Lx;
-		
-		cout<<"box_L"<<box_Lx<<endl;
-		N_sitesp1 = floor(box_Lx/Lx);
-		N_sitesp2 = floor(box_Ly/Lx);
-		
-		
-		cout<<"Box_Lx:<< "<<box_Lx<<endl;
-		cout<<"N_sitesp1: "<<N_sitesp1<<endl;
-		cout<<"N_sitesp2: "<<N_sitesp2<<endl;
-		
-		
-		x_center = Lx/2.0 + double(id%N_sitesp1)*Lx;
-		y_center = Lx/2.0 + double((id/N_sitesp1)%N_sitesp2)*Lx;
-		z_center = height + double(id/int(N_sitesp1*N_sitesp2))*2*height;
-		
-		cout<<id<<" x_center: "<<x_center<<" y_center: "<<y_center<<" z_enter"<<z_center<<endl;		
-		
-		
-			
-		edges_from_center();
-		
-		
-	}
-	*/
+	
 	
 
 	void octahedron::Calculate_Face_Normals(){
@@ -354,13 +322,12 @@
 	double octahedron::Calculate_Projection_to_Separating_Axis(m_vector laxis){
 		
 		double Rp;
-		
-		m_vector ax_1;
-		m_vector ax_2;
-		m_vector ax_3;
+		double rmax;
+		double rmin;
+		double scp_oc;
 		
 		double norm_ax;
-		
+		/*
 		ax_1.x = edges[0].x;
 		ax_1.y = edges[0].y;
 		ax_1.z = edges[0].z;
@@ -391,13 +358,36 @@
 		ax_3.x = ax_3.x/norm_ax;
 		ax_3.y = ax_3.y/norm_ax;
 		ax_3.z = ax_3.z/norm_ax;
+		*/	
+	    
+	    
+	    distance_from_center();
+	    
+	    rmin=  dist_x[0]*laxis.x + dist_y[0]*laxis.y + dist_z[0]*laxis.z;
+		rmax= rmin;
+ 
+		for (int j=1;j<edge_N;j++){
+			
+			scp_oc = dist_x[j]*laxis.x + dist_y[j]*laxis.y + dist_z[j]*laxis.z;
+			
+			if (scp_oc < rmin) {
+				rmin = scp_oc;
+			} 
+			else if (scp_oc > rmax) {
+				rmax = scp_oc;
+			}
+			
+			
+		}	
+		
+	    Rp = fabs((rmax-rmin)/2.0);
 			
 		
-		Rp = (fabs(ax_1.x*laxis.x + ax_1.y*laxis.y + ax_1.z*laxis.z) + fabs(ax_2.x*laxis.x + ax_2.y*laxis.y + ax_2.z*laxis.z))*(Lx/2.0) 
-							+ fabs(ax_3.x*laxis.x + ax_3.y*laxis.y + ax_3.z*laxis.z)*height;
+		//Rp = (fabs(ax_1.x*laxis.x + ax_1.y*laxis.y + ax_1.z*laxis.z) + fabs(ax_2.x*laxis.x + ax_2.y*laxis.y + ax_2.z*laxis.z))*(Lx/2.0) 
+		//					+ fabs(ax_3.x*laxis.x + ax_3.y*laxis.y + ax_3.z*laxis.z)*(height/2.0);
 		
 		
-		
+	
 		
 		return Rp;
 		
