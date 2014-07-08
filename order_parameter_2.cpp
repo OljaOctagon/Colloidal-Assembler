@@ -46,8 +46,8 @@ order_parameter::order_parameter(box* Box, particles& Particles, int MAX_coll_p_
 		
 	
 		// set variables for g_radial
-		r_start = Particles.N_Particle[0].Lx;
-		r_stop  = Particles.N_Particle[0].Lx*max_r;
+		r_start = Particles.N_Particle[0]->Lx;
+		r_stop  = Particles.N_Particle[0]->Lx*max_r;
 		
 		
 		N_histo_points = int( ((r_stop - r_start)/(delta_r))); 
@@ -95,11 +95,11 @@ order_parameter::order_parameter(box* Box, particles& Particles, int MAX_coll_p_
 	void order_parameter::Calculate_Local_Order_Parameters(particles& Particles, cube* N_Particle, box* Box){
 	
 		
-			
 			for( int id=0;id<Box->N; id++){
-				Particles.Collision_List[id].Calculate(Box, id, Particles.Id_Cell_List, Particles.Cell_List, Particles.Cell, Particles.N_Particle, cutoff_coll_list, Particles.MAX_coll_p);	
+				Particles.Collision_List[id].Calculate_OP(Box, id, Particles.N_Particle, cutoff_coll_list, Particles.MAX_coll_p);	
+				
+				
 			}	
-			
 			
 			
 			for( int id=0;id<Box->N; id++){
@@ -591,7 +591,7 @@ void order_param::g_xyz(){
 		
 		
 		for( int id =0; id<Box->N;id++ ){
-			Particles.N_Particle[id].Calculate_Axis();	
+			Particles.N_Particle[id]->Calculate_Axis();	
 		}
 
 
@@ -599,17 +599,17 @@ void order_param::g_xyz(){
 			
 			cubic_op3_av[id] = 0.0;
 			
-			a1x = Particles.N_Particle[id].ax_1.x;
-			a1y = Particles.N_Particle[id].ax_1.y;
-			a1z = Particles.N_Particle[id].ax_1.z;
+			a1x = Particles.N_Particle[id]->ax_1.x;
+			a1y = Particles.N_Particle[id]->ax_1.y;
+			a1z = Particles.N_Particle[id]->ax_1.z;
 					
-			a2x = Particles.N_Particle[id].ax_2.x;
-			a2y = Particles.N_Particle[id].ax_2.y;
-			a2z = Particles.N_Particle[id].ax_2.z;
+			a2x = Particles.N_Particle[id]->ax_2.x;
+			a2y = Particles.N_Particle[id]->ax_2.y;
+			a2z = Particles.N_Particle[id]->ax_2.z;
 					
-			a3x = Particles.N_Particle[id].ax_3.x;
-			a3y = Particles.N_Particle[id].ax_3.y;
-			a3z = Particles.N_Particle[id].ax_3.z;
+			a3x = Particles.N_Particle[id]->ax_3.x;
+			a3y = Particles.N_Particle[id]->ax_3.y;
+			a3z = Particles.N_Particle[id]->ax_3.z;
 			
 			N_obonds[id] = 0;
 			
@@ -624,17 +624,17 @@ void order_param::g_xyz(){
 
 					list_j = Particles.Collision_List[id].Elements[j].nl_id;	
 					
-					b1x = Particles.N_Particle[list_j].ax_1.x;
-					b1y = Particles.N_Particle[list_j].ax_1.y;
-					b1z = Particles.N_Particle[list_j].ax_1.z;
+					b1x = Particles.N_Particle[list_j]->ax_1.x;
+					b1y = Particles.N_Particle[list_j]->ax_1.y;
+					b1z = Particles.N_Particle[list_j]->ax_1.z;
 							
-					b2x = Particles.N_Particle[list_j].ax_2.x;
-					b2y = Particles.N_Particle[list_j].ax_2.y;
-					b2z = Particles.N_Particle[list_j].ax_2.z;
+					b2x = Particles.N_Particle[list_j]->ax_2.x;
+					b2y = Particles.N_Particle[list_j]->ax_2.y;
+					b2z = Particles.N_Particle[list_j]->ax_2.z;
 							
-					b3x = Particles.N_Particle[list_j].ax_3.x;
-					b3y = Particles.N_Particle[list_j].ax_3.y;
-					b3z = Particles.N_Particle[list_j].ax_3.z;
+					b3x = Particles.N_Particle[list_j]->ax_3.x;
+					b3y = Particles.N_Particle[list_j]->ax_3.y;
+					b3z = Particles.N_Particle[list_j]->ax_3.z;
 					
 					scp[0] = a1x*b1x + a1y*b1y + a1z*b1z;
 					scp[1] = a1x*b2x + a1y*b2y + a1z*b2z;
@@ -700,9 +700,9 @@ void order_param::g_xyz(){
 		
 		for(int i=0;i<8;i++){
 		
-			diff_vec[i].x = Particles.N_Particle[id].x[i] - b.x;
-			diff_vec[i].y = Particles.N_Particle[id].y[i] - b.y;
-			diff_vec[i].z = Particles.N_Particle[id].z[i] - b.z;
+			diff_vec[i].x = Particles.N_Particle[id]->x[i] - b.x;
+			diff_vec[i].y = Particles.N_Particle[id]->y[i] - b.y;
+			diff_vec[i].z = Particles.N_Particle[id]->z[i] - b.z;
 		
 			diff_Nv[i] = diff_vec[i].norm();
 				
@@ -767,7 +767,7 @@ void order_param::g_xyz(){
 		
 		
 		for( int id =0; id<Np;id++ ){
-			Particles.N_Particle[id].Calculate_Axis();	
+			Particles.N_Particle[id]->Calculate_Axis();	
 		}
 
 
@@ -775,17 +775,17 @@ void order_param::g_xyz(){
 			
 			cubic_op4_av[id] = 0.0;
 			
-			a1.x = Particles.N_Particle[id].ax_1.x;
-			a1.y = Particles.N_Particle[id].ax_1.y;
-			a1.z = Particles.N_Particle[id].ax_1.z;
+			a1.x = Particles.N_Particle[id]->ax_1.x;
+			a1.y = Particles.N_Particle[id]->ax_1.y;
+			a1.z = Particles.N_Particle[id]->ax_1.z;
 					
-			b1.x = Particles.N_Particle[id].ax_2.x;
-			b1.y = Particles.N_Particle[id].ax_2.y;
-			b1.z = Particles.N_Particle[id].ax_2.z;
+			b1.x = Particles.N_Particle[id]->ax_2.x;
+			b1.y = Particles.N_Particle[id]->ax_2.y;
+			b1.z = Particles.N_Particle[id]->ax_2.z;
 					
-			c1.x = Particles.N_Particle[id].ax_3.x;
-			c1.y = Particles.N_Particle[id].ax_3.y;
-			c1.z = Particles.N_Particle[id].ax_3.z;
+			c1.x = Particles.N_Particle[id]->ax_3.x;
+			c1.y = Particles.N_Particle[id]->ax_3.y;
+			c1.z = Particles.N_Particle[id]->ax_3.z;
 			
 			N_obonds_cubic_4[id] = 0;
 			
@@ -814,9 +814,9 @@ void order_param::g_xyz(){
 					c2.z = Particles.N_Particle[list_j].ax_3.z;
 					
 					
-					d.x = Particles.N_Particle[list_j].x_center - Particles.N_Particle[id].x_center;
-                    d.y = Particles.N_Particle[list_j].y_center - Particles.N_Particle[id].y_center;
-                    d.z = Particles.N_Particle[list_j].z_center - Particles.N_Particle[id].z_center;
+					d.x = Particles.N_Particle[list_j].x_center - Particles.N_Particle[id]->x_center;
+                    d.y = Particles.N_Particle[list_j].y_center - Particles.N_Particle[id]->y_center;
+                    d.z = Particles.N_Particle[list_j].z_center - Particles.N_Particle[id]->z_center;
                     
                     d.x = d.x -  Box.Lx*rint(d.x/Box.Lx);
                     d.y = d.y -  Box.Ly*rint(d.y/Box.Ly);
@@ -1033,16 +1033,16 @@ void order_param::g_xyz(){
 						
 					num_r1 = r_start;	
 					
-					Particles.N_Particle[id].Calculate_Axis();
+					Particles.N_Particle[id]->Calculate_Axis();
 						
 					nbd.x = Particles.Collision_List[id].Elements[j].distance.x; 
 					nbd.y = Particles.Collision_List[id].Elements[j].distance.y; 
 					nbd.z = Particles.Collision_List[id].Elements[j].distance.z; 
 						
 					//calculate distance.x, distance.y, distance.z in body centered coordinate system of particle id	
-					newcoord_distance.x = Particles.N_Particle[id].ax_1.x*nbd.x + Particles.N_Particle[id].ax_2.x*nbd.y + Particles.N_Particle[id].ax_3.x*nbd.z;
-					newcoord_distance.y = Particles.N_Particle[id].ax_1.y*nbd.x + Particles.N_Particle[id].ax_2.y*nbd.y + Particles.N_Particle[id].ax_3.y*nbd.z;
-					newcoord_distance.z = Particles.N_Particle[id].ax_1.z*nbd.x + Particles.N_Particle[id].ax_2.z*nbd.y + Particles.N_Particle[id].ax_3.z*nbd.z;
+					newcoord_distance.x = Particles.N_Particle[id]->ax_1.x*nbd.x + Particles.N_Particle[id]->ax_2.x*nbd.y + Particles.N_Particle[id]->ax_3.x*nbd.z;
+					newcoord_distance.y = Particles.N_Particle[id]->ax_1.y*nbd.x + Particles.N_Particle[id]->ax_2.y*nbd.y + Particles.N_Particle[id]->ax_3.y*nbd.z;
+					newcoord_distance.z = Particles.N_Particle[id]->ax_1.z*nbd.x + Particles.N_Particle[id]->ax_2.z*nbd.y + Particles.N_Particle[id]->ax_3.z*nbd.z;
 						
 					rv_dist.x = fabs(newcoord_distance.x);
 					rv_dist.y = fabs(newcoord_distance.y);

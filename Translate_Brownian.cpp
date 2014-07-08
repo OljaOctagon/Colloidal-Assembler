@@ -21,13 +21,13 @@
 		Update_Periodic_Positions(Particles, Box, id);	
 
 
-		Particles.N_Particle[id].Calculate_Axis();
+		Particles.N_Particle[id]->Calculate_Axis();
 
 
 		Particles.Update_Cell_List(id, Box);
 		
 				
-		Particles.Collision_List[id].Calculate(Box, id, Particles.Id_Cell_List, Particles.Cell_List, Particles.Cell, Particles.N_Particle, Particles.N_Particle[0].cut_off, Particles.MAX_coll_p);	
+		Particles.Collision_List[id].Calculate(Box, id, Particles.Id_Cell_List, Particles.Cell_List, Particles.Cell, Particles.N_Particle, Particles.N_Particle[0]->cut_off, Particles.MAX_coll_p);	
 		
 		//TEST 
 		/*
@@ -62,7 +62,7 @@
 	
 			 Reset_Positions(Particles, id);
 			 
-			 Particles.N_Particle[id].Calculate_Axis();
+			 Particles.N_Particle[id]->Calculate_Axis();
 			 
 			 Particles.Reset_Cell_List(Box, id, Particles.c_id, Particles.n_id, Particles.id_num);
 			
@@ -81,9 +81,9 @@
 
 	
 
-		 Particles.N_Particle[id].trans_periodic[0] = 0.0;
-		 Particles.N_Particle[id].trans_periodic[1] = 0.0;
-		 Particles.N_Particle[id].trans_periodic[2] = 0.0;
+		 Particles.N_Particle[id]->trans_periodic[0] = 0.0;
+		 Particles.N_Particle[id]->trans_periodic[1] = 0.0;
+		 Particles.N_Particle[id]->trans_periodic[2] = 0.0;
 		
 		
 		 N_trans_moves = N_trans_moves + 1;

@@ -76,15 +76,15 @@
 				
 				}
 			  
-				Box->packing_fraction = (Particles.N_Particle[0].V*double(Box->N))/Box->V;
+				Box->packing_fraction = (Particles.N_Particle[0]->V*double(Box->N))/Box->V;
 				//cout<<"Particle V: "<<Particles.N_Particle[0].V<<endl;
 					
 					
 				for(int id=0;id<Box->N;id++){  
 					  
-					trans_vec.x = Box->x_center + (Particles.N_Particle[id].x_center - Box->x_center)*Box->Lx_scale - Particles.N_Particle[id].x_center;
-					trans_vec.y = Box->y_center + (Particles.N_Particle[id].y_center - Box->y_center)*Box->Ly_scale - Particles.N_Particle[id].y_center;
-					trans_vec.z = Box->z_center + (Particles.N_Particle[id].z_center - Box->z_center)*Box->Lz_scale - Particles.N_Particle[id].z_center;
+					trans_vec.x = Box->x_center + (Particles.N_Particle[id]->x_center - Box->x_center)*Box->Lx_scale - Particles.N_Particle[id]->x_center;
+					trans_vec.y = Box->y_center + (Particles.N_Particle[id]->y_center - Box->y_center)*Box->Ly_scale - Particles.N_Particle[id]->y_center;
+					trans_vec.z = Box->z_center + (Particles.N_Particle[id]->z_center - Box->z_center)*Box->Lz_scale - Particles.N_Particle[id]->z_center;
 						
 					Trans_Update_Positions(Particles, id, trans_vec);	
 					
@@ -155,9 +155,9 @@
 		  
 				for(id=0;id<Box->N; id++){		
 						
-					trans_vec.x = Box->x_center + (Particles.N_Particle[id].x_center - Box->x_center)*Box->Lx_scale - Particles.N_Particle[id].x_center;
-					trans_vec.y = Box->y_center + (Particles.N_Particle[id].y_center - Box->y_center)*Box->Ly_scale - Particles.N_Particle[id].y_center;
-					trans_vec.z = Box->z_center + (Particles.N_Particle[id].z_center - Box->z_center)*Box->Lz_scale - Particles.N_Particle[id].z_center;
+					trans_vec.x = Box->x_center + (Particles.N_Particle[id]->x_center - Box->x_center)*Box->Lx_scale - Particles.N_Particle[id]->x_center;
+					trans_vec.y = Box->y_center + (Particles.N_Particle[id]->y_center - Box->y_center)*Box->Ly_scale - Particles.N_Particle[id]->y_center;
+					trans_vec.z = Box->z_center + (Particles.N_Particle[id]->z_center - Box->z_center)*Box->Lz_scale - Particles.N_Particle[id]->z_center;
 						
 			        Trans_Update_Positions(Particles, id, trans_vec);	
 						
@@ -179,7 +179,7 @@
 				
 				    id = id +1;
 					//cout<<"Before"<<endl;		
-					Particles.Collision_List[id].Calculate(Box, id, Particles.Id_Cell_List, Particles.Cell_List, Particles.Cell, Particles.N_Particle, Particles.N_Particle[0].cut_off, Particles.MAX_coll_p);
+					Particles.Collision_List[id].Calculate(Box, id, Particles.Id_Cell_List, Particles.Cell_List, Particles.Cell, Particles.N_Particle, Particles.N_Particle[0]->cut_off, Particles.MAX_coll_p);
 					//cout<<"After"<<endl;	
 					Collision_Test( Particles, Box, id, Particles.Collision_List);	
 											
@@ -248,7 +248,7 @@
 					}
 							
 				    accept_iso_vol = accept_iso_vol +1;
-			        Box->packing_fraction = (Particles.N_Particle[0].V*double(Box->N))/Box->V;
+			        Box->packing_fraction = (Particles.N_Particle[0]->V*double(Box->N))/Box->V;
 			        Particles.Set_Cell_List(Box);
 			        
 			        

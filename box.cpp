@@ -71,6 +71,7 @@ void box::Startconfig(int N_in, double P_sigma_in, double packing_fraction_in, d
       //V = double(N)*V_p/packing_fraction;
       
 	  V = double(N)*V_p/packing_fraction;
+	  
 	  cout<<"V: "<<V<<" "<<"V_p:"<<V_p<<endl;	
      
       
@@ -201,9 +202,66 @@ void box::Set_Lengths(double Vp){
        
 
 }	
+/*
+void box::Calculate_Box_Axis(){
+	
+		 box_ax_1.x =  x[1] - x[0];
+		 box_ax_1.y =  y[1] - y[0];
+	     box_ax_1.z =  z[1] - z[0];
+	
+		 box_ax_2.x =  x[3] - x[0];
+		 box_ax_2.y =  y[3] - y[0];
+		 box_ax_2.z =  z[3] - z[0];
+				 
+		 box_ax_3.x =  x[4] - x[0];
+	     box_ax_3.y =  y[4] - y[0];
+	     box_ax_3.z =  z[4] - z[0];
+		
+	
+} 
 
-  
+*/
 
+/*
+void box::Set_Lengths(m_vector box_ax1, m_vector box_ax2, m_vector box_ax3){
+		
+		
+		Lx= box_ax_1.norm();
+		Ly= box_ax_2.norm();
+		Lz= box_ax_3.norm();
+		
+		alpha = acos((box_ax1.x*box_ax2.x + box_ax1.y*box_ax2.y + box_ax1.z*box_ax2.z)/(Lx*Ly);
+		gamma = acos((box_ax1.x*box_ax3.x + box_ax1.y*box_ax3.y + box_ax1.z*box_ax3.z)/(Lx*Lz);
+		
+	
+		alpha_2 = M_PI - alpha;
+		gamma_2 = M_PI - gamma;
+		
+		
+		hb=Ly*sin(alpha);
+		hb_2= double(hb)/2.0;
+		
+		hz=Lz*sin(alpha);
+		hz_2=double(hb)/2.0;
+		
+		
+		a_x = sqrt(Ly*Ly - hb*hb);
+		
+		diag2_short = sqrt( (Lx-a_x)*(Lx-a_x) + hb*hb);
+		diag2_long = sqrt( (Lx+a_x)*(Lx+a_x) + hb*hb);
+		
+		diag3_short = sqrt( diag2_short*diag2_short + Lz*Lz);
+		diag3_long = sqrt( diag2_long*diag2_long + Lz*Lz);
+		
+		cut_off = diag3_long;
+		cut_off_squared = diag3_long*diag3_long;
+		
+
+		V = Lx*hb*hz;
+		
+	
   
+}
+ */
   
   

@@ -10,7 +10,7 @@
 		 edge_N = 24;
 		 N_independent_faces = 7;
 		 N_cross_edges= 15;
-		 edge_N_vec = 14;
+		 edge_N_vec = 8;
 		
 		 x = new double[edge_N];
 		 y = new double[edge_N];
@@ -211,8 +211,6 @@
 	}  
 
 	
-	
-
 
 	void truncated_cube::distance_from_center(){
  
@@ -228,7 +226,7 @@
 
 	void truncated_cube::Calculate_Axis(){
 		
-		int norm_ax;
+		double norm_ax;
 		
 		 ax_1.x =  x[5] - x[0];
 		 ax_1.y =  y[5] - y[0];
@@ -302,23 +300,23 @@
 	void truncated_cube::Set_Start_Lattice_Position(int id, double box_Lx, int N_box){
 		
 		//for cubic lattice
-		int N_sitesp1;
-		double N_sitesp1_float;
+		
+		int N_sitesp;
+		double N_sitesp_float;
 		double l_distp;
 		
 		
-		N_sitesp1 = floor(box_Lx/Lx);
-		N_sitesp1_float = double(N_sitesp1);
+		N_sitesp = rint(pow(double(N_box),1./3.));
+		N_sitesp_float = double(N_sitesp);  
+		  
+		l_distp = (box_Lx - N_sitesp_float)/N_sitesp_float;   
 		
-		l_distp = (box_Lx - N_sitesp1_float*Lx)/N_sitesp1_float;  
-		
-		 
-		x_center = ( Lx + l_distp)/2.0 + double(id%N_sitesp1)*(Lx + l_distp );
-		y_center = ( Lx + l_distp)/2.0 + double((id/N_sitesp1)%N_sitesp1)*(Lx + l_distp );
-		z_center = ( Lx + l_distp)/2.0 + double(id/int(N_sitesp1*N_sitesp1))*(Lx + l_distp);
-		
-		
+		x_center = 0.5 +  l_distp/2.0 + double(id %N_sitesp + l_distp*(id % N_sitesp));
+		y_center = 0.5 +  l_distp/2.0 + double((id/N_sitesp)%N_sitesp + l_distp*((id/N_sitesp)%N_sitesp)); 
+		z_center = 0.5 +  l_distp/2.0 + double(id/int(pow((double)N_sitesp,2)) + l_distp*(id/int((double)pow(N_sitesp,2))));
+		  	 
 		edges_from_center();
+		
 		
 		
 	}
@@ -373,7 +371,7 @@
 		edges[7].z = z[16] - z[17];
 		
 		
-		//for hexagons facenormals are axes
+		//for octagons facenormals are axes
 		
 		facenormal[0].x = ax_1.x;
 		facenormal[0].y = ax_1.y;
@@ -437,12 +435,8 @@
 
 	double truncated_cube::Calculate_Projection_to_Separating_Axis(m_vector laxis){
 		
-		double Rp;
-		double rmax;
-		double rmin;
-		double scp_oc;
 		
-	
+		double scp_oc;
 	    
 	    distance_from_center();
 	    

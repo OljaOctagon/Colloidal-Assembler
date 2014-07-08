@@ -32,8 +32,8 @@
 		
 		 for(id=0;id<Box->N;id++){
 			
-			 //op_out<<mc_time<<"     "<<Order_Parameter.il2[id]<<"      "<<Order_Parameter.il4[id]<<"        "<<Order_Parameter.q4.ql[id]<<"      "<<Particles.N_Particle[id].x_center<<"      "<<Particles.N_Particle[id].y_center<<"      "<<Particles.N_Particle[id].z_center<<endl;
-			 op_out<<mc_time<<"    "<<Order_Parameter.il2[id]<<"    "<<Order_Parameter.il4[id]<<"    "<<Order_Parameter.q4.ql[id]<<"    "<<Order_Parameter.N_obonds[id]<<"   "<<Particles.N_Particle[id].x_center<<"      "<<Particles.N_Particle[id].y_center<<"      "<<Particles.N_Particle[id].z_center<<endl;	
+			 //op_out<<mc_time<<"     "<<Order_Parameter.il2[id]<<"      "<<Order_Parameter.il4[id]<<"        "<<Order_Parameter.q4.ql[id]<<"      "<<Particles.N_Particle[id]->x_center<<"      "<<Particles.N_Particle[id]->y_center<<"      "<<Particles.N_Particle[id]->z_center<<endl;
+			 op_out<<mc_time<<"    "<<Order_Parameter.il2[id]<<"    "<<Order_Parameter.il4[id]<<"    "<<Order_Parameter.q4.ql[id]<<"    "<<Order_Parameter.N_obonds[id]<<"   "<<Particles.N_Particle[id]->x_center<<"      "<<Particles.N_Particle[id]->y_center<<"      "<<Particles.N_Particle[id]->z_center<<endl;	
 			
 			}	
 		
@@ -142,7 +142,7 @@
 	     for(id=0;id<cluster_size; id++){
 			  
 			  cluster_id = Cluster_List[id];
-			  cluster_out<<cluster_id<<"    "<<Order_Parameter.q4.ql[cluster_id]<<"      "<<Particles.N_Particle[cluster_id].x_center<<"      "<<Particles.N_Particle[cluster_id].y_center<<"      "<<Particles.N_Particle[cluster_id].z_center<<endl;
+			  cluster_out<<cluster_id<<"    "<<Order_Parameter.q4.ql[cluster_id]<<"      "<<Particles.N_Particle[cluster_id]->x_center<<"      "<<Particles.N_Particle[cluster_id]->y_center<<"      "<<Particles.N_Particle[cluster_id]->z_center<<endl;
 			
 		 }	
 		
@@ -216,12 +216,12 @@
 		P_sigma_in  		= pt.get<double>("System.Pressure");
 		packing_fraction_in = pt.get<double>("System.Packing_Fraction");
 		number_of_cells_in  = pt.get<int>("System.Number_of_Cells");
-		MAX_coll_p_in 		= pt.get<int>("Cubes.Maximum_Collision_Partners");
-		MAX_fshell_p_in 	= pt.get<int>("Cubes.Maximum_First_Shell_Partners");
 		
-	
+		particle_type_in    = pt.get<string>("Particles.Type");
+		MAX_coll_p_in 		= pt.get<int>("Particles.Maximum_Collision_Partners");
+		MAX_fshell_p_in 	= pt.get<int>("Particles.Maximum_First_Shell_Partners");
 		
-	
+
 		calc_frequency_in       = pt.get<int>("Output.Calculation_Frequency");
 		frame_frequency_in  	= pt.get<int>("Output.Frame_Frequency");
 		checkpoint_frequency_in = pt.get<int>("Output.Checkpoint_Frequency"); 
@@ -281,9 +281,9 @@
 		ofstream pos_out1(string_3.c_str(), ios::out | ios::binary);
 		
 		for(int id = 0; id<Box->N; id++){
-			pos_out1.write(reinterpret_cast<char*>(&Particles.N_Particle[id].x_center), sizeof(Particles.N_Particle[id].x_center));
-			pos_out1.write(reinterpret_cast<char*>(&Particles.N_Particle[id].y_center), sizeof(Particles.N_Particle[id].y_center));
-			pos_out1.write(reinterpret_cast<char*>(&Particles.N_Particle[id].z_center), sizeof(Particles.N_Particle[id].z_center));
+			pos_out1.write(reinterpret_cast<char*>(&Particles.N_Particle[id]->x_center), sizeof(Particles.N_Particle[id]->x_center));
+			pos_out1.write(reinterpret_cast<char*>(&Particles.N_Particle[id]->y_center), sizeof(Particles.N_Particle[id]->y_center));
+			pos_out1.write(reinterpret_cast<char*>(&Particles.N_Particle[id]->z_center), sizeof(Particles.N_Particle[id]->z_center));
 			
 		}
 		
@@ -305,9 +305,9 @@
 
 		 for(int id=0; id<Box->N;id++){
 			
-			 pos_in>>Particles.N_Particle[id].x_center;
-			 pos_in>>Particles.N_Particle[id].y_center;
-			 pos_in>>Particles.N_Particle[id].z_center;
+			 pos_in>>Particles.N_Particle[id]->x_center;
+			 pos_in>>Particles.N_Particle[id]->y_center;
+			 pos_in>>Particles.N_Particle[id]->z_center;
 			 
 			}
 
@@ -326,9 +326,9 @@
 		ifstream pos_in1(string_3.c_str(), ios::in | ios::binary);
 		
 		for(int id = 0; id<Box->N; id++){
-			pos_in1.read(reinterpret_cast<char*>(&Particles.N_Particle[id].x_center), sizeof(double));
-			pos_in1.read(reinterpret_cast<char*>(&Particles.N_Particle[id].y_center), sizeof(double));
-			pos_in1.read(reinterpret_cast<char*>(&Particles.N_Particle[id].z_center), sizeof(double));
+			pos_in1.read(reinterpret_cast<char*>(&Particles.N_Particle[id]->x_center), sizeof(double));
+			pos_in1.read(reinterpret_cast<char*>(&Particles.N_Particle[id]->y_center), sizeof(double));
+			pos_in1.read(reinterpret_cast<char*>(&Particles.N_Particle[id]->z_center), sizeof(double));
 			
 		}
 		
@@ -352,10 +352,10 @@
 		for(int id=0;id<Box->N;id++){
 		
 				
-			orient_out.write(reinterpret_cast<char*>(&Particles.N_Particle[id].q.x), sizeof(Particles.N_Particle[id].q.x));
-			orient_out.write(reinterpret_cast<char*>(&Particles.N_Particle[id].q.y), sizeof(Particles.N_Particle[id].q.y));
-			orient_out.write(reinterpret_cast<char*>(&Particles.N_Particle[id].q.z), sizeof(Particles.N_Particle[id].q.z));
-			orient_out.write(reinterpret_cast<char*>(&Particles.N_Particle[id].q.w), sizeof(Particles.N_Particle[id].q.w));
+			orient_out.write(reinterpret_cast<char*>(&Particles.N_Particle[id]->q.x), sizeof(Particles.N_Particle[id]->q.x));
+			orient_out.write(reinterpret_cast<char*>(&Particles.N_Particle[id]->q.y), sizeof(Particles.N_Particle[id]->q.y));
+			orient_out.write(reinterpret_cast<char*>(&Particles.N_Particle[id]->q.z), sizeof(Particles.N_Particle[id]->q.z));
+			orient_out.write(reinterpret_cast<char*>(&Particles.N_Particle[id]->q.w), sizeof(Particles.N_Particle[id]->q.w));
 			
 		}
 		
@@ -379,10 +379,10 @@
 		ifstream orient_in(string_3.c_str(), ios::in | ios::binary);
 		
 		for(int id = 0; id<Box->N; id++){
-			orient_in.read(reinterpret_cast<char*>(&Particles.N_Particle[id].q.x), sizeof(double));
-			orient_in.read(reinterpret_cast<char*>(&Particles.N_Particle[id].q.y), sizeof(double));
-			orient_in.read(reinterpret_cast<char*>(&Particles.N_Particle[id].q.z), sizeof(double));
-			orient_in.read(reinterpret_cast<char*>(&Particles.N_Particle[id].q.w), sizeof(double));
+			orient_in.read(reinterpret_cast<char*>(&Particles.N_Particle[id]->q.x), sizeof(double));
+			orient_in.read(reinterpret_cast<char*>(&Particles.N_Particle[id]->q.y), sizeof(double));
+			orient_in.read(reinterpret_cast<char*>(&Particles.N_Particle[id]->q.z), sizeof(double));
+			orient_in.read(reinterpret_cast<char*>(&Particles.N_Particle[id]->q.w), sizeof(double));
 			
 		}
 		
@@ -549,16 +549,16 @@
 		
 		ofstream xyz_out(string_3.c_str(), ios::out | ios::app);
 		
-		M=Box->N*Particles.N_Particle[0].edge_N;		
+		M=Box->N*Particles.N_Particle[0]->edge_N;		
 		xyz_out<<M<<endl;
 		xyz_out<<"Particles of frame "<<mc_time<<endl;
 		
 		
 		for(int k=0;k<Box->N;k++){
 		
-				for(int j=0;j<Particles.N_Particle[k].edge_N;j++){
+				for(int j=0;j<Particles.N_Particle[k]->edge_N;j++){
 					
-					 xyz_out<<"cb"<<"       "<<Particles.N_Particle[k].x[j]<<"   "<<Particles.N_Particle[k].y[j]<<"   "<<Particles.N_Particle[k].z[j]<<endl;
+					 xyz_out<<"cb"<<"       "<<Particles.N_Particle[k]->x[j]<<"   "<<Particles.N_Particle[k]->y[j]<<"   "<<Particles.N_Particle[k]->z[j]<<endl;
 					 
 					}   
 			}
@@ -573,7 +573,7 @@
 		center_out<<"Centers of frame "<<mc_time<<endl;
 	  
 		for(int k=0;k<Box->N;k++){
-			center_out<<"cb"<<"       "<<Particles.N_Particle[k].x_center<<"   "<<Particles.N_Particle[k].y_center<<"   "<<Particles.N_Particle[k].z_center<<endl;
+			center_out<<"cb"<<"       "<<Particles.N_Particle[k]->x_center<<"   "<<Particles.N_Particle[k]->y_center<<"   "<<Particles.N_Particle[k]->z_center<<endl;
 		}				
 	
 		center_out.close();
@@ -587,14 +587,14 @@
 			
 			ofstream xyz_out(string_3.c_str(), ios::out | ios::app);
 			
-			M=Box->N*Particles.N_Particle[0].edge_N;
+			M=Box->N*Particles.N_Particle[0]->edge_N;
 			
 			xyz_out<<M<<endl;
 			xyz_out<<"Particles of frame "<<mc_time<<endl;
 			
 			for(int k=0;k<Box->N;k++){
 				
-				 xyz_out<<"sp"<<"       "<<Particles.N_Particle[k].x_center<<"   "<<Particles.N_Particle[k].y_center<<"   "<<Particles.N_Particle[k].z_center<<endl;
+				 xyz_out<<"sp"<<"       "<<Particles.N_Particle[k]->x_center<<"   "<<Particles.N_Particle[k]->y_center<<"   "<<Particles.N_Particle[k]->z_center<<endl;
 				  
 				}
 

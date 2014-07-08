@@ -321,9 +321,7 @@
 
 	double octahedron::Calculate_Projection_to_Separating_Axis(m_vector laxis){
 		
-		double Rp;
-		double rmax;
-		double rmin;
+		
 		double scp_oc;
 		
 		double norm_ax;
@@ -380,7 +378,7 @@
 			
 		}	
 		
-	    Rp = fabs((rmax-rmin)/2.0);
+	    Rp = rmax-rmin;
 			
 		
 		//Rp = (fabs(ax_1.x*laxis.x + ax_1.y*laxis.y + ax_1.z*laxis.z) + fabs(ax_2.x*laxis.x + ax_2.y*laxis.y + ax_2.z*laxis.z))*(Lx/2.0) 

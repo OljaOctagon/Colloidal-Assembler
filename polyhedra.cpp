@@ -26,6 +26,21 @@
 		ax_3.y = 0.0;
 		ax_3.z = 0.0;
 			
-		
+		std::cout<<"Set inital axis POLYHEDRA"<<std::endl;	
+			
+	
 		
 	}	
+
+	double polyhedra::Calculate_Projection_to_Separating_Axis(m_vector laxis){
+		double Rp;
+		Rp=0;
+		
+		std::cout<<"Calculate Projection to Separating Axis POLYHEDRA"<<std::endl;
+		
+		
+		
+		return Rp;
+	 } 	 
+		 
+	 

@@ -1,5 +1,5 @@
-# ifndef _truncatedcube_h_included_
-# define _truncatedcube_h_included_
+# ifndef _hexbipyramid_h_included_
+# define _hexbipyramid_h_included_
 
 
 
@@ -18,19 +18,26 @@ using namespace std;
 
 
 
-class truncated_cube : public polyhedra
+class hexbipyramid : public polyhedra
 { 
 
 
 public:  
 
-truncated_cube();
-~ truncated_cube();
+hexbipyramid();
+~ hexbipyramid();
 
 
-double edge_R;
-double lx,ly,lz;
-
+double height;
+double height_t;
+double height_o;
+double Lx_t;
+double Vt;
+double h_Lx;
+double h_Lx_t;
+double cf;
+	    
+	
 void edges_from_center();
 void distance_from_center();
 void Calculate_Axis(); 
@@ -40,10 +47,9 @@ void Set_Lengths();
 double Calculate_Projection_to_Separating_Axis(m_vector laxis);
 void Calculate_Face_Normals();  
 
-
-
 };
 
 
 
 # endif
+

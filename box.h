@@ -17,7 +17,7 @@
 
 using namespace std;
 
-class box : public cuboid {
+class box : public polyhedra {
 
 public:
 

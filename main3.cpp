@@ -40,7 +40,7 @@ int main(int argc, char * argv[]){
 		
 		strcpy(traj_type_in, "forward");
 		
-		particles Particles(Fileio.number_of_cells_in, Fileio.N_in, Fileio.MAX_coll_p_in, Fileio.MAX_fshell_p_in);
+		particles Particles(Fileio.number_of_cells_in, Fileio.N_in, Fileio.MAX_coll_p_in, Fileio.MAX_fshell_p_in, Fileio.particle_type_in);
 	
 		
 		// init new run
@@ -48,9 +48,11 @@ int main(int argc, char * argv[]){
 
 			//initialize box
 			
-			Box->Startconfig(Fileio.N_in, Fileio.P_sigma_in, Fileio.packing_fraction_in, Particles.N_Particle[0].V);
+			Box->Startconfig(Fileio.N_in, Fileio.P_sigma_in, Fileio.packing_fraction_in, Particles.N_Particle[0]->V);
 			
 			start_time = 0;
+			
+				
 			
 			Box->edges_from_center();
 
@@ -62,7 +64,7 @@ int main(int argc, char * argv[]){
 			Particles.Set_Cell_List(Box);
 			Particles.Make_Cell_Neighbour_List(); 
 		
-		
+				
 			gsl_rng_set(r01,0xf143);
 			gsl_rng_set(r, 0x01a23);
 			
@@ -135,7 +137,6 @@ int main(int argc, char * argv[]){
 			
 			MC_cycle_time = Move.mt_sum;
 			
-			//cout<<"MC_cycle_time:" <<MC_cycle_time<<endl;
 			
 		
 			for(int cycle_time = 0; cycle_time<MC_cycle_time; cycle_time++){

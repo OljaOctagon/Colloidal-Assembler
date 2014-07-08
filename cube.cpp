@@ -27,7 +27,6 @@
 		 
 		 edge_out = new int[edge_N];
 		 
-				
 		 copy_count = 0;
 		
 		 trans_periodic = new double[3];
@@ -35,7 +34,9 @@
 		 trans_old = new double[3];
 		 Rot_old = new double[9];
 		
-  
+		
+         //cout<<"Cube Constructor"<<endl;		
+		
   
         }  
 
@@ -102,6 +103,7 @@
 		 y[7] = y_center + 0.5*Lx;
 		 z[7] = z_center + 0.5*Lx;
 
+		//cout<<"Edges from center"<<endl;
 		  
 
         }  
@@ -116,7 +118,12 @@
 		     dist_z[j] =  z[j] - z_center;
 	  
 	    }
+	    
+	    //cout<<"Distance from center"<<endl;
+	    
     }
+    
+    
 
 
 	void cube::Calculate_Axis(){
@@ -153,8 +160,36 @@
 		 ax_3.y = ax_3.y/norm_ax; 
 		 ax_3.z = ax_3.z/norm_ax;  
 		
+		/*
+		cout<<"Calculate Axis"<<endl;
+		cout<<"ax_1 "<<ax_1.x<<" "<<ax_1.y<<" "<<ax_1.z<<endl;
+	    cout<<"ax_2 "<<ax_2.x<<" "<<ax_2.y<<" "<<ax_2.z<<endl;
+		cout<<"ax_3 "<<ax_3.x<<" "<<ax_3.y<<" "<<ax_3.z<<endl;
+		*/
+		
 	
 	}
+
+	
+	void cube::Set_Axis(){
+
+	     ax_1_old.x =  ax_1.x;
+		 ax_1_old.y =  ax_1.y;
+		 ax_1_old.z =  ax_1.z;
+			 	 
+		 ax_2_old.x =  ax_2.x;
+		 ax_2_old.y =  ax_2.y;
+		 ax_2_old.z =  ax_2.z;
+			
+	 	 ax_3_old.x =  ax_3.x;
+		 ax_3_old.y =  ax_3.y;
+		 ax_3_old.z =  ax_3.z;
+
+		//cout<<"Set Axis"<<endl;			
+			
+    } 	
+
+
 
     void cube::Set_Lengths(){
 		
@@ -163,6 +198,8 @@
 		cut_off_squared = 3.0*Lx*Lx;
 		
 		V = Lx*Lx*Lx;
+		
+		//cout<<"Set lengths"<<endl;
 		
 	
 
@@ -187,6 +224,9 @@
 		z_center = 0.5 +  l_distp/2.0 + double(id/int(pow((double)N_sitesp,2)) + l_distp*(id/int((double)pow(N_sitesp,2))));
 		  	 
 		edges_from_center();
+		
+		//cout<<"Set start lattice"<<endl;
+		
 		
 		
 	}
@@ -220,6 +260,7 @@
 		edges[2].y = ax_3.y;
 		edges[2].z = ax_3.z;
 		
+		//cout<<"Calculate Face Normals"<<endl;
 		
 		
 	
@@ -235,11 +276,13 @@
 		
 		Rp = (fabs(ax_1.x*laxis.x + ax_1.y*laxis.y + ax_1.z*laxis.z) + 
 			  fabs(ax_2.x*laxis.x + ax_2.y*laxis.y + ax_2.z*laxis.z) + 
-			  fabs(ax_3.x*laxis.x + ax_3.y*laxis.y + ax_3.z*laxis.z) )*(Lx/2.0);
+			  fabs(ax_3.x*laxis.x + ax_3.y*laxis.y + ax_3.z*laxis.z) )*(Lx);
 		
 	
 		
 		return Rp;
+		
+		//cout<<"Calculate Projection to Separating Axis"<<endl;
 		
 		
 	}	

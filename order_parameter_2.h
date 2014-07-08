@@ -24,6 +24,7 @@
 #include "particles.h"
 #include "box.h"
 #include "alg_struct.h"
+#include "polyhedra.h"
 
 
 #include <boost/property_tree/ptree.hpp>

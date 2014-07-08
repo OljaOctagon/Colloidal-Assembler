@@ -24,6 +24,7 @@
 #include "box.h"
 #include "order_parameter_2.h"
 #include "cluster_1.h"
+#include "polyhedra.h"
 
 
 #include <boost/property_tree/ptree.hpp>
@@ -105,6 +106,8 @@ int seed2_in;
 string is_translation_ON;
 string is_rotation_ON;
 string is_volumemove_ON;
+
+string particle_type_in;
 		
 		
 void Set_Vars();

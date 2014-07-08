@@ -17,8 +17,8 @@
 #include "fileio.h"
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_randist.h>
-#include "cube.h"
 #include "alg_struct.h"
+#include "polyhedra.h"
 
 
 //# include "cuboid.h"

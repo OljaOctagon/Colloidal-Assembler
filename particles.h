@@ -18,6 +18,9 @@ using namespace std;
 # include "cube.h"
 # include "octahedron.h"
 # include "truncated_cube.h"
+# include "rhombohedron.h"
+# include "polyhedra.h"
+# include "hexbipyramid.h"
 
 //# include "cuboid.h"
 # include "box.h"
@@ -70,40 +73,41 @@ double LXC;
 //void Calculate(box* Box, int id, int* Id_Cell_List, int** Cell_List, cell* Cell, cube* N_Particle);
 
 
-void Calculate(box* Box, int id, int* Id_Cell_List, int** Cell_List, cell* Cell, octahedron* N_Particle, double Cut_Off, int MAX_coll_p);
-void Calculate(box* Box, int id, int* Id_Cell_List, int** Cell_List, cell* Cell, cube* N_Particle, double Cut_Off, int MAX_coll_p);
-
+void Calculate(box* Box, int id, int* Id_Cell_List, int** Cell_List, cell* Cell, polyhedra** N_Particle, double Cut_Off, int MAX_coll_p);
 
 void Calculate_Neighbours(double Cut_Off);
-void Calculate_Neighbours_Cubic(double Cut_Off, octahedron* N_particle, int id);
-void Calculate_Neighbours_Cubic(double Cut_Off, cube* N_particle, int id);
+void Calculate_Neighbours_Cubic(double Cut_Off, polyhedra** N_particle, int id);
+void Calculate_OP(box* Box, int id, polyhedra** N_Particle, double Cut_Off, int MAX_coll_p);
 
 
 	
 };	
 
 
-
-class particles: public truncated_cube {
-//class particles : public octahedron  {
-//class particles: public cube {
-
+class particles: public polyhedra {
 
   
 public:  
 particles();
-particles(int number_of_cells_in, int size, int MAX_coll_p_in, int MAX_fshell_in);
+particles(int number_of_cells_in, int size, int MAX_coll_p_in, int MAX_fshell_in, string particle_type);
 ~particles();
 
-//octahedron* N_Particle;
-//octahedron* N_Particle_old;
+cube* Cube;
+cube* Cube_old;
+octahedron* Octahedron;
+octahedron* Octahedron_old;
+truncated_cube* Truncated_Cube;
+truncated_cube* Truncated_Cube_old;
+rhombohedron* Rhombohedron;
+rhombohedron* Rhombohedron_old;
+hexbipyramid* Hexbipyramid;
+hexbipyramid* Hexbipyramid_old;
 
-//cube* N_Particle;
-//cube* N_Particle_old;
+
+polyhedra** N_Particle;
+polyhedra** N_Particle_old;
 
 
-truncated_cube* N_Particle;
-truncated_cube* N_Particle_old;
 
 collision_list* Collision_List;
 

@@ -8,8 +8,8 @@
 
     particles::particles(){
 		  
-		N_Particle = 0;
-		N_Particle_old = 0;
+		//N_Particle = 0;
+		//N_Particle_old = 0;
 		Cell = 0;
 		Cell_old = 0;
 		 
@@ -17,30 +17,96 @@
     }
 
 
-	particles::particles(int number_of_cells_in, int size, int MAX_coll_p_in, int MAX_fshell_in){
+	particles::particles(int number_of_cells_in, int size, int MAX_coll_p_in, int MAX_fshell_in, string particle_type){
   
-	     //Allocation of vars		
-         number_of_cells = number_of_cells_in;
-		 max_id = size-1;
-		 MAX_coll_p = MAX_coll_p_in; 
-		 MAX_fshell_p = MAX_fshell_p;	
+	    //Allocation of vars		
+        number_of_cells = number_of_cells_in;
+		max_id = size-1;
+		MAX_coll_p = MAX_coll_p_in; 
+		MAX_fshell_p = MAX_fshell_p;	
+		  
+		N_Particle = new polyhedra*[size];
+		N_Particle_old = new polyhedra*[size];
+		
+		cout<<"hello particles"<<endl;
+		 
+		if(particle_type.compare("cube")==0){
+			Cube = new cube[size];
+			Cube_old = new cube[size];
+		
+			for(int i=0;i<size;i++){
+		
+				N_Particle[i] = &Cube[i];
+				N_Particle_old[i] = &Cube_old[i];
+		
+			}
+			
+			
+		}	
+		
+		if(particle_type.compare("octahedron")==0){
+			
+			Octahedron = new octahedron[size];
+			Octahedron_old = new octahedron[size];
+		
+			for(int i=0;i<size;i++){
+		
+				N_Particle[i] = &Octahedron[i];
+				N_Particle_old[i] = &Octahedron_old[i];
+			
+			}
+			
+		}
+		
+		if(particle_type.compare("truncated_cube")==0){
+			
+			Truncated_Cube = new truncated_cube[size];
+			Truncated_Cube_old = new truncated_cube[size];
+		
+			for(int i=0;i<size;i++){
+		
+				N_Particle[i] = &Truncated_Cube[i];
+				N_Particle_old[i] = &Truncated_Cube_old[i];
+			
+			}
+			
+		}
+		
+		if(particle_type.compare("rhombohedron")==0){
+			
+			Rhombohedron = new rhombohedron[size];
+			Rhombohedron_old = new rhombohedron[size];
+		
+			for(int i=0;i<size;i++){
+		
+				N_Particle[i] = &Rhombohedron[i];
+				N_Particle_old[i] = &Rhombohedron_old[i];
+			
+			}
+			
+		}
 		
 		
-		 //N_Particle = new cube[size];
-		 //N_Particle_old = new cube[size];
-		 
-		 
-		 //N_Particle = new octahedron[size];
-		 //N_Particle_old = new octahedron[size];
-		 
-		 N_Particle = new truncated_cube[size];
-		 N_Particle_old = new truncated_cube[size];
-		 
-		 
-		 
+		if(particle_type.compare("hexbipyramid")==0){
+			
+			Hexbipyramid = new hexbipyramid[size];
+			Hexbipyramid_old = new hexbipyramid[size];
 		
-		 Cell = new cell[number_of_cells];
-		 Cell_old = new cell[number_of_cells];
+			for(int i=0;i<size;i++){
+		
+				N_Particle[i] = &Hexbipyramid[i];
+				N_Particle_old[i] = &Hexbipyramid_old[i];
+			
+			}
+			
+		}
+		
+		
+		
+		
+				
+		Cell = new cell[number_of_cells];
+		Cell_old = new cell[number_of_cells];
 
 
 		//Initialization of N_Particle	
@@ -49,20 +115,27 @@
 	 
 			
 			
-			N_Particle[id].Set_Initial_Quaternion();
-			N_Particle_old[id].Set_Initial_Quaternion();
+			N_Particle[id]->Set_Initial_Quaternion();
+			N_Particle_old[id]->Set_Initial_Quaternion();
 			
-		
-			N_Particle[id].Set_Initial_Axis();
-			N_Particle_old[id].Set_Initial_Axis();
+		    cout<<"hello1"<<endl;
+		   
+			N_Particle[id]->Set_Initial_Axis();
+			N_Particle_old[id]->Set_Initial_Axis();
 			
 			
-		    N_Particle[id].Set_Lengths();
-		    N_Particle_old[id].Set_Lengths();
+		    cout<<"hello2"<<endl;
+			
+		    N_Particle[id]->Set_Lengths();
+		    N_Particle_old[id]->Set_Lengths();
 		    
-		    cout<<"N_Particle[0].V: "<<N_Particle[0].V<<endl;
-		    cout<<"N_Particle[0].Lx: "<<N_Particle[0].Lx<<endl;
-		    cout<<"N_Particle[0].cut_off: "<<N_Particle[0].cut_off<<endl;
+		    	cout<<"hello3"<<endl;
+		    
+		    cout<<"N_Particle[0].V: "<<N_Particle[0]->V<<endl;
+		    cout<<"N_Particle[0].Lx: "<<N_Particle[0]->Lx<<endl;
+		    cout<<"N_Particle[0].cut_off: "<<N_Particle[0]->cut_off<<endl;
+			
+			cout<<"hello4"<<endl;
 			
 			
 		}	
@@ -101,10 +174,22 @@
 			 Cell_old[c_id].Lx = Cell[0].Lx;
 			 Cell_old[c_id].Ly = Cell[0].Ly;
 			 Cell_old[c_id].Lz = Cell[0].Lz; 
+			 
+			 Cell[c_id].left_count = 0;
+			 Cell[c_id].right_count = 0;
+	   
+		     Cell[c_id].front_count = 0;
+		     Cell[c_id].back_count = 0;
+	   
+		     Cell[c_id].top_count = 0;
+		     Cell[c_id].bottom_count = 0;
+			 
+			 
+			 
 			
 	        }
 		
-		MAX_cell_members = 5*int(ceil(Cell[0].V)/double(N_Particle[0].V));
+		MAX_cell_members = 5*int(ceil(Cell[0].V)/double(N_Particle[0]->V));
 		
  
 		Collision_List = new collision_list[Box->N];
@@ -131,44 +216,44 @@
 
 	     for (int id=0; id<Box->N; id++){
 
-			 N_Particle[id].Set_Start_Lattice_Position(id, Box->Lx, Box->N);
+			 N_Particle[id]->Set_Start_Lattice_Position(id, Box->Lx, Box->N);
 			 
 			 /*		  
-			 N_Particle[id].x_center = 0.5 +  l_diff/2.0 + double(id %N_p + l_diff*(id % N_p));
-			 N_Particle[id].y_center = 0.5 +  l_diff/2.0 + double((id/N_p)%N_p + l_diff*((id/N_p)%N_p)); 
-			 N_Particle[id].z_center = 0.5 +  l_diff/2.0 + double(id/int(pow((double)N_p,2)) + l_diff*(id/int((double)pow(N_p,2))));
+			 N_Particle[id]->x_center = 0.5 +  l_diff/2.0 + double(id %N_p + l_diff*(id % N_p));
+			 N_Particle[id]->y_center = 0.5 +  l_diff/2.0 + double((id/N_p)%N_p + l_diff*((id/N_p)%N_p)); 
+			 N_Particle[id]->z_center = 0.5 +  l_diff/2.0 + double(id/int(pow((double)N_p,2)) + l_diff*(id/int((double)pow(N_p,2))));
 		     */
 		 
-			 N_Particle_old[id].x_center = N_Particle[id].x_center;
-			 N_Particle_old[id].y_center = N_Particle[id].y_center;
-			 N_Particle_old[id].z_center = N_Particle[id].z_center;
+			 N_Particle_old[id]->x_center = N_Particle[id]->x_center;
+			 N_Particle_old[id]->y_center = N_Particle[id]->y_center;
+			 N_Particle_old[id]->z_center = N_Particle[id]->z_center;
 			 
-			 N_Particle[id].copy_count = 0;
+			 N_Particle[id]->copy_count = 0;
 			
-			 N_Particle[id].edges_from_center();
-			 N_Particle_old[id].edges_from_center();
+			 N_Particle[id]->edges_from_center();
+			 N_Particle_old[id]->edges_from_center();
 			
 				 
-			 N_Particle[id].trans_periodic[0] = 0.0;
-			 N_Particle[id].trans_periodic[1] = 0.0;
-			 N_Particle[id].trans_periodic[2] = 0.0;
+			 N_Particle[id]->trans_periodic[0] = 0.0;
+			 N_Particle[id]->trans_periodic[1] = 0.0;
+			 N_Particle[id]->trans_periodic[2] = 0.0;
 			
 			
 			 //calculate ax vectors
 		
-			 N_Particle[id].Calculate_Axis();
+			 N_Particle[id]->Calculate_Axis();
 			 
 			 	
-			 N_Particle[id].cm_left_count = 0;
-			 N_Particle[id].cm_right_count = 0;
+			 N_Particle[id]->cm_left_count = 0;
+			 N_Particle[id]->cm_right_count = 0;
 			
-			 N_Particle[id].cm_top_count = 0;
-			 N_Particle[id].cm_bottom_count = 0;
+			 N_Particle[id]->cm_top_count = 0;
+			 N_Particle[id]->cm_bottom_count = 0;
 			
-			 N_Particle[id].cm_back_count = 0;
-			 N_Particle[id].cm_front_count = 0;
+			 N_Particle[id]->cm_back_count = 0;
+			 N_Particle[id]->cm_front_count = 0;
 			
-			 N_Particle[id].cm_out = 0;
+			 N_Particle[id]->cm_out = 0;
 			
 				 
 	        }
@@ -184,58 +269,58 @@
 			for(int id=0;id<Box->N;id++){
 				
 			
-			 Rot_mat_INIT[0] = 1.0 - 2.0*N_Particle[id].q.y*N_Particle[id].q.y - 2.0*N_Particle[id].q.z*N_Particle[id].q.z;
-			 Rot_mat_INIT[1] = 2.0*N_Particle[id].q.x*N_Particle[id].q.y - 2.0*N_Particle[id].q.w*N_Particle[id].q.z;
-			 Rot_mat_INIT[2] = 2.0*N_Particle[id].q.x*N_Particle[id].q.z + 2.0*N_Particle[id].q.w*N_Particle[id].q.y;
+			 Rot_mat_INIT[0] = 1.0 - 2.0*N_Particle[id]->q.y*N_Particle[id]->q.y - 2.0*N_Particle[id]->q.z*N_Particle[id]->q.z;
+			 Rot_mat_INIT[1] = 2.0*N_Particle[id]->q.x*N_Particle[id]->q.y - 2.0*N_Particle[id]->q.w*N_Particle[id]->q.z;
+			 Rot_mat_INIT[2] = 2.0*N_Particle[id]->q.x*N_Particle[id]->q.z + 2.0*N_Particle[id]->q.w*N_Particle[id]->q.y;
 				
-			 Rot_mat_INIT[3] = 2.0*N_Particle[id].q.x*N_Particle[id].q.y + 2.0*N_Particle[id].q.w*N_Particle[id].q.z;
-			 Rot_mat_INIT[4] = 1.0 - 2.0*N_Particle[id].q.x*N_Particle[id].q.x - 2.0*N_Particle[id].q.z*N_Particle[id].q.z;
-			 Rot_mat_INIT[5] = 2.0*N_Particle[id].q.y*N_Particle[id].q.z - 2.0*N_Particle[id].q.w*N_Particle[id].q.x;
+			 Rot_mat_INIT[3] = 2.0*N_Particle[id]->q.x*N_Particle[id]->q.y + 2.0*N_Particle[id]->q.w*N_Particle[id]->q.z;
+			 Rot_mat_INIT[4] = 1.0 - 2.0*N_Particle[id]->q.x*N_Particle[id]->q.x - 2.0*N_Particle[id]->q.z*N_Particle[id]->q.z;
+			 Rot_mat_INIT[5] = 2.0*N_Particle[id]->q.y*N_Particle[id]->q.z - 2.0*N_Particle[id]->q.w*N_Particle[id]->q.x;
 				
-			 Rot_mat_INIT[6] = 2.0*N_Particle[id].q.x*N_Particle[id].q.z - 2.0*N_Particle[id].q.w*N_Particle[id].q.y;
-			 Rot_mat_INIT[7] = 2.0*N_Particle[id].q.y*N_Particle[id].q.z + 2.0*N_Particle[id].q.w*N_Particle[id].q.x;
-			 Rot_mat_INIT[8] = 1.0 - 2.0*N_Particle[id].q.x*N_Particle[id].q.x - 2.0*N_Particle[id].q.y*N_Particle[id].q.y;
+			 Rot_mat_INIT[6] = 2.0*N_Particle[id]->q.x*N_Particle[id]->q.z - 2.0*N_Particle[id]->q.w*N_Particle[id]->q.y;
+			 Rot_mat_INIT[7] = 2.0*N_Particle[id]->q.y*N_Particle[id]->q.z + 2.0*N_Particle[id]->q.w*N_Particle[id]->q.x;
+			 Rot_mat_INIT[8] = 1.0 - 2.0*N_Particle[id]->q.x*N_Particle[id]->q.x - 2.0*N_Particle[id]->q.y*N_Particle[id]->q.y;
 			 
 			
 			
 				
-			 N_Particle[id].edges_from_center();
-			 N_Particle[id].distance_from_center();
+			 N_Particle[id]->edges_from_center();
+			 N_Particle[id]->distance_from_center();
 		   
-			 for(int j=0;j<N_Particle[id].edge_N;j++){
+			 for(int j=0;j<N_Particle[id]->edge_N;j++){
 			  
-				 N_Particle[id].new_dist_x[j] = Rot_mat_INIT[0]*N_Particle[id].dist_x[j] +Rot_mat_INIT[1]*N_Particle[id].dist_y[j] + Rot_mat_INIT[2]*N_Particle[id].dist_z[j]; 
-				 N_Particle[id].new_dist_y[j] = Rot_mat_INIT[3]*N_Particle[id].dist_x[j] +Rot_mat_INIT[4]*N_Particle[id].dist_y[j] + Rot_mat_INIT[5]*N_Particle[id].dist_z[j]; 
-				 N_Particle[id].new_dist_z[j] = Rot_mat_INIT[6]*N_Particle[id].dist_x[j] +Rot_mat_INIT[7]*N_Particle[id].dist_y[j] + Rot_mat_INIT[8]*N_Particle[id].dist_z[j];
+				 N_Particle[id]->new_dist_x[j] = Rot_mat_INIT[0]*N_Particle[id]->dist_x[j] +Rot_mat_INIT[1]*N_Particle[id]->dist_y[j] + Rot_mat_INIT[2]*N_Particle[id]->dist_z[j]; 
+				 N_Particle[id]->new_dist_y[j] = Rot_mat_INIT[3]*N_Particle[id]->dist_x[j] +Rot_mat_INIT[4]*N_Particle[id]->dist_y[j] + Rot_mat_INIT[5]*N_Particle[id]->dist_z[j]; 
+				 N_Particle[id]->new_dist_z[j] = Rot_mat_INIT[6]*N_Particle[id]->dist_x[j] +Rot_mat_INIT[7]*N_Particle[id]->dist_y[j] + Rot_mat_INIT[8]*N_Particle[id]->dist_z[j];
 						
-				 N_Particle[id].x[j] = N_Particle[id].x_center + N_Particle[id].new_dist_x[j]; 
-				 N_Particle[id].y[j] = N_Particle[id].y_center + N_Particle[id].new_dist_y[j];
-				 N_Particle[id].z[j] = N_Particle[id].z_center + N_Particle[id].new_dist_z[j]; 
+				 N_Particle[id]->x[j] = N_Particle[id]->x_center + N_Particle[id]->new_dist_x[j]; 
+				 N_Particle[id]->y[j] = N_Particle[id]->y_center + N_Particle[id]->new_dist_y[j];
+				 N_Particle[id]->z[j] = N_Particle[id]->z_center + N_Particle[id]->new_dist_z[j]; 
 						   
 				}  
 				
 				
-			 N_Particle_old[id].x_center = N_Particle[id].x_center;
-			 N_Particle_old[id].y_center = N_Particle[id].y_center;
-			 N_Particle_old[id].z_center = N_Particle[id].z_center;
+			 N_Particle_old[id]->x_center = N_Particle[id]->x_center;
+			 N_Particle_old[id]->y_center = N_Particle[id]->y_center;
+			 N_Particle_old[id]->z_center = N_Particle[id]->z_center;
 				
-			 for(int j=0;j<N_Particle[id].edge_N;j++){
+			 for(int j=0;j<N_Particle[id]->edge_N;j++){
 					
-				 N_Particle_old[id].x[j] = N_Particle[id].x[j];
-				 N_Particle_old[id].y[j] = N_Particle[id].y[j];
-				 N_Particle_old[id].z[j] = N_Particle[id].z[j];
+				 N_Particle_old[id]->x[j] = N_Particle[id]->x[j];
+				 N_Particle_old[id]->y[j] = N_Particle[id]->y[j];
+				 N_Particle_old[id]->z[j] = N_Particle[id]->z[j];
 					
 				}
 		
 				
-			N_Particle_old[id].q.x = N_Particle[id].q.x;
-			N_Particle_old[id].q.y = N_Particle[id].q.y;
-			N_Particle_old[id].q.z = N_Particle[id].q.z;
-			N_Particle_old[id].q.w = N_Particle[id].q.w;
+			N_Particle_old[id]->q.x = N_Particle[id]->q.x;
+			N_Particle_old[id]->q.y = N_Particle[id]->q.y;
+			N_Particle_old[id]->q.z = N_Particle[id]->q.z;
+			N_Particle_old[id]->q.w = N_Particle[id]->q.w;
 					
 			
 						
-			N_Particle[id].Calculate_Axis();	
+			N_Particle[id]->Calculate_Axis();	
 			
 					
 
@@ -247,43 +332,43 @@
 	
     void particles::Check_Periodic_CM(int id, box* Box){
 	 
-		 N_Particle[id].cm_left_count = 0; 
-		 N_Particle[id].cm_right_count = 0;
-		 N_Particle[id].cm_front_count = 0;
-		 N_Particle[id].cm_back_count = 0;
-		 N_Particle[id].cm_top_count = 0;
-		 N_Particle[id].cm_bottom_count = 0;
+		 N_Particle[id]->cm_left_count = 0; 
+		 N_Particle[id]->cm_right_count = 0;
+		 N_Particle[id]->cm_front_count = 0;
+		 N_Particle[id]->cm_back_count = 0;
+		 N_Particle[id]->cm_top_count = 0;
+		 N_Particle[id]->cm_bottom_count = 0;
 		
-		 N_Particle[id].cm_out = 0;
+		 N_Particle[id]->cm_out = 0;
 		
 	  
-		 if(N_Particle[id].x_center > Box->x[1]){ 
-		     N_Particle[id].cm_right_count = 1; 
+		 if(N_Particle[id]->x_center > Box->x[1]){ 
+		     N_Particle[id]->cm_right_count = 1; 
 		    }  
 
-		 if(N_Particle[id].x_center < Box->x[0]){
-		     N_Particle[id].cm_left_count = 1;
+		 if(N_Particle[id]->x_center < Box->x[0]){
+		     N_Particle[id]->cm_left_count = 1;
 		    }
 
-		 if(N_Particle[id].y_center > Box->y[3]){
-		     N_Particle[id].cm_back_count = 1;
+		 if(N_Particle[id]->y_center > Box->y[3]){
+		     N_Particle[id]->cm_back_count = 1;
 		    }  
 		
-		 if(N_Particle[id].y_center < Box->y[0]){ 
-		     N_Particle[id].cm_front_count = 1;   
+		 if(N_Particle[id]->y_center < Box->y[0]){ 
+		     N_Particle[id]->cm_front_count = 1;   
 		    }
 		
-		 if(N_Particle[id].z_center > Box->z[4]){
-		     N_Particle[id].cm_top_count = 1;  
+		 if(N_Particle[id]->z_center > Box->z[4]){
+		     N_Particle[id]->cm_top_count = 1;  
 		    }
 		
-		 if(N_Particle[id].z_center < Box->z[0]){
-		     N_Particle[id].cm_bottom_count = 1; 
+		 if(N_Particle[id]->z_center < Box->z[0]){
+		     N_Particle[id]->cm_bottom_count = 1; 
 		    } 
 	   
-	     N_Particle[id].cm_out = N_Particle[id].cm_right_count + N_Particle[id].cm_left_count
-						+ N_Particle[id].cm_back_count + N_Particle[id].cm_front_count
-						+ N_Particle[id].cm_top_count + N_Particle[id].cm_bottom_count;
+	     N_Particle[id]->cm_out = N_Particle[id]->cm_right_count + N_Particle[id]->cm_left_count
+						+ N_Particle[id]->cm_back_count + N_Particle[id]->cm_front_count
+						+ N_Particle[id]->cm_top_count + N_Particle[id]->cm_bottom_count;
 	  
 
         }
@@ -291,53 +376,53 @@
 
 	void particles::Check_Periodic_BC(int id, box* Box){
 		
-		 N_Particle[id].left_count = 0;
-		 N_Particle[id].right_count = 0;
-		 N_Particle[id].front_count = 0;
-		 N_Particle[id].back_count = 0;
-		 N_Particle[id].top_count = 0;
-		 N_Particle[id].bottom_count = 0;
+		 N_Particle[id]->left_count = 0;
+		 N_Particle[id]->right_count = 0;
+		 N_Particle[id]->front_count = 0;
+		 N_Particle[id]->back_count = 0;
+		 N_Particle[id]->top_count = 0;
+		 N_Particle[id]->bottom_count = 0;
 		
-		 N_Particle[id].sum_edge_out = 0;
+		 N_Particle[id]->sum_edge_out = 0;
   
-		 for(int k=0;k<N_Particle[id].edge_N;k++){
-			   N_Particle[id].edge_out[k] = 0;  
+		 for(int k=0;k<N_Particle[id]->edge_N;k++){
+			   N_Particle[id]->edge_out[k] = 0;  
             }  
  
-		 for(int k=0;k<N_Particle[id].edge_N;k++){
+		 for(int k=0;k<N_Particle[id]->edge_N;k++){
   
-			 if(N_Particle[id].x[k] > Box->x[1]){
-				 N_Particle[id].right_count = 1;
-				 N_Particle[id].edge_out[k] = 1;
+			 if(N_Particle[id]->x[k] > Box->x[1]){
+				 N_Particle[id]->right_count = 1;
+				 N_Particle[id]->edge_out[k] = 1;
                 }
 
-			 if(N_Particle[id].x[k] < Box->x[0]){
-				 N_Particle[id].left_count = 1;
-				 N_Particle[id].edge_out[k] = 1;
+			 if(N_Particle[id]->x[k] < Box->x[0]){
+				 N_Particle[id]->left_count = 1;
+				 N_Particle[id]->edge_out[k] = 1;
 				}
 
-			 if(N_Particle[id].y[k] > Box->y[2]){
-				 N_Particle[id].back_count = 1;
-				 N_Particle[id].edge_out[k] = 1;
+			 if(N_Particle[id]->y[k] > Box->y[2]){
+				 N_Particle[id]->back_count = 1;
+				 N_Particle[id]->edge_out[k] = 1;
 				}
     
    
-			 if(N_Particle[id].y[k] < Box->y[0]){
-				 N_Particle[id].front_count = 1;
-				 N_Particle[id].edge_out[k] = 1;
+			 if(N_Particle[id]->y[k] < Box->y[0]){
+				 N_Particle[id]->front_count = 1;
+				 N_Particle[id]->edge_out[k] = 1;
 				}
     
-			 if(N_Particle[id].z[k] > Box->z[4]){
-				 N_Particle[id].top_count = 1;
-				 N_Particle[id].edge_out[k] = 1;
+			 if(N_Particle[id]->z[k] > Box->z[4]){
+				 N_Particle[id]->top_count = 1;
+				 N_Particle[id]->edge_out[k] = 1;
                 }
     
-			 if(N_Particle[id].z[k] < Box->z[0]){
-				 N_Particle[id].bottom_count = 1;
-				 N_Particle[id].edge_out[k] = 1;
+			 if(N_Particle[id]->z[k] < Box->z[0]){
+				 N_Particle[id]->bottom_count = 1;
+				 N_Particle[id]->edge_out[k] = 1;
                  }
    
-			 N_Particle[id].sum_edge_out = N_Particle[id].sum_edge_out + N_Particle[id].edge_out[k];
+			 N_Particle[id]->sum_edge_out = N_Particle[id]->sum_edge_out + N_Particle[id]->edge_out[k];
   
     
             }  
