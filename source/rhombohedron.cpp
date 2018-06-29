@@ -1,0 +1,584 @@
+#include "rhombohedron.h"
+
+
+
+	rhombohedron::rhombohedron(){
+ 
+		 edge_N = 8; 
+		 N_independent_faces=3;
+		 N_cross_edges = 3;
+		 edge_N_vec = 3;
+
+		 N_patches=4;
+		 N_patch_types=3;
+		
+
+		 x_patch = new double[N_patches];
+		 y_patch = new double[N_patches];
+		 z_patch = new double[N_patches];
+
+		 r_patch = new double[N_patches];
+		 patch_cutoff = new double[N_patches];
+		 patch_cutoff_squared = new double[N_patches];
+
+		 patch_energy = new double*[N_patch_types];
+		 for (int j=0;j<N_patch_types;j++){
+		 	patch_energy[j] = new double[N_patch_types];
+		 }
+
+		 patch_type = new int[N_patches];
+
+		double p1,p2,p3,p4;
+		double T;	
+		
+		boost::property_tree::ptree pt;
+		boost::property_tree::ini_parser::read_ini("para.ini", pt);
+
+		p1 = pt.get<double>("Rhombus.Energy_Level");
+		
+		T=0.1;
+
+		p1 = p1*T;
+		p2 = -p1*T;
+		p3 = 0.*T;
+		p4 = p1*T/2.;
+
+		//patch_energy(patchtype, patchtype)
+
+		// patch_energy(0,0): same type attractive 
+		// patch_energy(0,1): different types: 0
+	
+
+		// A-A
+		patch_energy[0][0] = p1;
+		// A-B
+		patch_energy[0][1] = p3;
+		 //A-C
+		patch_energy[0][2] = p3;
+
+		// B-A
+		patch_energy[1][0] = p3;
+		// B-B
+		patch_energy[1][1] = p3;
+		 //B-C
+		patch_energy[1][2] = p3;
+
+
+		// C-A
+		patch_energy[2][0] = p3;
+		// C-B
+		patch_energy[2][1] = p3;
+		 //C-C
+		patch_energy[2][2] = p3;
+
+
+		 x = new double[edge_N];
+		 y = new double[edge_N];
+		 z = new double[edge_N];
+		   
+		 dist_x = new double[edge_N];
+		 dist_y = new double[edge_N];
+		 dist_z = new double[edge_N];
+		 
+		 new_dist_x = new double[edge_N];
+		 new_dist_y = new double[edge_N];
+		 new_dist_z = new double[edge_N];
+		 
+		 edges= new m_vector[edge_N_vec];
+		 facenormal = new m_vector[N_independent_faces];
+		 
+		 edge_out = new int[edge_N];
+		 
+				
+		 copy_count = 0;
+		
+		 trans_periodic = new double[3];
+		
+		 trans_old = new double[3];
+		 Rot_old = new double[9];
+		
+		 //randpatch = gsl_rng_alloc(gsl_rng_ranlxd2);
+         ////cout<<"Cube Constructor"<<endl;		
+		
+  
+        }  
+
+
+    rhombohedron::~ rhombohedron(){
+  
+
+		 delete [] x; 
+		 delete [] y; 
+		 delete [] z; 
+		 
+		 delete [] dist_x; 
+		 delete [] dist_y; 
+		 delete [] dist_z; 
+		 
+		 delete [] edge_out;
+		 
+		 delete [] new_dist_x;
+		 delete [] new_dist_y;
+		 delete [] new_dist_z;
+		 
+		 delete[] trans_periodic;
+		
+		 
+		 delete[] trans_old;
+		 delete[] Rot_old;
+
+		 delete[] x_patch;
+		 delete[] y_patch;
+		 delete[] z_patch;
+
+		 delete[] r_patch;
+		 delete[] patch_cutoff;
+		 delete[] patch_cutoff_squared;
+		
+  
+        }  
+
+
+
+    void rhombohedron::edges_from_center(){ // only valid if cubes are aligned with coordinate axes!
+  
+		
+
+		 x[0] = x_center + (- ra.x - rb.x - rc.x)/2.;
+		 y[0] = y_center + (- ra.y - rb.y - rc.y)/2.;
+		 z[0] = z_center + (- ra.z - rb.z - rc.z)/2.;
+
+		 x[1] = x_center + (+ ra.x - rb.x - rc.x)/2.;
+		 y[1] = y_center + (+ ra.y - rb.y - rc.y)/2.;
+		 z[1] = z_center + (+ ra.z - rb.z - rc.z)/2.;
+
+		 x[2] = x_center + (+ ra.x + rb.x - rc.x)/2.;
+		 y[2] = y_center + (+ ra.y + rb.y - rc.y)/2.;
+		 z[2] = z_center + (+ ra.z + rb.z - rc.z)/2.;
+
+		 x[3] = x_center + (- ra.x + rb.x - rc.x)/2.;
+		 y[3] = y_center + (- ra.y + rb.y - rc.y)/2.;
+		 z[3] = z_center + (- ra.z + rb.z - rc.z)/2.;
+
+		 x[4] = x_center + (- ra.x - rb.x + rc.x)/2.;
+		 y[4] = y_center + (- ra.y - rb.y + rc.y)/2.;
+		 z[4] = z_center + (- ra.z - rb.z + rc.z)/2.;
+
+		 x[5] = x_center + (+ ra.x - rb.x + rc.x)/2.;
+		 y[5] = y_center + (+ ra.y - rb.y + rc.y)/2.;
+		 z[5] = z_center + (+ ra.z - rb.z + rc.z)/2.;
+
+		 x[6] = x_center + (+ ra.x + rb.x + rc.x)/2.;
+		 y[6] = y_center + (+ ra.y + rb.y + rc.y)/2.;
+		 z[6] = z_center + (+ ra.z + rb.z + rc.z)/2.;
+
+		 x[7] = x_center + (- ra.x + rb.x + rc.x)/2.;
+		 y[7] = y_center + (- ra.y + rb.y + rc.y)/2.;
+		 z[7] = z_center + (- ra.z + rb.z + rc.z)/2.;
+
+
+
+        }  
+
+
+	void rhombohedron::distance_from_center(){
+ 
+	    for(int j=0;j<edge_N;j++){
+	   
+		     dist_x[j] =  x[j] - x_center;
+		     dist_y[j] =  y[j] - y_center;
+		     dist_z[j] =  z[j] - z_center;
+	  
+	    }
+	    
+	    ////cout<<"Distance from center"<<endl;
+	    
+    }
+    
+    
+
+
+	void rhombohedron::Calculate_Axis(){
+		
+		double norm_ax;
+		
+		 ax_1.x =  x[1] - x[0];
+		 ax_1.y =  y[1] - y[0];
+	     ax_1.z =  z[1] - z[0];
+			
+		norm_ax = ax_1.norm();
+				 
+	     ax_1.x = ax_1.x/norm_ax;
+	     ax_1.y = ax_1.y/norm_ax; 
+		 ax_1.z = ax_1.z/norm_ax;  
+				 
+		 ax_2.x =  x[3] - x[0];
+		 ax_2.y =  y[3] - y[0];
+		 ax_2.z =  z[3] - z[0];
+				 
+		norm_ax = ax_2.norm();		 
+				 
+		 ax_2.x = ax_2.x/norm_ax; 
+		 ax_2.y = ax_2.y/norm_ax; 
+		 ax_2.z = ax_2.z/norm_ax;
+					 
+		 ax_3.x =  x[4] - x[0];
+	     ax_3.y =  y[4] - y[0];
+	     ax_3.z =  z[4] - z[0];
+		
+		norm_ax = ax_3.norm();		 
+					
+		 ax_3.x = ax_3.x/norm_ax;
+		 ax_3.y = ax_3.y/norm_ax; 
+		 ax_3.z = ax_3.z/norm_ax;  
+		
+	
+	}
+
+	void rhombohedron::Calculate_Long_Axis(){
+
+		double norm_ax;
+
+
+		long_axis.x = x[2] - x[0];
+		long_axis.y = y[2] - y[0];
+		long_axis.z = z[2] - z[0];
+
+		norm_ax = long_axis.norm();
+
+		long_axis.x = long_axis.x/norm_ax;
+		long_axis.y = long_axis.y/norm_ax; 
+		long_axis.z = long_axis.z/norm_ax;  
+
+
+	}
+
+
+	
+	void rhombohedron::Set_Axis(){
+
+	     ax_1_old.x =  ax_1.x;
+		 ax_1_old.y =  ax_1.y;
+		 ax_1_old.z =  ax_1.z;
+			 	 
+		 ax_2_old.x =  ax_2.x;
+		 ax_2_old.y =  ax_2.y;
+		 ax_2_old.z =  ax_2.z;
+			
+	 	 ax_3_old.x =  ax_3.x;
+		 ax_3_old.y =  ax_3.y;
+		 ax_3_old.z =  ax_3.z;
+
+		////cout<<"Set Axis"<<endl;			
+			
+    } 	
+
+
+
+    void rhombohedron::Set_Lengths(){
+		
+		//Lx = 1.0;
+		alpha=(60*M_PI)/180.0;
+		//alpha=(64.6230*M_PI)/180.0;
+		//alpha=60.0*M_PI/180.0;
+		//alpha=(53.1301*M_PI)/180.0;
+		beta = M_PI - alpha;
+		
+
+		//Lx if short diagonal is 1!!!!)
+		//Lx=sqrt(1.0/(2*(1-cos(alpha))));
+		Lx=1.0;
+		Ly=Lx;
+		Lz=0.1*Lx;
+
+
+		h=Lx*sin(alpha);
+		
+		h_2= double(h)/2.0;
+		
+		a_x = Lx*cos(alpha);
+		
+		ra.x = Lx;
+		ra.y = 0.0;
+		ra.z = 0.0;
+
+		rb.x = a_x;
+		rb.y = h;
+		rb.z = 0.0;
+
+		/*
+		rc.x = a_x;
+		rc.y = (a_x/h)*(1-a_x);
+		rc.z = sqrt(h*h - ( ( (1-a_x)*(1-a_x) )/((h/a_x)*(h/a_x)) ));
+		*/
+		
+		rc.x = 0.0;
+		rc.y = 0.0;
+		rc.z = Lz;
+
+
+		diag2_short = sqrt( (Lx-a_x)*(Lx-a_x) + h*h);
+		diag2_long = sqrt( (Lx+a_x)*(Lx+a_x) + h*h);
+		
+		diag3_short = sqrt( diag2_short*diag2_short + Lx*Lx);
+		diag3_long = sqrt( diag2_long*diag2_long + Lx*Lx);
+		
+		//cut_off = diag3_long;
+		
+		vc.x = ra.x + rb.x + rc.x;
+		vc.y = ra.y + rb.y + rc.y;
+		vc.z = ra.z + rb.z + rc.z;
+		
+		cut_off = vc.norm();
+		//cout<<"cut_off "<<cut_off<<endl;
+
+		cut_off_squared = cut_off*cut_off;
+		
+	    cross_p.x = rb.y*rc.z - rb.z*rc.y; 
+		cross_p.y = rb.z*rc.x - rb.x*rc.z;
+		cross_p.z = rb.x*rc.y - rb.y*rc.x; 
+		
+
+		V = fabs(ra.x*cross_p.x + ra.y*cross_p.y + ra.z*cross_p.z);
+
+		//cout<< "test 1"<<endl;
+
+		r_patch[0] = Lx/20.;
+		r_patch[1] = Lx/20.;
+		r_patch[2] = Lx/20.; 
+		r_patch[3] = Lx/20.;
+
+		patch_cutoff[0] = r_patch[0]*2;
+		patch_cutoff_squared[0] = patch_cutoff[0]*patch_cutoff[0];
+
+		patch_cutoff[1] = r_patch[1]*2;
+		patch_cutoff_squared[1] = patch_cutoff[1]*patch_cutoff[1];
+
+		patch_cutoff[2] = r_patch[2]*2;
+		patch_cutoff_squared[2] = patch_cutoff[2]*patch_cutoff[2];
+
+		patch_cutoff[3] = r_patch[3]*2;
+		patch_cutoff_squared[3] = patch_cutoff[3]*patch_cutoff[3];	
+	
+		boost::property_tree::ptree pt;
+		boost::property_tree::ini_parser::read_ini("para.ini", pt);
+	
+		patch_pos1 = pt.get<double>("Rhombus.First_Patch_Position");
+		patch_pos2 = pt.get<double>("Rhombus.Second_Patch_Position");
+		patch_pos3 = pt.get<double>("Rhombus.Third_Patch_Position");
+		
+		// chain
+		patch_type[0] = 0;
+		patch_type[1] = 1;
+		patch_type[2] = 1;
+		patch_type[3] = 0;
+	
+		// boxes	
+		/*
+		patch_type[0] = 0;
+		patch_type[1] = 0;
+		patch_type[2] = 1;
+		patch_type[3] = 1;
+		*/
+
+		halo_energy = 0;
+		halo_cutoff = (2*Lx)/10.0;
+		
+		cut_off_squared = cut_off*cut_off + Lx;
+		
+
+	}
+
+	void rhombohedron::Set_Lengths(int e0, int e1, int e2, int e3){
+
+		patch_type[0] = e0;
+		patch_type[1] = e1;
+		patch_type[2] = e2;
+		patch_type[3] = e3;
+
+	}
+
+
+   void rhombohedron::Set_Start_Lattice_Position(int id, double box_Lx, int N_box){
+		//for cubic lattice
+		int N_sitesp_x;
+		int N_sitesp_yz;
+		
+		double N_sitesp_x_float;
+		double N_sitesp_yz_float;
+		
+		double l_distp_x;
+		double l_distp_yz;
+	
+		N_sitesp_x = rint(pow(double(N_box*sin(alpha)*sin(alpha)),1./3.));
+		N_sitesp_x_float = double(N_sitesp_x); 
+		
+		N_sitesp_yz = ceil (N_sitesp_x_float/sin(alpha));
+		N_sitesp_yz_float = double(N_sitesp_yz);
+			  
+		l_distp_x = (box_Lx - N_sitesp_x_float*Lx)/N_sitesp_x_float;   
+		l_distp_yz = (box_Lx - N_sitesp_yz_float*h)/N_sitesp_yz_float;   
+		
+		x_center = a_x/2.0 +   l_distp_x/2.0  + double(id %N_sitesp_x)*Lx + double(id %N_sitesp_x)*l_distp_x;
+		y_center = h_2 + l_distp_yz/2.0 + double((id/N_sitesp_x)%N_sitesp_yz)*h + double((id/N_sitesp_x)%N_sitesp_yz)*l_distp_yz;
+		z_center = h_2 + l_distp_yz/2.0 + double(id/int(N_sitesp_x*N_sitesp_yz))*h + double((id/N_sitesp_x)%N_sitesp_yz)*l_distp_yz;
+		 
+		edges_from_center();	
+	}
+
+
+	void rhombohedron::Set_Start_Lattice_Position(int id, double box_Lx, double box_Ly, double box_Lz, int N_box){
+		
+		//for cubic lattice in 2D or anisotropic box shape
+		
+		int N_sitespx, N_sitespy, N_sitespz; 
+		double N_sitespx_float, N_sitespy_float, N_sitespz_float;
+		double l_distpx, l_distpy, l_distpz;
+		
+		N_sitespx = rint(sqrt(double(N_box/sin(alpha))));
+		N_sitespx_float = double(N_sitespx);  
+		N_sitespy = rint(N_sitespx*sin(alpha));
+		N_sitespy_float = double(N_sitespy);  
+		
+	
+		l_distpx = (box_Lx - N_sitespx_float)/N_sitespx_float;  
+		l_distpy = (box_Ly - N_sitespy_float)/N_sitespy_float;   
+	
+		x_center = Lx/2.0 + l_distpx/2.0 + double(id %N_sitespx + l_distpx*(id % N_sitespx));
+		y_center = h/2.0 + l_distpy/2.0 + double((id/N_sitespx)%N_sitespy + l_distpx*((id/N_sitespy)%N_sitespx)); 
+		z_center = Lz/2.0;
+		
+		edges_from_center();
+		
+	
+		
+	}
+
+	void rhombohedron::Calculate_Patch_Position(){
+
+		x_patch[0] = x[0] + patch_pos1*(x[7]-x[0]);
+	    y_patch[0] = y[0] + patch_pos1*(y[7]-y[0]);
+	    z_patch[0] = z[0] + patch_pos3*(z[7]-z[0]);
+
+	    x_patch[1] = x[2] + patch_pos2*(x[7]-x[2]);
+	    y_patch[1] = y[2] + patch_pos2*(y[7]-y[2]);
+	    z_patch[1] = z[2] + patch_pos3*(z[7]-z[2]);	
+
+		x_patch[2] = x[0] + patch_pos2*(x[5]-x[0]);
+	    y_patch[2] = y[0] + patch_pos2*(y[5]-y[0]);
+	    z_patch[2] = z[0] + patch_pos3*(z[5]-z[0]);
+
+	    x_patch[3] = x[1] + patch_pos1*(x[6]-x[1]);
+	    y_patch[3] = y[1] + patch_pos1*(y[6]-y[1]);
+	    z_patch[3] = z[1] + patch_pos3*(z[6]-z[1]);	
+	
+    }
+
+    void rhombohedron::Calculate_Face_Normals(){
+		
+		double face_ax;
+		
+		// face normals are the same as axis in the cube:
+	
+		facenormal[0].x = ax_1.y*ax_2.z - ax_1.z*ax_2.y;
+		facenormal[0].y = ax_1.z*ax_2.x - ax_1.x*ax_2.z;
+		facenormal[0].z = ax_1.x*ax_2.y - ax_1.y*ax_2.x;
+		
+		face_ax = facenormal[0].norm();		 
+						
+		facenormal[0].x = facenormal[0].x/face_ax;
+		facenormal[0].y = facenormal[0].y/face_ax;
+		facenormal[0].z = facenormal[0].z/face_ax;
+					
+		facenormal[1].x = ax_1.y*ax_3.z - ax_1.z*ax_3.y;
+		facenormal[1].y = ax_1.z*ax_3.x - ax_1.x*ax_3.z;
+		facenormal[1].z = ax_1.x*ax_3.y - ax_1.y*ax_3.x;
+		
+		face_ax = facenormal[1].norm();		 
+						
+		facenormal[1].x = facenormal[1].x/face_ax;
+		facenormal[1].y = facenormal[1].y/face_ax;
+		facenormal[1].z = facenormal[1].z/face_ax;
+		
+	
+		facenormal[2].x = ax_2.y*ax_3.z - ax_2.z*ax_3.y;
+		facenormal[2].y = ax_2.z*ax_3.x - ax_2.x*ax_3.z;
+		facenormal[2].z = ax_2.x*ax_3.y - ax_2.y*ax_3.x;
+		
+		face_ax = facenormal[2].norm();		 
+						
+		facenormal[2].x = facenormal[2].x/face_ax;
+		facenormal[2].y = facenormal[2].y/face_ax;
+		facenormal[2].z = facenormal[2].z/face_ax;
+		
+		
+		edges[0].x = ax_1.x;
+		edges[0].y = ax_1.y;
+		edges[0].z = ax_1.z;
+		
+		edges[1].x = ax_2.x;
+		edges[1].y = ax_2.y;
+		edges[1].z = ax_2.z;
+		
+		edges[2].x = ax_3.x;
+		edges[2].y = ax_3.y;
+		edges[2].z = ax_3.z;
+		
+	
+    }		
+
+	double rhombohedron::Calculate_Projection_to_Separating_Axis(m_vector laxis){
+	
+		
+		double Rp;
+	
+		
+		Rp = (fabs(ax_1.x*laxis.x + ax_1.y*laxis.y + ax_1.z*laxis.z) + 
+			  fabs(ax_2.x*laxis.x + ax_2.y*laxis.y + ax_2.z*laxis.z) + 
+			  fabs(ax_3.x*laxis.x + ax_3.y*laxis.y + ax_3.z*laxis.z) )*(Lx/2.0);
+		
+	
+		
+		return Rp;
+
+		/*
+		double Rp;
+		double rmax;
+		double rmin;
+		double scp_oc;
+		
+		double norm_ax;
+	
+	    distance_from_center();
+	    
+	    rmin=  dist_x[0]*laxis.x + dist_y[0]*laxis.y + dist_z[0]*laxis.z;
+		rmax= rmin;
+ 
+		for (int j=1;j<edge_N;j++){
+			
+			scp_oc = dist_x[j]*laxis.x + dist_y[j]*laxis.y + dist_z[j]*laxis.z;
+			
+			if (scp_oc < rmin) {
+				rmin = scp_oc;
+			} 
+			else if (scp_oc > rmax) {
+				rmax = scp_oc;
+			}
+			
+			
+		}	
+		
+	    Rp = fabs((rmax-rmin)/2.0);
+		//Rp=rmax-rmin;	
+		
+		
+		return Rp;
+		*/
+		
+	}	
+		
+		
+	
+		
+		
+		
