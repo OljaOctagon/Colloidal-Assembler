@@ -28,7 +28,7 @@
 
 		 patch_type = new int[N_patches];
 
-		double p1,p2,p3,p4;
+		double p1,p2,p3;
 		double T;	
 		
 		boost::property_tree::ptree pt;
@@ -54,7 +54,7 @@
 		// A-B
 		patch_energy[0][1] = p3;
 		 //A-C
-		patch_energy[0][2] = p3;
+		patch_energy[0][2] = p2;
 
 		// B-A
 		patch_energy[1][0] = p3;
@@ -65,11 +65,11 @@
 
 
 		// C-A
-		patch_energy[2][0] = p3;
+		patch_energy[2][0] = p2;
 		// C-B
 		patch_energy[2][1] = p3;
 		 //C-C
-		patch_energy[2][2] = p3;
+		patch_energy[2][2] = p1;
 
 
 		 x = new double[edge_N];
@@ -363,23 +363,271 @@
 		boost::property_tree::ptree pt;
 		boost::property_tree::ini_parser::read_ini("para.ini", pt);
 	
-		patch_pos1 = pt.get<double>("Rhombus.First_Patch_Position");
-		patch_pos2 = pt.get<double>("Rhombus.Second_Patch_Position");
-		patch_pos3 = pt.get<double>("Rhombus.Third_Patch_Position");
+		patch_delta = pt.get<double>("Rhombus.patch_delta");
+		rhombus_type = pt.get<string>("Rhombus.rhombus_type");
+		cout<<"rhombus type "<<rhombus_type<<endl; 
+		// available types: 
+		// one_patch, chain, manta_symm, manta_asymm, mouse_symm, mouse_asymm, 
+		// double_manta_symm_1, double_manta_symm_2; double_manta_asymm_1, double_manta_asymm_2, 
+		// double_mouse_symm_1, double_mouse_symm_2, double_manta_asymm_1, double_manta_asymm_2,
+		// checkers_symm_1, checkers_symm_2, checkers_asymm_1, checkers_asymm_2
 		
-		// chain
-		patch_type[0] = 0;
-		patch_type[1] = 1;
-		patch_type[2] = 1;
-		patch_type[3] = 0;
-	
-		// boxes	
-		/*
+		patch_x = 0.5; 
+		d0 = patch_x; 
+		d1 = patch_x;
+		d2 = patch_x;
+		d3 = patch_x;
+
 		patch_type[0] = 0;
 		patch_type[1] = 0;
-		patch_type[2] = 1;
-		patch_type[3] = 1;
-		*/
+		patch_type[2] = 0;
+		patch_type[3] = 0;
+
+
+		if(rhombus_type.compare("one_patch")==0){
+			d0 = patch_delta;
+			d1 = patch_x;
+			d2 = patch_x; 
+			d3 = patch_x; 
+
+			patch_type[0] = 0;
+			patch_type[1] = 1;
+			patch_type[2] = 1;
+			patch_type[3] = 1;
+
+		}
+
+		if(rhombus_type.compare("chain_symm")==0){
+			d0 = patch_delta;
+			d1 = patch_x;
+			d2 = patch_x; 
+			d3 = 1 - patch_delta;
+
+			patch_type[0] = 0;
+			patch_type[1] = 1;
+			patch_type[2] = 1;
+			patch_type[3] = 0;
+
+		}
+
+		if(rhombus_type.compare("chain_asymm")==0){
+			d0 = patch_delta;
+			d1 = patch_x;
+			d2 = patch_x; 
+			d3 = patch_delta;
+
+			patch_type[0] = 0;
+			patch_type[1] = 1;
+			patch_type[2] = 1;
+			patch_type[3] = 0;  
+		}
+
+		if(rhombus_type.compare("manta_symm")==0){
+			d0 = patch_delta;
+			d1 = patch_delta;
+			d2 = patch_x;
+			d3 = patch_x;
+
+			patch_type[0] = 0;
+			patch_type[1] = 0;
+			patch_type[2] = 1;
+			patch_type[3] = 1;
+		}
+
+		if(rhombus_type.compare("manta_asymm")==0){
+			d0 = patch_delta;
+			d1 = 1 - patch_delta;
+			d2 = patch_x;
+			d3 = patch_x; 
+
+			patch_type[0] = 0;
+			patch_type[1] = 0;
+			patch_type[2] = 1;
+			patch_type[3] = 1;
+
+		} 
+
+		if(rhombus_type.compare("mouse_symm")==0){
+			d0 = patch_delta;
+			d1 = patch_x;
+			d2 = patch_delta;
+			d3 = patch_x;
+
+			patch_type[0] = 0;
+			patch_type[1] = 1;
+			patch_type[2] = 0;
+			patch_type[3] = 1;
+
+		}
+
+		if(rhombus_type.compare("mouse_asymm")==0){
+			d0 = patch_delta;
+			d1 = patch_x;
+			d2 = 1 - patch_delta; 
+			d3 = patch_x; 
+
+			patch_type[0] = 0;
+			patch_type[1] = 1;
+			patch_type[2] = 0;
+			patch_type[3] = 1;
+
+		}
+		
+		//TODO: DUMMY Dxs, FILL IN CORRECT NUMBERS!
+		if(rhombus_type.compare("double_manta_symm_1")==0){
+			d0 = patch_delta;
+			d1 = patch_delta;
+			d2 = patch_delta; 
+			d3 = patch_delta;
+
+			patch_type[0] = 0;
+			patch_type[1] = 0;
+			patch_type[2] = 2;
+			patch_type[3] = 2;
+		}
+
+		if(rhombus_type.compare("double_manta_symm_2")==0){
+			d0 = patch_delta;
+			d1 = patch_delta;
+			d2 = 1 - patch_delta; 
+			d3 = 1-  patch_delta; 
+
+			patch_type[0] = 0;
+			patch_type[1] = 0;
+			patch_type[2] = 2;
+			patch_type[3] = 2;
+
+		}
+
+		if(rhombus_type.compare("double_manta_asymm_1")==0){
+			d0 = patch_delta;
+			d1 = 1 - patch_delta;
+			d2 = patch_delta;
+			d3 = 1 - patch_delta; 
+
+			patch_type[0] = 0;
+			patch_type[1] = 0;
+			patch_type[2] = 2;
+			patch_type[3] = 2;
+
+
+		}
+
+		if(rhombus_type.compare("double_manta_asymm_2")==0){
+			cout<<"DOUBLE MANTA"<<endl;
+			d0 = patch_delta;
+			d1 = 1 - patch_delta;
+			d2 = 1 - patch_delta; 
+			d3 = patch_delta; 
+
+			patch_type[0] = 0;
+			patch_type[1] = 0;
+			patch_type[2] = 2;
+			patch_type[3] = 2;
+
+		}
+
+		if(rhombus_type.compare("double_mouse_symm_1")==0){
+			d0 = patch_delta;
+			d1 = patch_delta;
+			d2 = patch_delta; 
+			d3 = patch_delta; 
+
+			patch_type[0] = 0;
+			patch_type[1] = 2;
+			patch_type[2] = 0;
+			patch_type[3] = 2;
+
+
+		}
+		if(rhombus_type.compare("double_mouse_symm_2")==0){
+			d0 = patch_delta;
+			d1 = 1 - patch_delta;
+			d2 = patch_delta; 
+			d3 = 1 - patch_delta; 
+
+			patch_type[0] = 0;
+			patch_type[1] = 2;
+			patch_type[2] = 0;
+			patch_type[3] = 2;
+		}
+		if(rhombus_type.compare("double_mouse_asymm_1")==0){
+			d0 = patch_delta;
+			d1 = patch_delta;
+			d2 = 1 - patch_delta; 
+			d3 = 1 - patch_delta; 
+
+
+			patch_type[0] = 0;
+			patch_type[1] = 2;
+			patch_type[2] = 0;
+			patch_type[3] = 2;
+		}
+
+		if(rhombus_type.compare("double_mouse_asymm_2")==0){
+			d0 = patch_delta;
+			d1 = 1 - patch_delta;
+			d2 = 1 - patch_delta; 
+			d3 = patch_delta; 
+
+
+			patch_type[0] = 0;
+			patch_type[1] = 2;
+			patch_type[2] = 0;
+			patch_type[3] = 2;
+		}
+
+		if(rhombus_type.compare("double_checkers_symm_1")==0){
+			d0 = patch_delta;
+			d1 = patch_delta;
+			d2 = 1 - patch_delta; 
+			d3 = 1 - patch_delta; 
+
+
+			patch_type[0] = 0;
+			patch_type[1] = 2;
+			patch_type[2] = 2;
+			patch_type[3] = 0;
+
+		}
+
+		if(rhombus_type.compare("double_checkers_symm_2")==0){
+			d0 = patch_delta;
+			d1 = patch_x;
+			d2 = patch_x; 
+			d3 = 1 - patch_delta; 
+
+			patch_type[0] = 0;
+			patch_type[1] = 2;
+			patch_type[2] = 2;
+			patch_type[3] = 0;
+		}
+
+		if(rhombus_type.compare("double_checkers_asymm_1")==0){
+			d0 = patch_delta;
+			d1 = patch_x;
+			d2 = patch_x;
+			d3 = patch_delta; 
+
+			patch_type[0] = 0;
+			patch_type[1] = 2;
+			patch_type[2] = 2;
+			patch_type[3] = 0;
+		}
+
+		if(rhombus_type.compare("double_checkers_asymm_2")==0){
+			cout<<"assym manta"<<endl; 
+			d0 = patch_delta;
+			d1 = 1- patch_delta;
+			d2 = 1 - patch_delta; 
+			d3 = 1 - patch_delta; 
+
+			patch_type[0] = 0;
+			patch_type[1] = 2;
+			patch_type[2] = 2;
+			patch_type[3] = 0;
+
+		}
 
 		halo_energy = 0;
 		halo_cutoff = (2*Lx)/10.0;
@@ -456,21 +704,21 @@
 
 	void rhombohedron::Calculate_Patch_Position(){
 
-		x_patch[0] = x[0] + patch_pos1*(x[7]-x[0]);
-	    y_patch[0] = y[0] + patch_pos1*(y[7]-y[0]);
-	    z_patch[0] = z[0] + patch_pos3*(z[7]-z[0]);
+		x_patch[0] = x[0] + d0*(x[7]-x[0]);
+	    y_patch[0] = y[0] + d0*(y[7]-y[0]);
+	    z_patch[0] = z[0] + patch_x*(z[7]-z[0]);
 
-	    x_patch[1] = x[2] + patch_pos2*(x[7]-x[2]);
-	    y_patch[1] = y[2] + patch_pos2*(y[7]-y[2]);
-	    z_patch[1] = z[2] + patch_pos3*(z[7]-z[2]);	
+	    x_patch[1] = x[2] + d1*(x[7]-x[2]);
+	    y_patch[1] = y[2] + d1*(y[7]-y[2]);
+	    z_patch[1] = z[2] + patch_x*(z[7]-z[2]);	
 
-		x_patch[2] = x[0] + patch_pos2*(x[5]-x[0]);
-	    y_patch[2] = y[0] + patch_pos2*(y[5]-y[0]);
-	    z_patch[2] = z[0] + patch_pos3*(z[5]-z[0]);
+		x_patch[2] = x[0] + d2*(x[5]-x[0]);
+	    y_patch[2] = y[0] + d2*(y[5]-y[0]);
+	    z_patch[2] = z[0] + patch_x*(z[5]-z[0]);
 
-	    x_patch[3] = x[1] + patch_pos1*(x[6]-x[1]);
-	    y_patch[3] = y[1] + patch_pos1*(y[6]-y[1]);
-	    z_patch[3] = z[1] + patch_pos3*(z[6]-z[1]);	
+	    x_patch[3] = x[6] + d3*(x[1]-x[6]);
+	    y_patch[3] = y[6] + d3*(y[1]-y[6]);
+	    z_patch[3] = z[6] + patch_x*(z[1]-z[6]);	
 	
     }
 

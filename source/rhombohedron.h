@@ -36,15 +36,16 @@ double diag3_short, diag3_long;
 double p,q;
 double px_l, py_l, px_s, py_s;
 double qx_l, qy_l, qx_s, qy_s;
-double patch_pos1, patch_pos2, patch_pos3;
+double patch_delta;
 m_vector ra;
 m_vector rb;
 m_vector rc;
+double d0,d1,d2,d3;
+double patch_x;
 
 m_vector vc;
 m_vector cross_p;
-
-
+string rhombus_type;
 rhombohedron();
 ~ rhombohedron();
 

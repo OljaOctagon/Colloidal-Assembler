@@ -104,59 +104,60 @@ proc drawpolyframe { name element op } {
 		set p1bz [ lindex $V7 2 ]
 
 		set p2ax [ lindex $V2 0 ]
-                set p2ay [ lindex $V2 1 ]
-                set p2az [ lindex $V2 2 ]
+        set p2ay [ lindex $V2 1 ]
+        set p2az [ lindex $V2 2 ]
                                           
-	        set p2bx [ lindex $V7 0 ]
-                set p2by [ lindex $V7 1 ]
+	    set p2bx [ lindex $V7 0 ]
+        set p2by [ lindex $V7 1 ]
 		set p2bz [ lindex $V7 2 ] 
 
 		set p3ax [ lindex $V0 0 ]  				
-                set p3ay [ lindex $V0 1 ]
-                set p3az [ lindex $V0 2 ]
+        set p3ay [ lindex $V0 1 ]
+        set p3az [ lindex $V0 2 ]
                                            
-                set p3bx [ lindex $V5 0 ]
-                set p3by [ lindex $V5 1 ]
-                set p3bz [ lindex $V5 2 ]
+        set p3bx [ lindex $V5 0 ]
+        set p3by [ lindex $V5 1 ]
+        set p3bz [ lindex $V5 2 ]
                                            
-                set p4ax [ lindex $V1 0 ]
-                set p4ay [ lindex $V1 1 ]
-                set p4az [ lindex $V1 2 ]
+        set p4ax [ lindex $V1 0 ]
+        set p4ay [ lindex $V1 1 ]
+        set p4az [ lindex $V1 2 ]
                                           
-                set p4bx [ lindex $V6 0 ]
-                set p4by [ lindex $V6 1 ]
-                set p4bz [ lindex $V6 2 ] 
+        set p4bx [ lindex $V6 0 ]
+        set p4by [ lindex $V6 1 ]
+        set p4bz [ lindex $V6 2 ] 
 
 	
-		set p1_x [ expr $p1ax + 0.5*($p1bx - $p1ax)]
-		set p1_y [ expr $p1ay + 0.5*($p1by - $p1ay)]
+		set p1_x [ expr $p1ax + 0.3*($p1bx - $p1ax)]
+		set p1_y [ expr $p1ay + 0.3*($p1by - $p1ay)]
 		set p1_z [ expr $p1az + 0.5*($p1bz - $p1az)]
 
-		set p2_x [ expr $p2ax + 0.5*($p2bx - $p2ax)] 	
-                set p2_y [ expr $p2ay + 0.5*($p2by - $p2ay)]
-                set p2_z [ expr $p2az + 0.5*($p2bz - $p2az)]
+		set p2_x [ expr $p2ax + 0.7*($p2bx - $p2ax)] 	
+        set p2_y [ expr $p2ay + 0.7*($p2by - $p2ay)]
+        set p2_z [ expr $p2az + 0.5*($p2bz - $p2az)]
 
-		set p3_x [ expr $p3ax + 0.5*($p3bx - $p3ax)]
-                set p3_y [ expr $p3ay + 0.5*($p3by - $p3ay)]
-                set p3_z [ expr $p3az + 0.5*($p3bz - $p3az)]
+		set p3_x [ expr $p3ax + 0.7*($p3bx - $p3ax)]
+        set p3_y [ expr $p3ay + 0.7*($p3by - $p3ay)]
+        set p3_z [ expr $p3az + 0.5*($p3bz - $p3az)]
                                                              
-                set p4_x [ expr $p4ax + 0.5*($p4bx - $p4ax)] 
-                set p4_y [ expr $p4ay + 0.5*($p4by - $p4ay)]
-                set p4_z [ expr $p4az + 0.5*($p4bz - $p4az)]
+        set p4_x [ expr $p4bx + 0.3*($p4ax - $p4bx)] 
+        set p4_y [ expr $p4by + 0.3*($p4ay - $p4by)]
+        set p4_z [ expr $p4bz + 0.5*($p4az - $p4bz)]
 
-	
-		graphics top color green2 
-		set r_patch 0.1
+
+		set r_patch 0.05
 
 		set p1_vec [list $p1_x $p1_y $p1_z ]
 		set p2_vec [list $p2_x $p2_y $p2_z ]
 		set p3_vec [list $p3_x $p3_y $p3_z ] 	
-	        set p4_vec [list $p4_x $p4_y $p4_z ]
+	    set p4_vec [list $p4_x $p4_y $p4_z ]
 
+	    graphics top color green2
 		draw sphere $p1_vec radius $r_patch  resolution 30		
-		draw sphere $p2_vec radius $r_patch  resolution 30		
+		draw sphere $p2_vec radius $r_patch  resolution 30
+		graphics top color red	
 		draw sphere $p3_vec radius $r_patch  resolution 30	
-                draw sphere $p4_vec radius $r_patch  resolution 30	
+        draw sphere $p4_vec radius $r_patch  resolution 30	
 	
 		graphics top color blue3 
 
