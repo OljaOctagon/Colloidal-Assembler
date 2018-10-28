@@ -40,7 +40,7 @@ import pandas as pd
 import json
 def calculate_mean_domain_sizes(key_1, nmin, nmax):
     df = pd.read_csv("domain_sizes_results_{}.dat".format(key_1), delim_whitespace=True, header=None)
-    df.columns = ['mean', 'std', 'bonding_type', 'cluster_size']
+    df.columns = ['mean', 'std', 'bonding_type', 'csize']
     dg = df[df.csize>nmin]
     dg = dg[dg.csize<nmax]
     print(dg)
