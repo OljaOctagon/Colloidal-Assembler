@@ -7,7 +7,6 @@ import numpy as np
 # The number of connected components gives the domain sizes. We then calculate the distribution, the mean, and the variance. 
 
 # This is ana array of the format particle i, particle j, bonding (-1 or 1), cluster size
-arr = pd.read_csv('domain_size.dat', delim_whitespace=True, header=None).values
 
 def calculate_network_domains(p_index):
     G = nx.Graph()
