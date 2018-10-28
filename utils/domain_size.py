@@ -28,8 +28,8 @@ def domain_size(file):
     np_mean, np_std, cs = calculate_network_domains(arr, -1)
 
     with open("domain_sizes_results.dat", 'w') as fhandle:
-        fhandle.write("{} {} {} {}".format(p_mean, p_std, 1, cs))
-        fhandle.write("{} {} {} {}".format(np_mean, np_std, -1, cs))
+        fhandle.write("{} {} {} {}\n".format(p_mean, p_std, 1, cs))
+        fhandle.write("{} {} {} {}\n".format(np_mean, np_std, -1, cs))
 
 if __name__ == "__main__":
     filen="bond_domains.dat"
