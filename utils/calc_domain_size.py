@@ -51,7 +51,7 @@ if __name__ == "__main__":
     nmax=1000
     deltas=[0.5]
     domain_values = {}
-    filen="domain_sizes.dat"
+    filen="bond_domains.dat"
     for delta in deltas:
         key_1 = 'mu_0.25Energy_-5.2Asymm_patchpos_{}'.format(delta)
         key_2 = 'mu_0.25Energy_-5.2Asymm_patchpos_{}'.format(1-delta)

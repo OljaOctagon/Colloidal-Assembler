@@ -8,10 +8,10 @@ import numpy as np
 
 # This is ana array of the format particle i, particle j, bonding (-1 or 1), cluster size
 
-def calculate_network_domains(p_index):
+def calculate_network_domains(arr, p_index):
     G = nx.Graph()
     arr_p = arr[arr[:,2]==p_index]
-    G.add_edges_from(arr[:,:2])
+    G.add_edges_from(arr_p[:,:2])
     domains = list(nx.connected_components(G))
     domain_sizes = [ len(domain) for domain in domains]
     mean=np.mean(domain_sizes)
@@ -23,9 +23,9 @@ def domain_size(file):
     # This is an array of the format particle i, particle j, bonding (-1 or 1), cluster size
     arr = pd.read_csv(file, delim_whitespace=True, header=None).values
     # calculate for parallel
-    p_mean, p_std, cs = calculate_network_domains(1)
+    p_mean, p_std, cs = calculate_network_domains(1,arr)
     # calculate for non-parallel
-    np_mean, np_std, cs = calculate_network_domains(-1)
+    np_mean, np_std, cs = calculate_network_domains(-1,arr)
 
     with open("domain_sizes_results.dat", 'w') as fhandle:
         fhandle.write("{} {} {} {}".format(p_mean, p_std, 1, cs))
