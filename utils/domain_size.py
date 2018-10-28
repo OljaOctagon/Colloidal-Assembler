@@ -32,6 +32,6 @@ def domain_size(file):
         fhandle.write("{} {} {} {}".format(p_mean, p_std, 1, cs))
         fhandle.write("{} {} {} {}".format(np_mean, np_std, -1, cs))
 
-if __name__ = "__main__":
+if __name__ == "__main__":
     filen="domain_size.dat"
     domain_size(filen)
