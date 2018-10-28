@@ -32,7 +32,7 @@ def calculate_last_frames(key_1, key_2, delta, filen):
             f_patch_energy = 'patch_energy_{}.bin'.format(n_iter)
             os.system("cp patch_energy.bin {}/{}".format(rel_path, f_patch_energy))
             os.system("cd {}; ./McPoly -f {} {}; cd ..".format(rel_path, n_iter, n_iter+1))
-            os.system("cp domain_size.py; cd {}; python domain_size.py".format(rel_path))
+            os.system("cp domain_size.py {}; cd {}; python domain_size.py".format(rel_path, rel_path))
             os.system('cat {}/domain_sizes_results.dat >> domain_sizes_results_{}.dat'.format(rel_path, key_1))
 
 
@@ -50,17 +50,16 @@ if __name__ == "__main__":
     nmin=200
     nmax=1000
     deltas=[0.5]
-    domain_values = {}
+    psi_values = {}
     for delta in deltas:
         key_1 = 'mu_0.25Energy_-5.2Asymm_patchpos_{}'.format(delta)
         key_2 = 'mu_0.25Energy_-5.2Asymm_patchpos_{}'.format(1-delta)
-        filen='domain_sizes.dat'
-        calculate_last_frames(key_1,key_2,delta, filen)
-        domain_values[delta] = calculate_mean_domain_sizes(key_1, nmin, nmax)
+        calculate_last_frames(key_1,key_2,delta)
+        psi_values[delta] = calculate_mean_psi(key_1, nmin, nmax)
 
     def default(o):
         if isinstance(o, np.int64): return int(o)  
         raise TypeError
 
-    with open('domain_mean.json', 'w') as fp:
-        json.dump(domain_values, fp, default=default)
+    with open('psi_mean.json', 'w') as fp:
+        json.dump(psi_values, fp, default=default)
