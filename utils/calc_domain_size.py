@@ -50,16 +50,17 @@ if __name__ == "__main__":
     nmin=200
     nmax=1000
     deltas=[0.5]
-    psi_values = {}
+    domain_values = {}
+    filen="domain_sizes.dat"
     for delta in deltas:
         key_1 = 'mu_0.25Energy_-5.2Asymm_patchpos_{}'.format(delta)
         key_2 = 'mu_0.25Energy_-5.2Asymm_patchpos_{}'.format(1-delta)
-        calculate_last_frames(key_1,key_2,delta)
-        psi_values[delta] = calculate_mean_psi(key_1, nmin, nmax)
+        calculate_last_frames(key_1,key_2,delta, filen)
+        domain_values[delta] = calculate_mean_domain_sizes(key_1, nmin, nmax)
 
     def default(o):
         if isinstance(o, np.int64): return int(o)  
         raise TypeError
 
-    with open('psi_mean.json', 'w') as fp:
-        json.dump(psi_values, fp, default=default)
+    with open('domain_sizes_mean.json', 'w') as fp:
+        json.dump(domain_values, fp, default=default)
