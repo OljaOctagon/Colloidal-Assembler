@@ -14,6 +14,7 @@ def calculate_network_domains(arr, p_index):
     G.add_edges_from(arr_p[:,:2])
     domains = list(nx.connected_components(G))
     domain_sizes = [ len(domain) for domain in domains]
+    print(domain_sizes)
     mean=np.mean(domain_sizes)
     std = np.std(domain_sizes)
     cluster_size=arr[0,3]
