@@ -871,9 +871,7 @@ void order_param::g_xyz(){
 			Particles.N_Particle[id]->Calculate_Long_Axis();	
 
 		}
-
-
-		
+    ofstream outstream("bond_domains.dat", ios::out);
 
 		for (int k1=0;k1<N_List;k1++){
 			id1= List[k1];
@@ -904,20 +902,20 @@ void order_param::g_xyz(){
 													  Particles.N_Particle[id1]->long_axis.z * Particles.N_Particle[id2]->long_axis.z );
 
 
+                double bonding;
+                bonding=-1;
 								if(scp_long_axis > scp_long_axis_TH){
-
+                  bonding=1;
 									NH_parallel = NH_parallel + 1;
 
 								}
-
-							
+                outstream<<id1<<" "<<id2<<" "<<bonding<<" "<<N_List<<endl;
 						}
 					}
 
 				}	
 
 			}
-
 		}
 			
 		NH_bonds = NH_bonds/2;
@@ -928,7 +926,7 @@ void order_param::g_xyz(){
 	
 		psi_local = ( da*double(NH_parallel) - db*double(NH_non_parallel) )/( da*double(NH_parallel) + db*double(NH_non_parallel) );	
 
-
+    outstream.close();
 	}
 
 

@@ -108,7 +108,7 @@
 		*/
 
 		ofstream vmd_op4_out("psi_op.dat", ios::out | ios::app);
-		vmd_op4_out<<Order_Parameter.Psi<<"  "<<Order_Parameter.psi_local<<endl;
+		vmd_op4_out<<Order_Parameter.Psi<<" "<<Order_Parameter.psi_local<<" "<<Cluster.Size_R<<endl;
 			
 		vmd_op4_out.close();
 	

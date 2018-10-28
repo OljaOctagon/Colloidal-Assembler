@@ -97,10 +97,6 @@
 		 trans_old = new double[3];
 		 Rot_old = new double[9];
 		
-		 //randpatch = gsl_rng_alloc(gsl_rng_ranlxd2);
-         ////cout<<"Cube Constructor"<<endl;		
-		
-  
         }  
 
 
@@ -191,7 +187,6 @@
 	  
 	    }
 	    
-	    ////cout<<"Distance from center"<<endl;
 	    
     }
     
@@ -269,7 +264,6 @@
 		 ax_3_old.y =  ax_3.y;
 		 ax_3_old.z =  ax_3.z;
 
-		////cout<<"Set Axis"<<endl;			
 			
     } 	
 
@@ -330,18 +324,14 @@
 		vc.z = ra.z + rb.z + rc.z;
 		
 		cut_off = vc.norm();
-		//cout<<"cut_off "<<cut_off<<endl;
 
 		cut_off_squared = cut_off*cut_off;
 		
 	    cross_p.x = rb.y*rc.z - rb.z*rc.y; 
 		cross_p.y = rb.z*rc.x - rb.x*rc.z;
 		cross_p.z = rb.x*rc.y - rb.y*rc.x; 
-		
 
 		V = fabs(ra.x*cross_p.x + ra.y*cross_p.y + ra.z*cross_p.z);
-
-		//cout<< "test 1"<<endl;
 
 		r_patch[0] = Lx/20.;
 		r_patch[1] = Lx/20.;
@@ -365,11 +355,10 @@
 	
 		patch_delta = pt.get<double>("Rhombus.patch_delta");
 		rhombus_type = pt.get<string>("Rhombus.rhombus_type");
-		cout<<"rhombus type "<<rhombus_type<<endl; 
 		// available types: 
 		// one_patch, chain, manta_symm, manta_asymm, mouse_symm, mouse_asymm, 
 		// double_manta_symm_1, double_manta_symm_2; double_manta_asymm_1, double_manta_asymm_2, 
-		// double_mouse_symm_1, double_mouse_symm_2, double_manta_asymm_1, double_manta_asymm_2,
+		// double_mouse_symm_1, double_mouse_symm_2, double_mouse_asymm_1, double_mouse_asymm_2,
 		// checkers_symm_1, checkers_symm_2, checkers_asymm_1, checkers_asymm_2
 		
 		patch_x = 0.5; 
@@ -473,7 +462,6 @@
 
 		}
 		
-		//TODO: DUMMY Dxs, FILL IN CORRECT NUMBERS!
 		if(rhombus_type.compare("double_manta_symm_1")==0){
 			d0 = patch_delta;
 			d1 = patch_delta;
@@ -514,8 +502,7 @@
 		}
 
 		if(rhombus_type.compare("double_manta_asymm_2")==0){
-			cout<<"DOUBLE MANTA"<<endl;
-			d0 = patch_delta;
+      d0 = patch_delta;
 			d1 = 1 - patch_delta;
 			d2 = 1 - patch_delta; 
 			d3 = patch_delta; 
@@ -616,7 +603,6 @@
 		}
 
 		if(rhombus_type.compare("double_checkers_asymm_2")==0){
-			cout<<"assym manta"<<endl; 
 			d0 = patch_delta;
 			d1 = 1- patch_delta;
 			d2 = 1 - patch_delta; 
@@ -629,6 +615,18 @@
 
 		}
 
+		if(rhombus_type.compare("four_patch_equal")==0){
+			d0 = patch_delta;
+			d1 = patch_delta;
+			d2 = patch_delta;
+			d3 = patch_delta;
+
+			patch_type[0] = 0;
+			patch_type[1] = 0;
+			patch_type[2] = 0;
+			patch_type[3] = 0;
+
+		}
 		halo_energy = 0;
 		halo_cutoff = (2*Lx)/10.0;
 		
