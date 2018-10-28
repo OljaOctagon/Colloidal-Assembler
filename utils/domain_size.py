@@ -33,5 +33,5 @@ def domain_size(file):
         fhandle.write("{} {} {} {}".format(np_mean, np_std, -1, cs))
 
 if __name__ == "__main__":
-    filen="domain_size.dat"
+    filen="bond_domains.dat"
     domain_size(filen)

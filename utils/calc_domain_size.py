@@ -15,7 +15,7 @@ def calculate_last_frames(key_1, key_2, delta, filen):
             print('worked!', rel_path)
             print()
             os.system('rm {}/*1.bin'.format(rel_path))
-            os.system('rm {}/{}'.format(filen, rel_path))
+            os.system('rm {}/{}'.format(rel_path, filen))
             files = os.listdir(rel_path) 
             # get last frame
             g = lambda filename: int(re.split('\.|\_',filename)[1])
