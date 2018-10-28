@@ -23,9 +23,9 @@ def domain_size(file):
     # This is an array of the format particle i, particle j, bonding (-1 or 1), cluster size
     arr = pd.read_csv(file, delim_whitespace=True, header=None).values
     # calculate for parallel
-    p_mean, p_std, cs = calculate_network_domains(1,arr)
+    p_mean, p_std, cs = calculate_network_domains(arr, 1)
     # calculate for non-parallel
-    np_mean, np_std, cs = calculate_network_domains(-1,arr)
+    np_mean, np_std, cs = calculate_network_domains(arr, -1)
 
     with open("domain_sizes_results.dat", 'w') as fhandle:
         fhandle.write("{} {} {} {}".format(p_mean, p_std, 1, cs))
