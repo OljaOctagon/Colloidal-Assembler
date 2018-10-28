@@ -45,7 +45,7 @@ def calculate_mean_domain_sizes(key_1, nmin, nmax):
     dg = dg[dg.csize<nmax]
     dnp = dg[dg.bonding_type==-1]
     dp = dg[dg.bonding_type==1]
-    return (len(dnp), dnp.cmean.mean(), dnp.cstd.std(), len(dp), dp.cmean.mean(), dp.cstd.std())
+    return (len(dnp), dnp.cmean.mean(), dnp.cstd.mean(), len(dp), dp.cmean.mean(), dp.cstd.mean())
 
 if __name__ == "__main__":
     nmin=200
