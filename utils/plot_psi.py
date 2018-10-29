@@ -14,7 +14,7 @@ x = np.array([[0.028080306781609193, 0.04677896872550968],
               [0.024920415017857137, 0.035504098095303006]])
 
 fig,ax = plt.subplots()
-ax.set_aspect(0.99)
+ax.set_aspect(0.3)
 plt.ylim([-1,1])
 #ax.spines['right'].set_visible(False)
 #ax.spines['top'].set_visible(False)
@@ -24,17 +24,31 @@ plt.ylim([-1,1])
 
 # plot single compairsion lines at center position
 for i in range(len(x)):
-    ax.errorbar(0, x[i,0], yerr=x[i,1], color=color[i], elinewidth=3, capsize=2, label = names[i], marker=marker[i], ms=8)
+    ax.errorbar(0.5, x[i,0], yerr=x[i,1], color=color[i], elinewidth=3, capsize=2, label = names[i], marker=marker[i], ms=8)
+
+def list_append(lst, item):
+    lst.append(item)
+    return lst
 
 def parse_json(filen):
     with open(filen) as fhandle:
         data = json.load(fhandle)
 
-    pdata = [ value.append(key) for key, value in zip(data.keys(), data.values()) ]
-    print(pdata)
-    return data
+    print(list(data.keys()))
+    pdata = np.array([ list_append(data[key], float(key)) for key in list(data.keys()) ])
+    return pdata
 # plot assym manta
 ad_manta = parse_json("psi_mean_assym_manta.json")
+print(ad_manta)
+plt.errorbar(1-ad_manta[:,3], ad_manta[:,1], yerr=ad_manta[:,2],
+             color='k',
+             elinewidth=3,
+             capsize=2,
+             marker='o',
+             ms=8,
+             alpha=0.4,
+             zorder=-1,
+             label='assym double manta')
 
 # plot assym mouse
 ad_mouse = parse_json("psi_mean_assym_mouse.json")

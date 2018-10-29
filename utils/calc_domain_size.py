@@ -41,12 +41,20 @@ import pandas as pd
 import json
 def calculate_mean_domain_sizes(key_1, nmin, nmax):
     df = pd.read_csv("domain_sizes_results_{}.dat".format(key_1), delim_whitespace=True, header=None)
-    df.columns = ['cmean', 'cstd', 'bonding_type', 'csize']
+    df.columns = ['cmean', 'cstd', 'N_frac', 'bonding_type', 'csize']
     dg = df[df.csize>nmin]
     dg = dg[dg.csize<nmax]
     dnp = dg[dg.bonding_type==-1]
     dp = dg[dg.bonding_type==1]
-    return (len(dnp), dnp.cmean.mean(), dnp.cstd.mean(), len(dp), dp.cmean.mean(), dp.cstd.mean())
+    return (len(dnp),
+            dnp.cmean.mean(),
+            dnp.cstd.mean(),
+            dnp.N_frac.mean(),
+            dnp.N_frac.std(),
+            dp.cmean.mean(),
+            dp.cstd.mean(),
+            dp.N_frac.mean(),
+            dp.N_frac.std())
 
 if __name__ == "__main__":
     nmin=200
