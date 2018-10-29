@@ -37,7 +37,7 @@ def domain_size(file):
 
     with open("domain_sizes_results.dat", 'w') as fhandle:
         fhandle.write("{} {} {} {} {} {}\n".format(p_mean, p_std, Np_frac, pp, 1, cs))
-        fhandle.write("{} {} {} {} {} {}\n".format(np_mean, np_std, Nnp_frac, np, -1, cs))
+        fhandle.write("{} {} {} {} {} {}\n".format(np_mean, np_std, Nnp_frac, pnp, -1, cs))
 
 if __name__ == "__main__":
 
