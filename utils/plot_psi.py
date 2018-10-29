@@ -29,7 +29,9 @@ for i in range(len(x)):
 def parse_json(filen):
     with open(filen) as fhandle:
         data = json.load(fhandle)
-    print(data)
+
+    pdata = [ value.append(key) for key, value in zip(data.keys(), data.values()) ]
+    print(pdata)
     return data
 # plot assym manta
 ad_manta = parse_json("psi_mean_assym_manta.json")
