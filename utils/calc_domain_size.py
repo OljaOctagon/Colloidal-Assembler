@@ -25,9 +25,8 @@ def calculate_last_frames(key_1, key_2, delta, filen):
             os.system("cp McPoly {} ".format(rel_path))
             os.system("cp para.ini.original para.ini")
 
-            #xdelta = float(rel_path.split('_')[-2])
-            #print(xdelta)
-            xdelta=0.5
+            xdelta = float(rel_path.split('_')[-2])
+            print(xdelta)
             os.system("gsed -i 's/xdelta/{}/g' para.ini".format(xdelta))
             os.system("cp para.ini {}".format(rel_path))
             f_patch_energy = 'patch_energy_{}.bin'.format(n_iter)
@@ -59,12 +58,12 @@ def calculate_mean_domain_sizes(key_1, nmin, nmax):
 if __name__ == "__main__":
     nmin=200
     nmax=1000
-    deltas=[0.5]
+    deltas=[0.2,0.3,0.4,0.5]
     domain_values = {}
     filen="bond_domains.dat"
     for delta in deltas:
-        key_1 = 'run'
-        key_2 = 'run'
+        key_1 = 'mu_0.25Energy_-5.2Asymm_patchpos_{}'.format(delta)
+        key_2 = 'mu_0.25Energy_-5.2Asymm_patchpos_{}'.format(1-delta)
         calculate_last_frames(key_1,key_2,delta, filen)
         domain_values[delta] = calculate_mean_domain_sizes(key_1, nmin, nmax)
 
