@@ -43,6 +43,8 @@ for fi in files:
         table_dict[names_dict[fi][i]] = raw_data[param]
 
 print(table_dict)
+print()
+print()
 
 names = [
     '$\sigma_{p}$',
@@ -62,7 +64,7 @@ def generate_table(n_lines,n_col, table_dict, names):
     hline='\hline'
     breakline='\\'
     line_legend= 'particle type'
-    for name in line_names: line_legend = line_legend + '{} &'.format(name)
+    for name in names: line_legend = line_legend + '{} &'.format(name)
     col_legend=''
     for key in table_dict.keys(): col_legend = col_legend + '& {}'.format(key)
 
