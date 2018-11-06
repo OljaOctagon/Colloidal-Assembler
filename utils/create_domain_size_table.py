@@ -54,17 +54,18 @@ names = [
 
 # generate latex table 
 def generate_table(n_lines,n_col, table_dict, names):
-    start_centering='\begin{center}'
-    end_centering='\end{center}'
+    start_centering='\\begin{center}'
+    end_centering='\\end{center}'
 
-    column_format='| '
-    for i in range(n_col): column_format + 'l |'
-    start_tabular='\\begin{{tabular}}\{{}\}'.format(column_format)
-    end_tabular='\end{tabular}'
-    hline='\hline'
-    breakline='\\'
-    line_legend= 'particle type & '
-    for name in names: line_legend = line_legend + ' {} &'.format(name)
+    column_format='|'
+    for i in range(n_col): column_format = column_format + 'l |'
+    start_tabular='\\begin{{tabular}}{{{}}}'.format(column_format)
+    end_tabular='\\end{tabular}'
+    hline='\\hline'
+    breakline='\\\\'
+    line_legend= 'particle type  '
+    for name in names: line_legend = line_legend + ' & {} '.format(name)
+    line_legend = line_legend + breakline + hline 
     col_legend=''
     for key in table_dict.keys(): col_legend = col_legend + '& {}'.format(key)
 
