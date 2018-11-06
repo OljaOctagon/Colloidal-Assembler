@@ -57,7 +57,7 @@ def generate_table(n_lines,n_col, table_dict, names):
 
     column_format='| '
     for i in range(n_col): column_format + 'l |'
-    start_tabular='\begin{tabular}{{}}'.format(column_format)
+    start_tabular='\begin{{tabular}}{{}}'.format(column_format)
     end_tabular='\end{tabular}'
     hline='\hline'
     breakline='\\'
