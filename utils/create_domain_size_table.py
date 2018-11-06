@@ -14,8 +14,8 @@ def parse_json(filen):
         new_data = []
         for i in range(1,len(old_data)-1):
             if i % 2 == 1:
-                new_data.append('${} \pm {}$'.format(old_data[i],
-                                                     old_data[i+1]))
+                    new_data.append('${} \pm {}$'.format(np.round(old_data[i], 2),
+                                                     np.round(old_data[i+1], 2)))
 
         data[key] = new_data
     return data
@@ -25,10 +25,10 @@ files=[
     'domain_sizes_mean_whitlam.json',
     'domain_sizes_mean_dmoc.json']
 names_dict = {}
-names_dict[files[0]] = ('double manta center',
-                        'double manta assyemtric (0.6)')
-names_dict[files[1]] = ('whitelam et al.',)
-names_dict[files[2]] = ('double mouse center',)
+names_dict[files[0]] = ('dmac',
+                        'dma-as (0.6)')
+names_dict[files[1]] = ('w. et al.',)
+names_dict[files[2]] = ('dmoc',)
 
 param_dict = {}
 param_dict[files[0]] = ('0.5', '0.4')
@@ -49,21 +49,21 @@ print()
 names = [
     '$\sigma_{p}$',
     '$\sigma_{np}$',
-    '$frac_domain_{np}$',
-    '$frac_bonds_{np}$']
+    '$\\text{frac}_{np}(\\text{domains})$',
+    '$\\text{frac}_{np}(\\text{bonds})$']
 
 # generate latex table 
 def generate_table(n_lines,n_col, table_dict, names):
     start_centering='\\begin{center}'
     end_centering='\\end{center}'
 
-    column_format='|'
+    column_format='|l |'
     for i in range(n_col): column_format = column_format + 'l |'
     start_tabular='\\begin{{tabular}}{{{}}}'.format(column_format)
     end_tabular='\\end{tabular}'
     hline='\\hline'
-    breakline='\\\\'
-    line_legend= 'particle type  '
+    breakline='  \\\\  '
+    line_legend= 'rhombus type  '
     for name in names: line_legend = line_legend + ' & {} '.format(name)
     line_legend = line_legend + breakline + hline 
     col_legend=''
@@ -83,22 +83,4 @@ def generate_table(n_lines,n_col, table_dict, names):
     print(end_tabular)
     print(end_centering)
 
-
 generate_table(4,4, table_dict, names)
-"""
-\begin{center}
-    \begin{tabular}{| l | l | l | l |}
-    \hline
-    Day & Min Temp & Max Temp & Summary \\ \hline
-    Monday & 11C & 22C & A clear day with lots of sunshine.
-    However, the strong breeze will bring down the temperatures. \\ \hline
-    Tuesday & 9C & 19C & Cloudy with rain, across many northern regions. Clear spells 
-    across most of Scotland and Northern Ireland, 
-    but rain reaching the far northwest. \\ \hline
-    Wednesday & 10C & 21C & Rain will still linger for the morning. 
-    Conditions will improve by early afternoon and continue 
-    throughout the evening. \\
-    \hline
-    \end{tabular}
-\end{center}
-"""
