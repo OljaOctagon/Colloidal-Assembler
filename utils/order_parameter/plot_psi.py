@@ -5,7 +5,7 @@ import json
 sns.set(style='white')
 
 # ncluster > 400
-names = ['double manta', 'double mouse', 'whitlam et al', 'comparison']
+names = ['dma-c', 'dmo-c', 'whitlam et al', 'comparison']
 marker=['o', 'X', 's', 'd']
 color=['r', 'b', 'g', 'y']
 x = np.array([[0.028080306781609193, 0.04677896872550968],
@@ -14,8 +14,13 @@ x = np.array([[0.028080306781609193, 0.04677896872550968],
               [0.024920415017857137, 0.035504098095303006]])
 
 fig,ax = plt.subplots()
-ax.set_aspect(0.3)
-plt.ylim([-1,1])
+sns.set(style='white')
+ax.set_aspect(0.2)
+plt.ylim([-1.1,1.1])
+plt.yticks(np.arange(-1,1.1,0.5))
+plt.xticks(np.arange(0.5,0.9,0.1))
+plt.xlabel("$\Delta$", size=18)
+plt.ylabel("$\phi$", size=18)
 #ax.spines['right'].set_visible(False)
 #ax.spines['top'].set_visible(False)
 #ax.spines['bottom'].set_visible(False)
@@ -37,24 +42,29 @@ def parse_json(filen):
     print(list(data.keys()))
     pdata = np.array([ list_append(data[key], float(key)) for key in list(data.keys()) ])
     return pdata
+
+def plot_error_curve(data, name, marker, color):
+    plt.errorbar(1-data[:-1,3], data[:-1,1], yerr=data[:-1,2],
+                 color=color,
+                 elinewidth=3,
+                 capsize=2,
+                 marker=marker,
+                 ms=8,
+                 alpha=0.4,
+                 zorder=-1,
+                 label=name)
+
 # plot assym manta
 ad_manta = parse_json("psi_mean_assym_manta.json")
-print(ad_manta)
-plt.errorbar(1-ad_manta[:,3], ad_manta[:,1], yerr=ad_manta[:,2],
-             color='k',
-             elinewidth=3,
-             capsize=2,
-             marker='o',
-             ms=8,
-             alpha=0.4,
-             zorder=-1,
-             label='assym double manta')
+plot_error_curve(ad_manta, 'dma-as', 'o', 'r')
 
 # plot assym mouse
 ad_mouse = parse_json("psi_mean_assym_mouse.json")
+plot_error_curve(ad_mouse, 'dmo-as', 'X', 'b')
+
 
 plt.legend(loc='best')
-plt.savefig("whitlam_comparision.png", bbox_inches='tight', dpi=300)
+plt.savefig("psi.png", bbox_inches='tight', dpi=300)
 plt.show()
 
 n_points = np.array([264,591,-1, 84])

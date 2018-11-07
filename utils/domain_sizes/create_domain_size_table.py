@@ -14,7 +14,7 @@ def parse_json(filen):
         new_data = []
         for i in range(1,len(old_data)-1):
             if i % 2 == 1:
-                    new_data.append('${} \pm {}$'.format(np.round(old_data[i], 2),
+                new_data.append('${} \pm {}$'.format(np.round(old_data[i], 2),
                                                      np.round(old_data[i+1], 2)))
 
         data[key] = new_data
