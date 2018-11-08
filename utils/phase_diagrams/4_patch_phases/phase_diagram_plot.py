@@ -18,7 +18,7 @@ def parse_json(filen):
 
 files=['psi_mean_assym_manta.json', 'psi_mean_assym_mouse.json']
 
-patch_values=[0.5,0.6,0.7,0.8]
+patch_values=[0.2,0.3,0.4,0.5,0.6,0.7,0.8]
 energy_values = [7.2,6.2,5.2,4.2]
 
 l_p = len(patch_values)
@@ -39,8 +39,10 @@ bounds = np.linspace(liquid_val,1,21)
 norm = colors.BoundaryNorm(bounds, cmap.N)
 
 for filen in files:
+    parsed_data = parse_json(filen)[:,1]
+    parsed_data_double = np.concatenate((parsed_data[::-1], parsed_data))
     data_4kbt = np.reshape(liquid_val*np.ones(l_p), (1,-1))
-    data_5kbt = np.reshape(parse_json(filen)[:,1], (1,-1))
+    data_5kbt = np.reshape(parsed_data_double, (1,-1))
     data_6kbt = data_5kbt
     data_7kbt = data_5kbt
 
