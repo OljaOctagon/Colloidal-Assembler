@@ -3,6 +3,31 @@ import pandas as pd
 import matplotlib.pyplot as plt 
 from matplotlib import colors 
 import json
+import itertools
+
+import matplotlib.path as mpath
+import matplotlib.lines as mlines
+import matplotlib.patches as mpatches
+from matplotlib.collections import PatchCollection
+
+def size_hexagon(Lx, patch_pos):
+    ''' The bigger pores are hexagon and the smaller triangles of 
+    l=(fabs(patch_pos - (1-patch_pos)).'''
+    pore_p = np.fabs(2*patch_pos - 1)
+    pore_size = pore_p*Lx
+    return pore_size
+
+def size_triangle(Lx, patch_pos):
+    pore_p = np.fabs(2*patch_pos - 1)
+    pore_size = pore_p*Lx
+    return pore_size
+
+def size_rhombi(Lx,patch_pos):
+    ''' the unit cell has one rhombic pore. 
+    Its area is a function of the patch size. '''
+    pore_p = np.fabs(2*patch_pos - 1)
+    pore_size = pore_p*Lx
+    return pore_size
 
 def list_append(lst, item):
     lst.append(item)
@@ -12,7 +37,7 @@ def parse_json(filen):
     with open(filen) as fhandle:
         data = json.load(fhandle)
 
-    data = np.array([ [1-float(key), data[key][1]] for key in data ])
+    data = np.array([[1-float(key), data[key][1]] for key in data ])
     data = data[data[:,0].argsort()]
     return data
 
@@ -26,7 +51,7 @@ l_e = len(energy_values)
 
 
 # define the colormap
-cmap = plt.cm.brg
+cmap = plt.cm.rainbow
 # extract all colors from the .jet map
 cmaplist = [cmap(i) for i in range(cmap.N)]
 # force the first color entry to be grey
@@ -38,9 +63,31 @@ liquid_val=-1.1
 bounds = np.linspace(liquid_val,1,21)
 norm = colors.BoundaryNorm(bounds, cmap.N)
 
+pore_size_functions = [size_hexagon, size_rhombi]
+npoly_dict = dict(zip(files,[6,4]))
+pore_dict = dict(zip(files, pore_size_functions))
+name_dict = dict(zip(files, ['dma', 'dmo']))
+def draw_pores(patch_values, energy_values,pore_size_function, npoly_edges):
+    patches = []
+    l_p = len(patch_values)
+    l_e = len(energy_values)
+    grid = np.mgrid[0:l_p, 0:l_e].reshape(2, -1).T
+    grid_keys = itertools.product(patch_values, energy_values)
+    grid_dict = dict(zip(grid_keys, grid))
+    for patch_delta in patch_values:
+        pore_size = pore_size_function(0.5, patch_delta)
+        for ei in energy_values[:-1]:
+            grid_point = grid_dict[(patch_delta, ei)]
+            polygon = mpatches.RegularPolygon(grid_point, npoly_edges, pore_size)
+            patches.append(polygon)
+
+    collection = PatchCollection(patches, edgecolors='k', facecolors='none')
+    ax.add_collection(collection)
+
+
 for filen in files:
     parsed_data = parse_json(filen)[:,1]
-    parsed_data_double = np.concatenate((parsed_data[::-1], parsed_data))
+    parsed_data_double = np.concatenate((parsed_data[::-1][:-1], parsed_data))
     data_4kbt = np.reshape(liquid_val*np.ones(l_p), (1,-1))
     data_5kbt = np.reshape(parsed_data_double, (1,-1))
     data_6kbt = data_5kbt
@@ -72,12 +119,16 @@ for filen in files:
              linestyle='-', 
              color='k', linewidth=2)
 
-    plt.xlabel("$\\Delta$", size=25)
-    plt.ylabel("$\\epsilon [ k_{B}T ]$", size=25)
+    draw_pores(patch_values, energy_values, pore_dict[filen], npoly_dict[filen])
 
+    plt.xlabel("$\\Delta$", size=20)
+    plt.ylabel("$\\epsilon [ k_{B}T ]$", size=20)
+    cbar = plt.colorbar(ticks=[-1.1,-1,0,1])
+    cbar.ax.set_yticklabels(['liquid', '-1','0  $\psi$', '1'])
+    cbar.ax.tick_params(labelsize=12)
+    plt.tick_params(axis='both',labelsize=12)
     plt.tight_layout()
-    plt.savefig("test_phase_diagram.pdf")
-    plt.show()
+    plt.savefig("phase_diagram_{}.pdf".format(name_dict[filen]))
 
 '''
 # setup the plot
