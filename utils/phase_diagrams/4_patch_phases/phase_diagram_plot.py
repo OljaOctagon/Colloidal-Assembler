@@ -2,48 +2,80 @@ import numpy as np
 import pandas as pd 
 import matplotlib.pyplot as plt 
 from matplotlib import colors 
+import json
 
-patch_values=[0.2,0.3,0.4,0.5,0.6,0.7,0.8]
+def list_append(lst, item):
+    lst.append(item)
+    return lst
+
+def parse_json(filen):
+    with open(filen) as fhandle:
+        data = json.load(fhandle)
+
+    data = np.array([ [1-float(key), data[key][1]] for key in data ])
+    data = data[data[:,0].argsort()]
+    return data
+
+files=['psi_mean_assym_manta.json', 'psi_mean_assym_mouse.json']
+
+patch_values=[0.5,0.6,0.7,0.8]
 energy_values = [7.2,6.2,5.2,4.2]
 
 l_p = len(patch_values)
 l_e = len(energy_values)
-gridsize=(l_p, l_e)
 
-# load psi values for all phase states
 
-# 4.2 0.2 value
-# 4.2 0.3 value
-# ....
-# 7.2 0.8 value 
+# define the colormap
+cmap = plt.cm.brg
+# extract all colors from the .jet map
+cmaplist = [cmap(i) for i in range(cmap.N)]
+# force the first color entry to be grey
+cmaplist[0] = (1,1,0,1)
+# create the new map
+cmap = cmap.from_list('Custom cmap', cmaplist, cmap.N)
+# define the bins and normalize
+liquid_val=-1.1
+bounds = np.linspace(liquid_val,1,21)
+norm = colors.BoundaryNorm(bounds, cmap.N)
 
-fig, ax = plt.subplots()
-zvals = np.random.randint(-1,1, size=(l_e,l_p))
-cmap = plt.get_cmap('jet')
+for filen in files:
+    data_4kbt = np.reshape(liquid_val*np.ones(l_p), (1,-1))
+    data_5kbt = np.reshape(parse_json(filen)[:,1], (1,-1))
+    data_6kbt = data_5kbt
+    data_7kbt = data_5kbt
 
-img = plt.imshow(zvals,interpolation='nearest',
-                    cmap = cmap)
+    zvals = np.concatenate((data_7kbt, data_6kbt,
+                            data_5kbt, data_4kbt), axis=0)
 
-x_og = np.arange(-.5,6.5,1)
-y_og = np.arange(-.5,3.5,1)
-ax.set_xticks(x_og)
-ax.set_yticks(y_og)
+    print(zvals)
 
-plt.xticks(x_og, patch_values, rotation='horizontal')
-plt.yticks(y_og, energy_values, rotation='horizontal')
+    fig, ax = plt.subplots()
+    #zvals = np.random.randint(-1,1, size=(l_e,l_p))
 
-plt.grid(b=True,
-	which='major', 
-	axis='both', 
-	linestyle='-', 
-	color='k', linewidth=2)
+    img = plt.imshow(zvals,interpolation='nearest',
+                     cmap = cmap, norm = norm)
 
-plt.xlabel("$\\Delta$", size=25)
-plt.ylabel("$\\epsilon [ k_{B}T ]$", size=25)
+    pos_start = -0.5
+    x_og = np.arange(pos_start,pos_start+l_p,1)
+    y_og = np.arange(pos_start,pos_start+l_e,1)
+    ax.set_xticks(x_og)
+    ax.set_yticks(y_og)
 
-plt.tight_layout()
-plt.savefig("test_phase_diagram.pdf")
-plt.show()
+    plt.xticks(x_og, patch_values, rotation='horizontal')
+    plt.yticks(y_og, energy_values, rotation='horizontal')
+
+    plt.grid(b=True,
+             which='major', 
+             axis='both', 
+             linestyle='-', 
+             color='k', linewidth=2)
+
+    plt.xlabel("$\\Delta$", size=25)
+    plt.ylabel("$\\epsilon [ k_{B}T ]$", size=25)
+
+    plt.tight_layout()
+    plt.savefig("test_phase_diagram.pdf")
+    plt.show()
 
 '''
 # setup the plot
