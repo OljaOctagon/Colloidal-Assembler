@@ -128,7 +128,7 @@ for filen in files:
     cbar.ax.tick_params(labelsize=12)
     plt.tick_params(axis='both',labelsize=12)
     plt.tight_layout()
-    plt.savefig("phase_diagram_{}.pdf".format(name_dict[filen]))
+    plt.savefig("phase_diagram_{}.png".format(name_dict[filen]), dpi=300)
 
 '''
 # setup the plot
