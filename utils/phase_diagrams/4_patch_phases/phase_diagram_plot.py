@@ -70,7 +70,8 @@ def draw_hexagon(grid_point, pore_size):
     return mpatches.RegularPolygon(grid_point, 6, pore_size)
 
 def draw_rhombi(grid_point, pore_size):
-    trans = transforms.Affine2D().skew_deg(0,15).rotate_deg(-15).translate(-0.5,0)
+    #trans = transforms.Affine2D().skew_deg(0,15).rotate_deg(-15).translate(-0.5,0)
+    trans = transforms.Affine2D().skew_deg(0,15)
     return mpatches.Rectangle(grid_point, pore_size, pore_size, transform=trans)
 
 poly_functions = [draw_hexagon, draw_rhombi]
@@ -79,21 +80,22 @@ poly_function_dict = dict(zip(files, poly_functions))
 
 name_dict = dict(zip(files, ['dma', 'dmo']))
 def draw_pores(patch_values, energy_values,pore_size_function, poly_function):
-    patches = []
+    #patches = []
     l_p = len(patch_values)
     l_e = len(energy_values)
     grid = np.mgrid[0:l_p, 0:l_e].reshape(2, -1).T
     grid_keys = itertools.product(patch_values, energy_values)
     grid_dict = dict(zip(grid_keys, grid))
     for patch_delta in patch_values:
+        patches=[]
         pore_size = pore_size_function(0.5, patch_delta)
         for ei in energy_values[:-1]:
             grid_point = grid_dict[(patch_delta, ei)]
             polygon = poly_function(grid_point, pore_size)
             patches.append(polygon)
 
-    collection = PatchCollection(patches, edgecolors='k', facecolors='none')
-    ax.add_collection(collection)
+            collection = PatchCollection(patches, edgecolors='k', facecolors='none')
+            ax.add_collection(collection)
 
 
 for filen in files:
