@@ -109,9 +109,7 @@ for filen in files:
     img = plt.imshow(zvals,interpolation='nearest',
                      cmap = cmap, norm = norm)
 
-
     ax = plt.gca()
-
     pos_start = 0
     x_og = np.arange(pos_start,pos_start+l_p,1)
     y_og = np.arange(pos_start,pos_start+l_e,1)
