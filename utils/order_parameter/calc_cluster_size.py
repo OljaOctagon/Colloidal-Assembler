@@ -3,6 +3,7 @@ import os
 import re
 import numpy as np
 
+
 def calculate_all_frames():
     rootdir = os.getcwd()
     for subdir, _, files in os.walk(rootdir):
@@ -14,19 +15,20 @@ def calculate_all_frames():
         os.system('rm {}/psi_op.dat'.format(subdir))
         for filename in files:
             if filename.endswith(".bin") and filename.startswith("positions"):
-                split_name = re.split('\.|\_',filename)
-                n_iter=int(split_name[1])
+                split_name = re.split('\.|\_', filename)
+                n_iter = int(split_name[1])
                 os.system("cp McPoly {} ".format(subdir))
                 os.system("cp para.ini {}".format(subdir))
                 f_patch_energy = 'patch_energy_{}.bin'.format(n_iter)
                 os.system("cp patch_energy.bin {}/{}".format(subdir, f_patch_energy))
 
-                print(n_iter, n_iter+1)
+                print(n_iter, n_iter + 1)
                 os.system("cd {}; ./McPoly -f {} {}; cd ..".format(subdir,
                                                                 n_iter,
-                                                                n_iter+1))
+                                                                n_iter + 1))
 
     os.system("for dir in ./*/; do cat $dir/psi_op.dat >> psi_op.dat; done")
+
 
 def calculate_last_frames(key_1, key_2, delta):
     rootdir = os.getcwd()
@@ -41,10 +43,10 @@ def calculate_last_frames(key_1, key_2, delta):
             print()
             os.system('rm {}/*1.bin'.format(rel_path))
             os.system('rm {}/psi_op.dat'.format(rel_path))
-            files = os.listdir(rel_path) 
+            files = os.listdir(rel_path)
             # get last frame
-            g = lambda filename: int(re.split('\.|\_',filename)[1])
-            n_iter = max([ g(filename) for filename in files
+            g = lambda filename: int(re.split('\.|\_', filename)[1])
+            n_iter = max([g(filename) for filename in files
                               if filename.endswith(".bin") and
                               filename.startswith("positions")])
             print('n_iter!!!!', n_iter)
@@ -58,49 +60,52 @@ def calculate_last_frames(key_1, key_2, delta):
             f_patch_energy = 'patch_energy_{}.bin'.format(n_iter)
             os.system("cp patch_energy.bin {}/{}".format(rel_path, f_patch_energy))
 
-            os.system("cd {}; ./McPoly -f {} {}; cd ..".format(rel_path, n_iter, n_iter+1))
+            os.system("cd {}; ./McPoly -f {} {}; cd ..".format(rel_path, n_iter, n_iter + 1))
             os.system('cat {}/psi_op.dat >> psi_op_{}.dat'.format(rel_path, key_1))
-
 
 import pandas as pd
 import json
+
+
 def calculate_mean_psi(key_1, nmin, nmax):
     try:
         df = pd.read_csv("psi_op_{}.dat".format(key_1), delim_whitespace=True, header=None)
         df.columns = ['global', 'local', 'csize']
-        dg = df[df.csize>nmin]
-        dg = dg[dg.csize<nmax]
-        print(dg)
+        dg = df[df.csize > nmin]
+        dg = dg[dg.csize < nmax]
         return (len(dg), dg.local.mean(), dg.local.std())
 
     except:
         return None
+
+
 def default(o):
-    if isinstance(o, np.int64): return int(o)  
+    if isinstance(o, np.int64):
+        return int(o)
     raise TypeError
 
 if __name__ == "__main__":
-    nmin=50
-    nmax=1000
-    deltas=[0.2, 0.3, 0.4, 0.5]
-    Energies=[4.2,5.2,6.2,7.2]
+    nmin = 50
+    nmax = 1000
+    deltas = [0.2, 0.3, 0.4, 0.5]
+    Energies = [4.2, 5.2, 6.2, 7.2]
 
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_arguement('-t', default='symm')
+    parser.add_argument('-t', default='symm')
     args = parser.parse_args()
 
-    topology=args.t
+    topology = args.t.split("_")[0]
     from collections import defaultdict
-    psi_values = default_dict{dict}
+    psi_values = defaultdict(dict)
     for delta in deltas:
         for energy in Energies:
-        key_1 = 'mu_0.25Energy_-{}{}_patchpos_{}'.format(energy, topology, delta)
-        key_2 = 'mu_0.25Energy_-{}{}_patchpos_{}'.format(energy, topology, 1-delta)
-        #calculate_last_frames(key_1,key_2,delta)
-        result = calculate_mean_psi(key_1, nmin, nmax)
-        if result:
-            psi_values[delta][energy] = calculate_mean_psi(key_1, nmin, nmax)
+            key_1 = 'mu_0.25Energy_-{}{}_patchpos_{}'.format(energy, topology, delta)
+            key_2 = 'mu_0.25Energy_-{}{}_patchpos_{}'.format(energy, topology, 1 - delta)
+            #calculate_last_frames(key_1,key_2,delta)
+            result = calculate_mean_psi(key_1, nmin, nmax)
+            if result:
+                psi_values[delta][energy] = calculate_mean_psi(key_1, nmin, nmax)
 
-    with open('psi_mean_{}.json', 'w') as fp:
+    with open('psi_mean.json', 'w') as fp:
         json.dump(psi_values, fp, default=default)
