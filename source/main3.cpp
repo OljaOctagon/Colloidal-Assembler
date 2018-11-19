@@ -222,6 +222,7 @@ int main(int argc, char * argv[]){
 
 				Cluster.Calculate(Order_Parameter, Particles, Box, time, is_mass_calc);
 				Order_Parameter.Calculate_2D_Psi(Cluster.Largest_Cluster_List, Cluster.Size_R, Particles, Box);
+        Order_Parameter.Calculate_2D_Psi(Particles,Box);
 				Order_Parameter.Calculate_Colors(Cluster.Largest_Cluster_List, Cluster.Size_R, Particles, Box);
 				
 				

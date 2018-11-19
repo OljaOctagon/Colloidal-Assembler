@@ -65,27 +65,42 @@ def calculate_last_frames(key_1, key_2, delta):
 import pandas as pd
 import json
 def calculate_mean_psi(key_1, nmin, nmax):
-    df = pd.read_csv("psi_op_{}.dat".format(key_1), delim_whitespace=True, header=None)
-    df.columns = ['global', 'local', 'csize']
-    dg = df[df.csize>nmin]
-    dg = dg[dg.csize<nmax]
-    print(dg)
-    return (len(dg), dg.local.mean(), dg.local.std())
+    try:
+        df = pd.read_csv("psi_op_{}.dat".format(key_1), delim_whitespace=True, header=None)
+        df.columns = ['global', 'local', 'csize']
+        dg = df[df.csize>nmin]
+        dg = dg[dg.csize<nmax]
+        print(dg)
+        return (len(dg), dg.local.mean(), dg.local.std())
+
+    except:
+        return None
+def default(o):
+    if isinstance(o, np.int64): return int(o)  
+    raise TypeError
 
 if __name__ == "__main__":
-    nmin=200
+    nmin=50
     nmax=1000
     deltas=[0.2, 0.3, 0.4, 0.5]
-    psi_values = {}
+    Energies=[4.2,5.2,6.2,7.2]
+
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_arguement('-t', default='symm')
+    args = parser.parse_args()
+
+    topology=args.t
+    from collections import defaultdict
+    psi_values = default_dict{dict}
     for delta in deltas:
-        key_1 = 'mu_0.25Energy_-5.2Asymm_patchpos_{}'.format(delta)
-        key_2 = 'mu_0.25Energy_-5.2Asymm_patchpos_{}'.format(1-delta)
-        calculate_last_frames(key_1,key_2,delta)
-        psi_values[delta] = calculate_mean_psi(key_1, nmin, nmax)
+        for energy in Energies:
+        key_1 = 'mu_0.25Energy_-{}{}_patchpos_{}'.format(energy, topology, delta)
+        key_2 = 'mu_0.25Energy_-{}{}_patchpos_{}'.format(energy, topology, 1-delta)
+        #calculate_last_frames(key_1,key_2,delta)
+        result = calculate_mean_psi(key_1, nmin, nmax)
+        if result:
+            psi_values[delta][energy] = calculate_mean_psi(key_1, nmin, nmax)
 
-    def default(o):
-        if isinstance(o, np.int64): return int(o)  
-        raise TypeError
-
-    with open('psi_mean.json', 'w') as fp:
+    with open('psi_mean_{}.json', 'w') as fp:
         json.dump(psi_values, fp, default=default)

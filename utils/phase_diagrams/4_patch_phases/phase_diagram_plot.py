@@ -6,6 +6,11 @@ import json
 import itertools
 import matplotlib.patches as mpatches
 import matplotlib.transforms as transforms
+from matplotlib import rc
+rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
+## for Palatino and other serif fonts use:
+#rc('font',**{'family':'serif','serif':['Palatino']})
+rc('text', usetex=True)
 
 def size_hexagon(Lx, patch_pos):
     ''' The bigger pores are hexagon and the smaller triangles of 
@@ -109,7 +114,7 @@ for filen in files:
     img = plt.imshow(zvals,interpolation='nearest',
                      cmap = cmap, norm = norm)
 
-    ax = plt.gca()
+    #ax = plt.gca()
     pos_start = 0
     x_og = np.arange(pos_start,pos_start+l_p,1)
     y_og = np.arange(pos_start,pos_start+l_e,1)
@@ -132,9 +137,22 @@ for filen in files:
     draw_pores(patch_values, energy_values, pore_dict[filen], poly_function_dict[filen])
     plt.xlabel("$\\Delta$", size=20)
     plt.ylabel("$\\epsilon [ k_{B}T ]$", size=20)
-    cbar = plt.colorbar(ticks=[-1.1,-1,0,1])
-    cbar.ax.set_yticklabels(['liquid', '-1 (np)','0 (r) $\psi$', '1 (p)'])
+    #cbar = plt.colorbar(ticks=[-1.1,-1,0,1])
+    #cbar.ax.set_yticklabels(['liquid', '-1 (np)','0 (r) $\psi$', '1 (p)'])
+    cbar = plt.colorbar(boundaries=np.linspace(-1,1,20), ticks=[-1,0,1])
+    cbar.ax.set_yticklabels(['-1 (np)', '0 (r)', '1 (p)'])
     cbar.ax.tick_params(labelsize=12)
+    cbar.set_label('$\psi$', size=24)
+    rect1 = mpatches.Rectangle((5,4.3),0.35,0.35,clip_on=False, edgecolor='k', linewidth=1,facecolor='#ffff00')
+    plt.text(5.5,4.6,"liquid", size=13)
+
+    #rect2 = mpatches.Rectangle((5,4.8),0.35,0.35,clip_on=False, edgecolor='k', linewidth=1,facecolor='#bdbdbd')
+    #plt.text(5.5,4.6,"clusters", size=13)
+
+    # Add the patch to the Axes
+    ax.add_patch(rect1)
+    #ax.add_patch(rect2)
+
     plt.tick_params(axis='both',labelsize=12)
     plt.tight_layout()
     plt.savefig("phase_diagram_{}.png".format(name_dict[filen]), dpi=300)
