@@ -38,12 +38,14 @@ def list_append(lst, item):
 
 def parse_json(filen):
     with open(filen) as fhandle:
-        data=json.load(fhandle)
+        data= json.load(fhandle)
 
-    arr = np.array([ data[key1][key2][1] for key1 in data for key2 in data[key1]])
+    dsorted = lambda x: np.sort(np.array(list(x)).astype(float))
+
+    arr = np.array([ data[str(key1)][str(key2)][1] for key1 in dsorted(data.keys()) for key2 in dsorted(data[str(key1)])])
     patch_values=[0.2,0.3,0.4,0.5,0.6,0.7,0.8]
     print(filen, list(data.keys()))
-    energy_values = list(data['0.2'].keys())
+    energy_values = dsorted(data['0.2'].keys())
     arr = np.reshape(arr, (len(patch_values)-3, len(energy_values)))
     arr = arr[:,::-1]
     arr =np.concatenate((arr, arr[::-1][1:]))
@@ -51,12 +53,12 @@ def parse_json(filen):
     arr = np.transpose(arr)
     return patch_values, energy_values, arr 
 
-def draw_hexagon(grid_point, pore_size):
+def draw_hexagon(grid_point, pore_size,ax):
     return mpatches.RegularPolygon(grid_point, 6, pore_size,
                                    edgecolor='k',
                                    facecolor='none')
 
-def draw_rhombi(grid_point, pore_size):
+def draw_rhombi(grid_point, pore_size,ax):
     trans = transforms.Affine2D().skew(0,15).rotate(-15).translate(grid_point[0], grid_point[1]) + ax.transData
 
     return mpatches.Rectangle([0,0], pore_size, pore_size,
@@ -64,7 +66,7 @@ def draw_rhombi(grid_point, pore_size):
                               facecolor='none',
                               transform=trans)
 
-def draw_zero(grid_point, pore_size):
+def draw_zero(grid_point, pore_size,ax):
     trans = transforms.Affine2D().skew(0,15).rotate(-15).translate(grid_point[0], grid_point[1]) + ax.transData
 
     return mpatches.Rectangle([0,0], pore_size, pore_size,
@@ -72,7 +74,8 @@ def draw_zero(grid_point, pore_size):
                               facecolor='none',
                               transform=trans)
 
-def draw_pores(patch_values, energy_values,pore_size_function, poly_function):
+
+def draw_pores(patch_values, energy_values,pore_size_function, poly_function,ax):
     l_p = len(patch_values)
     l_e = len(energy_values)
     grid = np.mgrid[0:l_p, 0:l_e].reshape(2, -1).T
@@ -82,7 +85,7 @@ def draw_pores(patch_values, energy_values,pore_size_function, poly_function):
         pore_size = pore_size_function(0.5, patch_delta)
         for ei in energy_values[:-1]:
             grid_point = grid_dict[(patch_delta, ei)]
-            polygon = poly_function(grid_point, pore_size)
+            polygon = poly_function(grid_point, pore_size,ax)
             ax.add_patch(polygon)
 
 # define the colormap
@@ -104,100 +107,123 @@ norm = colors.BoundaryNorm(bounds, cmap.N)
 if __name__ == "__main__":
 
     files=[
-        'psi_mean_double_manta_Asymm_2.json',
-        'psi_mean_double_mouse_Asymm_2.json',
-        'psi_mean_checkers_Asymm_2.json',
         'psi_mean_double_manta_symm_1.json',
+        'psi_mean_double_manta_symm_2.json',
+        'psi_mean_double_manta_Asymm_1.json',
+        'psi_mean_double_manta_Asymm_2.json',
+        'psi_mean_double_mouse_symm_1.json',
+        'psi_mean_double_mouse_symm_2.json',
+        'psi_mean_double_mouse_Asymm_1.json',
+        'psi_mean_double_mouse_Asymm_2.json',
         'psi_mean_checkers_symm_1.json',
         'psi_mean_checkers_Asymm_1.json',
-        'psi_mean_double_mouse_symm_1.json',
-        'psi_mean_double_mouse_Asymm_1.json',
-        'psi_mean_double_manta_Asymm_1.json'
+        'psi_mean_checkers_Asymm_2.json',
     ]
+
+
+    dmo_to_replace = [
+        'psi_mean_double_mouse_symm_1.json',
+        'psi_mean_double_mouse_symm_2.json',
+        'psi_mean_double_mouse_Asymm_1.json']
+
+    dmo_replacement= 'psi_mean_double_mouse_Asymm_2.json'
+
     name_dict = dict(zip(files, [
-        'dma_as2',
-        'dmo_as2',
-        'checkers_as2',
-        'dma_s1',
-        'checkers_s1',
-        'checkers_as1',
-        'dmo_s1',
-        'dmo_as1',
-        'dma_as1'
+        'dma-s1',
+        'dma-s2',
+        'dma-as1',
+        'dma-as2',
+        'dmo-s1',
+        'dmo-s2',
+        'dmo-as1',
+        'dmo-as2',
+        'checkers-s1',
+        'checkers-as1',
+        'checkers-as2',
     ]))
 
-    psi_keys=[
-        1,
-        1,
-        1,
-        1,
-        1,
-        1,
-        0,
-        0,
-        0
-    ]
+    psi_keys=[1,
+              1,
+              0,
+              1,
+              0,
+              0,
+              0,
+              1,
+              1,
+              1,
+              1]
 
     poly_functions = [
+        draw_zero,
+        draw_zero,
+        draw_zero,
         draw_hexagon,
+        draw_zero,
+        draw_zero,
+        draw_zero,
         draw_rhombi,
-        draw_rhombi,
         draw_zero,
         draw_zero,
-        draw_zero,
-        draw_zero,
-        draw_zero,
-        draw_zero]
-    
+        draw_rhombi]
+
+
     poly_function_dict = dict(zip(files, poly_functions))
     pore_size_functions = [
+        size_zero,
+        size_zero,
+        size_zero,
         size_hexagon,
+        size_zero,
+        size_zero,
+        size_zero,
         size_rhombi,
-        size_rhombi,
         size_zero,
         size_zero,
-        size_zero,
-        size_zero,
-        size_zero,
-        size_zero]
+        size_rhombi]
+
 
     pore_dict = dict(zip(files, pore_size_functions))
 
 
-    def draw_basic_figure(l_p,l_e, patch_values, energy_values, zvals):
-        fig, ax = plt.subplots()
-        img = plt.imshow(zvals,interpolation='nearest',
+    def draw_basic_figure(l_p,l_e, patch_values, energy_values, zvals, fig,ax):
+        img = ax.imshow(zvals,interpolation='nearest',
                         cmap = cmap, norm = norm)
 
         pos_start = 0
         x_og = np.arange(pos_start,pos_start+l_p,1)
         y_og = np.arange(pos_start,pos_start+l_e,1)
+
+        #ax.set_xticks(x_og, patch_values, rotation='horizontal')
+        #ax.set_yticks(y_og, energy_values[::-1], rotation='horizontal')
+
         ax.set_xticks(x_og)
         ax.set_yticks(y_og)
 
-        plt.xticks(x_og, patch_values, rotation='horizontal')
-        plt.yticks(y_og, energy_values[::-1], rotation='horizontal')
+        ax.set_xticklabels(patch_values, minor=False)
+        ax.set_yticklabels(energy_values[::-1], minor=False)
 
         # Minor ticks
         ax.set_xticks(x_og-0.5, minor=True);
         ax.set_yticks(y_og-0.5, minor=True);
 
-        plt.grid(b=True,
+        ax.grid(b=True,
                 which='minor', 
                 linestyle='-', 
                 color='k',
-                linewidth=2)
+                linewidth=1)
 
         draw_pores(patch_values,
-                    energy_values,
-                    pore_dict[filen],
-                    poly_function_dict[filen])
+                   energy_values,
+                   pore_dict[filen],
+                   poly_function_dict[filen],
+                   ax)
 
-        plt.xlabel("$\\Delta$", size=20)
-        plt.ylabel("$\\epsilon [ k_{B}T ]$", size=20)
-        #cbar = plt.colorbar(ticks=[-1.1,-1,0,1])
-        #cbar.ax.set_yticklabels(['liquid', '-1 (np)','0 (r) $\psi$', '1 (p)'])
-        cbar = plt.colorbar(boundaries=np.linspace(-1,1,20), ticks=[-1,0,1])
+        ax.set_xlabel("$\\Delta$", size=5)
+        ax.set_ylabel("$\\epsilon [ k_{B}T ]$", size=5)
+
+        '''
+        cbar = fig.colorbar(img, ax=ax, boundaries=np.linspace(-1,1,20), ticks=[-1,0,1])
         cbar.ax.set_yticklabels(['-1 (np)', '0 (r)', '1 (p)'])
         cbar.ax.tick_params(labelsize=12)
         cbar.set_label('$\psi$', size=24)
@@ -206,7 +232,7 @@ if __name__ == "__main__":
                                     edgecolor='k',
                                     linewidth=1,
                                     facecolor='#ffff00')
-        plt.text(5.5,4.6,"liquid", size=13)
+        ax.text(5.5,4.6,"liquid", size=13)
 
         rect2 = mpatches.Rectangle((5,4.8),0.35,0.35,
                                     clip_on=False,
@@ -214,29 +240,48 @@ if __name__ == "__main__":
                                     linewidth=1,
                                     facecolor='#bdbdbd')
 
-        plt.text(5.5,5.0,"clusters", size=13)
+        #ax.text(5.5,5.0,"clusters", size=13)
 
         # Add the patch to the Axes
-        ax.add_patch(rect1)
-        ax.add_patch(rect2)
-        plt.title("${}$".format(name_dict[filen]))
-        plt.tick_params(axis='both',labelsize=12)
-        plt.tight_layout()
-
-
+        #ax.add_patch(rect1)
+        #ax.add_patch(rect2) 
+        '''
+        ax.tick_params(axis='both',labelsize=5)
+        return img
     def draw_cluster_format():
         pass
 
-    for filen,psi_key in zip(files, psi_keys):
-        patch_values, energy_values, zvals, cluster_sizes = parse_json(filen)
+    nrow=3
+    ncol=4
+    fig, axes = plt.subplots(nrow,ncol)
+    from itertools import product
+
+    fig.delaxes(axes[-1, -1])
+
+    Coord = list(product(np.arange(nrow), np.arange(ncol)))[:-1]
+    print(len(Coord))
+
+    _,_,zvals_replacement = parse_json(dmo_replacement)
+
+    for filen,psi_key,coord in zip(files, psi_keys,Coord):
+        ax = axes[coord[0], coord[1]]
+        patch_values, energy_values, zvals = parse_json(filen)
         l_p = len(patch_values)
         l_e = len(energy_values)
 
-        draw_basic_figure(l_p,l_e, patch_values, energy_values, zvals)
+        if filen in dmo_to_replace:
+            zvals[:,3] = zvals_replacement[:,3]
 
+        img = draw_basic_figure(l_p,l_e, patch_values, energy_values, zvals,fig,ax)
+        ax.set_title(name_dict[filen], size=5)
         if psi_key == 0:
             draw_cluster_format()
 
-        plt.savefig("phase_diagram_{}.png".format(name_dict[filen]), dpi=300)
+    cbar = fig.colorbar(img, ax=axes, orientation='horizontal', fraction=0.05, boundaries=np.linspace(-1,1,20), ticks=[-1,0,1])
+    cbar.ax.set_xticklabels(['-1 (np)', '0 (r)', '1 (p)'])
+    cbar.ax.tick_params(labelsize=12)
+    cbar.set_label('$\psi$', size=12)
 
+    #plt.tight_layout(pad=0.2, w_pad=0.2, h_pad=1.0)
+    plt.savefig("phase_diagram.pdf", dpi=300)
     plt.show()
