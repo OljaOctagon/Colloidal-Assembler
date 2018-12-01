@@ -4,7 +4,7 @@ CFLAGS=-O3 -fopenmp -march=native -msse4.1 --fast-math -flto -Wall -Wno-deprecat
 
 #INCLUDES=-I../include/ 
 INCLUDES= -I../include
-CC= gcc-4.9
+CC=gcc-4.9 
 LIBS=-lm -lstdc++ -lgsl -lgslcblas 
 
 all: McPoly

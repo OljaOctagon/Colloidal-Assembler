@@ -7,7 +7,7 @@ import itertools
 import matplotlib.patches as mpatches
 import matplotlib.transforms as transforms
 from matplotlib import rc
-rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
+#rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
 rc('text', usetex=True)
 
 def size_hexagon(Lx, patch_pos):
@@ -36,27 +36,19 @@ def list_append(lst, item):
     lst.append(item)
     return lst
 
-#TODO remove when parse_json finished
-def parse_json_old(filen):
-    with open(filen) as fhandle:
-        data = json.load(fhandle)
-
-    data = np.array([[1-float(key), data[key][1]] for key in data ])
-    data = data[data[:,0].argsort()]
-    return data
-
 def parse_json(filen):
     with open(filen) as fhandle:
         data=json.load(fhandle)
 
-    arr = np.array([ data[key1][key2][0] for key1 in data for key2 in data[key1]])
-    patch_values=[0.5,0.6,0.7,0.8]
+    arr = np.array([ data[key1][key2][1] for key1 in data for key2 in data[key1]])
+    patch_values=[0.2,0.3,0.4,0.5,0.6,0.7,0.8]
     print(filen, list(data.keys()))
     energy_values = list(data['0.2'].keys())
-    arr = np.reshape(arr, (len(patch_values), len(energy_values)))
+    arr = np.reshape(arr, (len(patch_values)-3, len(energy_values)))
     arr = arr[:,::-1]
     arr =np.concatenate((arr, arr[::-1][1:]))
-
+    arr[:,-1] = -1.1
+    arr = np.transpose(arr)
     return patch_values, energy_values, arr 
 
 def draw_hexagon(grid_point, pore_size):
@@ -117,19 +109,42 @@ if __name__ == "__main__":
         'psi_mean_checkers_Asymm_2.json',
         'psi_mean_double_manta_symm_1.json',
         'psi_mean_checkers_symm_1.json',
-        'psi_mean_checkers_Asymm_1.json']
+        'psi_mean_checkers_Asymm_1.json',
+        'psi_mean_double_mouse_symm_1.json',
+        'psi_mean_double_mouse_Asymm_1.json',
+        'psi_mean_double_manta_Asymm_1.json'
+    ]
     name_dict = dict(zip(files, [
         'dma_as2',
         'dmo_as2',
         'checkers_as2',
         'dma_s1',
-        'checkers_s1'
-        'checkers_as1']))
+        'checkers_s1',
+        'checkers_as1',
+        'dmo_s1',
+        'dmo_as1',
+        'dma_as1'
+    ]))
+
+    psi_keys=[
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0
+    ]
 
     poly_functions = [
         draw_hexagon,
         draw_rhombi,
         draw_rhombi,
+        draw_zero,
+        draw_zero,
+        draw_zero,
         draw_zero,
         draw_zero,
         draw_zero]
@@ -141,16 +156,15 @@ if __name__ == "__main__":
         size_rhombi,
         size_zero,
         size_zero,
+        size_zero,
+        size_zero,
+        size_zero,
         size_zero]
 
     pore_dict = dict(zip(files, pore_size_functions))
 
-    for filen in files:
 
-        patch_values, energy_values, zvals = parse_json(filen)
-        l_p = len(patch_values)
-        l_e = len(energy_values)
-
+    def draw_basic_figure(l_p,l_e, patch_values, energy_values, zvals):
         fig, ax = plt.subplots()
         img = plt.imshow(zvals,interpolation='nearest',
                         cmap = cmap, norm = norm)
@@ -162,7 +176,7 @@ if __name__ == "__main__":
         ax.set_yticks(y_og)
 
         plt.xticks(x_og, patch_values, rotation='horizontal')
-        plt.yticks(y_og, energy_values, rotation='horizontal')
+        plt.yticks(y_og, energy_values[::-1], rotation='horizontal')
 
         # Minor ticks
         ax.set_xticks(x_og-0.5, minor=True);
@@ -175,9 +189,9 @@ if __name__ == "__main__":
                 linewidth=2)
 
         draw_pores(patch_values,
-                   energy_values,
-                   pore_dict[filen],
-                   poly_function_dict[filen])
+                    energy_values,
+                    pore_dict[filen],
+                    poly_function_dict[filen])
 
         plt.xlabel("$\\Delta$", size=20)
         plt.ylabel("$\\epsilon [ k_{B}T ]$", size=20)
@@ -188,26 +202,41 @@ if __name__ == "__main__":
         cbar.ax.tick_params(labelsize=12)
         cbar.set_label('$\psi$', size=24)
         rect1 = mpatches.Rectangle((5,4.3),0.35,0.35,
-                                   clip_on=False,
-                                   edgecolor='k',
-                                   linewidth=1,
-                                   facecolor='#ffff00')
+                                    clip_on=False,
+                                    edgecolor='k',
+                                    linewidth=1,
+                                    facecolor='#ffff00')
         plt.text(5.5,4.6,"liquid", size=13)
 
         rect2 = mpatches.Rectangle((5,4.8),0.35,0.35,
-                                   clip_on=False,
-                                   edgecolor='k',
-                                   linewidth=1,
-                                   facecolor='#bdbdbd')
+                                    clip_on=False,
+                                    edgecolor='k',
+                                    linewidth=1,
+                                    facecolor='#bdbdbd')
 
         plt.text(5.5,5.0,"clusters", size=13)
 
         # Add the patch to the Axes
         ax.add_patch(rect1)
         ax.add_patch(rect2)
-
+        plt.title("${}$".format(name_dict[filen]))
         plt.tick_params(axis='both',labelsize=12)
         plt.tight_layout()
+
+
+    def draw_cluster_format():
+        pass
+
+    for filen,psi_key in zip(files, psi_keys):
+        patch_values, energy_values, zvals, cluster_sizes = parse_json(filen)
+        l_p = len(patch_values)
+        l_e = len(energy_values)
+
+        draw_basic_figure(l_p,l_e, patch_values, energy_values, zvals)
+
+        if psi_key == 0:
+            draw_cluster_format()
+
         plt.savefig("phase_diagram_{}.png".format(name_dict[filen]), dpi=300)
 
     plt.show()

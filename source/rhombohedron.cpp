@@ -564,7 +564,7 @@
 			patch_type[3] = 2;
 		}
 
-		if(rhombus_type.compare("double_checkers_symm_1")==0){
+		if(rhombus_type.compare("checkers_symm_1")==0){
 			d0 = patch_delta;
 			d1 = patch_delta;
 			d2 = 1 - patch_delta; 
@@ -578,7 +578,7 @@
 
 		}
 
-		if(rhombus_type.compare("double_checkers_symm_2")==0){
+		if(rhombus_type.compare("checkers_symm_2")==0){
 			d0 = patch_delta;
 			d1 = patch_x;
 			d2 = patch_x; 
@@ -590,7 +590,7 @@
 			patch_type[3] = 0;
 		}
 
-		if(rhombus_type.compare("double_checkers_asymm_1")==0){
+		if(rhombus_type.compare("checkers_asymm_1")==0){
 			d0 = patch_delta;
 			d1 = patch_x;
 			d2 = patch_x;
@@ -602,7 +602,7 @@
 			patch_type[3] = 0;
 		}
 
-		if(rhombus_type.compare("double_checkers_asymm_2")==0){
+		if(rhombus_type.compare("checkers_asymm_2")==0){
 			d0 = patch_delta;
 			d1 = 1- patch_delta;
 			d2 = 1 - patch_delta; 
