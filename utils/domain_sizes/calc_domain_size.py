@@ -58,12 +58,12 @@ def calculate_mean_domain_sizes(key_1, nmin, nmax):
 if __name__ == "__main__":
     nmin=200
     nmax=1000
-    deltas=[0.2,0.3,0.4,0.5]
+    deltas=[0.5]
     domain_values = {}
     filen="bond_domains.dat"
     for delta in deltas:
-        key_1 = 'mu_0.25Energy_-5.2Asymm_patchpos_{}'.format(delta)
-        key_2 = 'mu_0.25Energy_-5.2Asymm_patchpos_{}'.format(1-delta)
+        key_1 = 'mu_0.2Energy_-6.2symm_patchpos_{}'.format(delta)
+        key_2 = 'mu_0.2Energy_-6.2symm_patchpos_{}'.format(1-delta)
         calculate_last_frames(key_1,key_2,delta, filen)
         domain_values[delta] = calculate_mean_domain_sizes(key_1, nmin, nmax)
 

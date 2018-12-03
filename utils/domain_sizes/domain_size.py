@@ -16,21 +16,33 @@ def calculate_network_domains(arr, p_index):
     domains = list(nx.connected_components(G))
     domain_sizes = [ len(domain) for domain in domains]
     N_domains=len(domain_sizes)
-    fig, ax = plt.subplots()
-    plt.hist(domain_sizes, bins=N_domains, alpha=0.3)
-    plt.savefig('domain_sizes_{}.png'.format(p_index),dpi=300)
     mean=np.mean(domain_sizes)
     std = np.std(domain_sizes)
     cluster_size=arr[0,3]
-    return mean, std, N_domains, percentage, cluster_size
+    return mean, std, N_domains, percentage, cluster_size, domain_sizes
+
+def get_distri(domain_sizes, p_index ):
+    nbins = int(np.ceil(max(domain_sizes)/2.))
+    fig, ax = plt.subplots()
+    n, bins, patches = plt.hist(domain_sizes, bins=nbins, alpha=0.3)
+    f = lambda x: np.reshape(x, (-1,1))
+    data_arr = np.concatenate((f(n),f(bins[:-1]), f(bins[1:])), axis=1)
+    np.savetxt('histo_{}.dat'.format(p_index), data_arr)
+
 
 def domain_size(file):
     # This is an array of the format particle i, particle j, bonding (-1 or 1), cluster size
     arr = pd.read_csv(file, delim_whitespace=True, header=None).values
     # calculate for parallel
-    p_mean, p_std, Ndp, pp, cs = calculate_network_domains(arr, 1)
+    p_mean, p_std, Ndp, pp, cs, p_ds= calculate_network_domains(arr, 1)
     # calculate for non-parallel
-    np_mean, np_std, Ndnp, pnp, cs = calculate_network_domains(arr, -1)
+    np_mean, np_std, Ndnp, pnp, cs, np_ds = calculate_network_domains(arr, -1)
+    
+    get_distri(p_ds,1)
+    get_distri(np_ds, -1)
+
+    np.savetxt('domain_sizes_all_{}.dat'.format(1), p_ds)
+    np.savetxt('domain_sizes_all_{}.dat'.format(-1), np_ds)
 
     Np_frac = Ndp/(Ndp+Ndnp)
     Nnp_frac = Ndnp/(Ndp+Ndnp)

@@ -207,6 +207,9 @@ if __name__ == "__main__":
         ax.set_xticks(x_og-0.5, minor=True);
         ax.set_yticks(y_og-0.5, minor=True);
 
+        ax.xaxis.set_major_formatter(plt.NullFormatter())
+        ax.yaxis.set_major_formatter(plt.NullFormatter())
+
         ax.grid(b=True,
                 which='minor', 
                 linestyle='-', 
@@ -219,33 +222,9 @@ if __name__ == "__main__":
                    poly_function_dict[filen],
                    ax)
 
-        ax.set_xlabel("$\\Delta$", size=5)
-        ax.set_ylabel("$\\epsilon [ k_{B}T ]$", size=5)
+        ax.set_xlabel("$\\Delta$", labelpad=-1, size=5)
+        ax.set_ylabel("$\\epsilon [ k_{B}T ]$", labelpad=-1, size=5)
 
-        '''
-        cbar = fig.colorbar(img, ax=ax, boundaries=np.linspace(-1,1,20), ticks=[-1,0,1])
-        cbar.ax.set_yticklabels(['-1 (np)', '0 (r)', '1 (p)'])
-        cbar.ax.tick_params(labelsize=12)
-        cbar.set_label('$\psi$', size=24)
-        rect1 = mpatches.Rectangle((5,4.3),0.35,0.35,
-                                    clip_on=False,
-                                    edgecolor='k',
-                                    linewidth=1,
-                                    facecolor='#ffff00')
-        ax.text(5.5,4.6,"liquid", size=13)
-
-        rect2 = mpatches.Rectangle((5,4.8),0.35,0.35,
-                                    clip_on=False,
-                                    edgecolor='k',
-                                    linewidth=1,
-                                    facecolor='#bdbdbd')
-
-        #ax.text(5.5,5.0,"clusters", size=13)
-
-        # Add the patch to the Axes
-        #ax.add_patch(rect1)
-        #ax.add_patch(rect2) 
-        '''
         ax.tick_params(axis='both',labelsize=5)
         return img
     def draw_cluster_format():
@@ -256,13 +235,15 @@ if __name__ == "__main__":
     fig, axes = plt.subplots(nrow,ncol)
     from itertools import product
 
-    fig.delaxes(axes[-1, -1])
+    #fig.delaxes(axes[-1, -1])
 
     Coord = list(product(np.arange(nrow), np.arange(ncol)))[:-1]
     print(len(Coord))
 
     _,_,zvals_replacement = parse_json(dmo_replacement)
 
+    l_p = 0
+    l_e = 0
     for filen,psi_key,coord in zip(files, psi_keys,Coord):
         ax = axes[coord[0], coord[1]]
         patch_values, energy_values, zvals = parse_json(filen)
@@ -273,15 +254,76 @@ if __name__ == "__main__":
             zvals[:,3] = zvals_replacement[:,3]
 
         img = draw_basic_figure(l_p,l_e, patch_values, energy_values, zvals,fig,ax)
-        ax.set_title(name_dict[filen], size=5)
+        ax.set_title(name_dict[filen], size=8)
+
         if psi_key == 0:
-            draw_cluster_format()
+            rect2 = mpatches.Rectangle((-0.5,-1.9),7.1,1.5,
+                                        clip_on=False,
+                                        edgecolor='None',
+                                        linewidth=0,
+                                        facecolor='k',
+                                        alpha=0.3)
+            ax.add_patch(rect2)
 
     cbar = fig.colorbar(img, ax=axes, orientation='horizontal', fraction=0.05, boundaries=np.linspace(-1,1,20), ticks=[-1,0,1])
     cbar.ax.set_xticklabels(['-1 (np)', '0 (r)', '1 (p)'])
     cbar.ax.tick_params(labelsize=12)
     cbar.set_label('$\psi$', size=12)
 
-    #plt.tight_layout(pad=0.2, w_pad=0.2, h_pad=1.0)
-    plt.savefig("phase_diagram.pdf", dpi=300)
+    rect1 = mpatches.Rectangle((-0.2,0),0.08,1.,
+                                clip_on=False,
+                                edgecolor='k',
+                                linewidth=1,
+                                facecolor='#ffff00')
+
+
+    
+    rect3 = mpatches.Rectangle((1.1,0),0.08,1.,
+                                clip_on=False,
+                                edgecolor='k',
+                                linewidth=1,
+                                facecolor='k',
+                                alpha=0.3)
+
+    cbar.ax.add_patch(rect1)
+    cbar.ax.add_patch(rect3)
+
+    fig.text(0.1,0.06,"liquid", size=12)
+    fig.text(0.85,0.06,"no phase", size=12)
+    fig.text(0.85,0.03,"off center", size=12)
+    ax = axes[2,3]
+
+    pos_start = 0
+    deltax=1.0
+    x_og = np.arange(pos_start,pos_start+l_p,deltax)
+    y_og = np.arange(pos_start,pos_start+l_e,deltax)
+
+    ax.set_xticks(x_og)
+    ax.set_yticks(y_og)
+
+    ax.set_xlim([pos_start,pos_start + (l_p-1)*deltax])
+    ax.set_ylim([pos_start,pos_start + (l_e-1)*deltax])
+
+    ax.set_xticklabels(patch_values, minor=False)
+    ax.set_yticklabels(energy_values*-1, minor=False)
+
+    # Minor ticks
+    #ax.set_xticks(x_og-(deltax/2), minor=True);
+    #ax.set_yticks(y_og-(deltax/2), minor=True);
+
+    ax.set_xlabel("$\\Delta$", labelpad=0.1, size=5)
+    ax.set_ylabel("$\\epsilon [ k_{B}T ]$", labelpad=0.1, size=5)
+    ax.tick_params(axis='both',labelsize=5)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.spines['left'].set_position('center')
+    ax.spines['bottom'].set_position(('data',-0.5))
+    # Only show ticks on the left and bottom spines
+    ax.yaxis.set_ticks_position('left')
+    ax.xaxis.set_ticks_position('bottom')
+
+    #asp = np.diff(ax.get_xlim())[0] / np.diff(ax.get_ylim())[0]
+    ax.set_aspect(0.9)
+
+    plt.savefig("phase_diagram.png", dpi=300)
     plt.show()
