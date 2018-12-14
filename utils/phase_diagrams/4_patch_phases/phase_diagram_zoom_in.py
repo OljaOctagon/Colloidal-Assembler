@@ -13,16 +13,7 @@ rc('text', usetex=True)
 def size_hexagon(Lx, patch_pos):
     ''' The bigger pores are hexagon and the smaller triangles of 
     l=(fabs(patch_pos - (1-patch_pos)).'''
-    pore_p = np.fabs(2*patch_pos - 1)
-    pore_size = pore_p*Lx
-    return pore_size
-
-def size_triangle(Lx, patch_pos):
-    pore_p = np.fabs(2*patch_pos - 1)
-    pore_size = pore_p*Lx
-    return pore_size
-
-def size_rhombi(Lx,patch_pos):
+    pore_p = np.fabs(2*patch_pos - ,patch_pos):
     ''' the unit cell has one rhombic pore. 
     Its area is a function of the patch size. '''
     pore_p = np.fabs(2*patch_pos - 1)
@@ -114,8 +105,8 @@ if __name__ == "__main__":
     ]
 
 
-    c_name = "cluster_size_"
-    p_name = "percolation_"
+    cname = "cluster_size_"
+    pname = "percolation_"
     ftype=".dat"
 
     file_keys = ['dma-as1',
@@ -130,12 +121,7 @@ if __name__ == "__main__":
 
     dmo_replacement= 'psi_mean_double_mouse_Asymm_2.json'
 
-    name_dict = dict(zip(files, [
-        'dma-as1',
-        'dmo-s1',
-        'dmo-s2',
-        'dmo-as1',
-    ]))
+    name_dict = dict(zip(files, file_keys))
 
     psi_keys=[0,
               0,
@@ -203,7 +189,6 @@ if __name__ == "__main__":
     from itertools import product
 
     Coord = list(product(np.arange(nrow), np.arange(ncol)))
-    print(len(Coord))
 
     _,_,zvals_replacement = parse_json(dmo_replacement)
 
@@ -217,42 +202,36 @@ if __name__ == "__main__":
 
         # load cluster sizes 
         cfile = cname+file_key+ftype
+        print(cfile)
         arr_1 = pd.read_csv(cfile, header=None, delim_whitespace=True).values
-        arr_1 = arr_1[np.where(arr_1[:,1] != 0.5)]
-        arr_1 = arr_1[np.where(arr_1[:,0] == 4.2)]
-        arr_1 = arr_1[np.where(arr_1[:,0] == 5.2)]
+        arr_1 = arr_1[arr_1[:,1] != 0.5]
+        arr_1 = arr_1[np.where(arr_1[:,0] > -7.2)]
 
         arr_2 = np.empty_like (arr_1)
         arr_2[:] = arr_1
-        print(arr_1[:,1])
         arr_2[:,1] = 1 - arr_2[:,1]
         arr = np.concatenate((arr_1,arr_2))
-        print(arr)
 
         xdict = dict(zip(patch_values,np.arange(len(patch_values))-0.25))
         ydict = dict(zip(energy_values[::-1]*-1,np.arange(len(energy_values))))
         for i in range(len(arr)):
-            ax.text(xdict[arr[i,1]],ydict[arr[i,0]], int(np.round(arr[i,2], decimals=0)))
-
+            ax.text(xdict[arr[i,1]],ydict[arr[i,0]], int(np.round(arr[i,2], decimals=0)), size=8)
 
         pfile = pname+file_key+ftype
         arr_1 = pd.read_csv(pfile, header=None, delim_whitespace=True).values
-        arr_1 = arr_1[np.where(arr_1[:,1] != 0.5)]
-        arr_1 = arr_1[np.where(arr_1[:,0] == 6.2)]
-        arr_1 = arr_1[np.where(arr_1[:,0] == 7.2)]
+        print(arr_1)
+        arr_1 = arr_1[arr_1[:,1] != 0.5]
+        arr_1 = arr_1[np.where(arr_1[:,0] <= -7.2)]
 
         arr_2 = np.empty_like (arr_1)
         arr_2[:] = arr_1
-        print(arr_1[:,1])
         arr_2[:,1] = 1 - arr_2[:,1]
         arr = np.concatenate((arr_1,arr_2))
-        print(arr)
 
         xdict = dict(zip(patch_values,np.arange(len(patch_values))-0.25))
         ydict = dict(zip(energy_values[::-1]*-1,np.arange(len(energy_values))))
         for i in range(len(arr)):
-            ax.text(xdict[arr[i,1]],ydict[arr[i,0]], int(np.round(arr[i,2], decimals=0)))
-
+            ax.text(xdict[arr[i,1]],ydict[arr[i,0]], np.round(arr[i,2], decimals=2), size=8)
 
 
         if filen in dmo_to_replace:

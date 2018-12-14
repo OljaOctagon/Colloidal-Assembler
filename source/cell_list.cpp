@@ -565,7 +565,9 @@
 			 
 
 			for (int id2=0;id2<Box->N; id2++){
-				for (int pid1=0; pid1<N_Particle[id1]->N_patches;pid1++){
+        ofstream patch_out("patch_network.dat", ios::out | ios::app);
+
+        for (int pid1=0; pid1<N_Particle[id1]->N_patches;pid1++){
 					for (int pid2=0; pid2<N_Particle[id1]->N_patches;pid2++){
 
 						particle_dist_x = N_Particle[id1]->x_patch[pid1] - N_Particle[id2]->x_patch[pid2];
@@ -591,7 +593,13 @@
 							Elements[coll_member_counter].distance.z = particle_dist_z;
 							Elements[coll_member_counter].distance_norm = Elements[coll_member_counter].distance.norm();
 																
-							coll_member_counter = coll_member_counter+1;			
+							coll_member_counter = coll_member_counter+1;
+
+
+              
+              if (id2<id1){
+                patch_out<<id1<<" "<<id2<<" "<<pid1<<" "<<pid2<<endl;
+              }
 
 									
 							
@@ -599,7 +607,7 @@
 					}
 
 				}	
-
+        patch_out.close(); 
 			}
 
 
