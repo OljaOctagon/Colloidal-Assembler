@@ -19,13 +19,14 @@ args = parser.parse_args()
 filesplits = []
 patchpos = [0.2,0.3,0.4,0.5]
 
-for patch in patch_pos:
-    filesplits.append(list(filter(lambda s: s.startswith(args.key+str(patch)), filelist)))
+for patch in patchpos:
+    filesplits.append(list(filter(lambda s: s.startswith("{}_{}".format(args.key,patch)), filelist)))
 
-with open("measured_packing_{}.dat".format(args.key)) as fopen:
+with open("measured_packing_{}.dat".format(args.key), 'w') as fopen:
     for files, patch in zip(filesplits, patchpos): 
         packing = np.array([ calculate_packing_pixels(fn) for fn in files ])
         packing_mean = np.round(np.mean(packing), decimals=3)
         packing_std = np.round(np.std(packing), decimals=3)
 
-        fopen.write("{} {} {}".format(patch, packing_mean, packing_std))
+        fopen.write("{} {} {}\n".format(patch, packing_mean, packing_std))
+        fopen.write("{} {} {}\n".format(1-patch, packing_mean, packing_std))
