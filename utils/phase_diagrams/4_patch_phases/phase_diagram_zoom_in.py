@@ -13,7 +13,6 @@ rc('text', usetex=True)
 def size_hexagon(Lx, patch_pos):
     ''' The bigger pores are hexagon and the smaller triangles of 
     l=(fabs(patch_pos - (1-patch_pos)).'''
-    pore_p = np.fabs(2*patch_pos - ,patch_pos):
     ''' the unit cell has one rhombic pore. 
     Its area is a function of the patch size. '''
     pore_p = np.fabs(2*patch_pos - 1)
@@ -177,6 +176,7 @@ if __name__ == "__main__":
                    poly_function_dict[filen],
                    ax)
 
+        ax.plot(np.arange(8)-0.5, np.ones(8)*0.5, c='r', lw=3)
         ax.set_xlabel("$\\Delta$", labelpad=-1, size=8)
         ax.set_ylabel("$\\epsilon [ k_{B}T ]$", labelpad=-1, size=8)
 
@@ -214,8 +214,15 @@ if __name__ == "__main__":
 
         xdict = dict(zip(patch_values,np.arange(len(patch_values))-0.25))
         ydict = dict(zip(energy_values[::-1]*-1,np.arange(len(energy_values))))
+
+        round = lambda x: np.round(x, decimals=0)
+        ts=0.1
         for i in range(len(arr)):
-            ax.text(xdict[arr[i,1]],ydict[arr[i,0]], int(np.round(arr[i,2], decimals=0)), size=8)
+            ax.text(xdict[arr[i,1]]-0.1,ydict[arr[i,0]]-ts, "{}".format(int(round(arr[i,2]))),size=8)
+            ax.text(xdict[arr[i,1]]-0.1,ydict[arr[i,0]]+ts, "$\pm$ {}".format(int(round(arr[i,3]))),size=4)
+
+        ax.text(6.6,3.0, "$\overline{s}$", color='b', size=10)
+        ax.text(6.6,0.1, "$\overline{p}$", color='r', size=10)
 
         pfile = pname+file_key+ftype
         arr_1 = pd.read_csv(pfile, header=None, delim_whitespace=True).values
@@ -231,11 +238,11 @@ if __name__ == "__main__":
         xdict = dict(zip(patch_values,np.arange(len(patch_values))-0.25))
         ydict = dict(zip(energy_values[::-1]*-1,np.arange(len(energy_values))))
 
+        ts=0.1
         round = lambda x: np.round(x, decimals=2)
-
         for i in range(len(arr)):
-            ax.text(xdict[arr[i,1]],ydict[arr[i,0]], "{} $\pm$ {}".format(round(arr[i,2]),round(arr[i,3])), size=5)
-
+            ax.text(xdict[arr[i,1]]-0.1,ydict[arr[i,0]]-ts, "{}".format(round(arr[i,2])),size=8)
+            ax.text(xdict[arr[i,1]]-0.1,ydict[arr[i,0]]+ts, "$\pm$ {}".format(round(arr[i,3])),size=4)
 
         if filen in dmo_to_replace:
             zvals[:,3] = zvals_replacement[:,3]
@@ -253,7 +260,6 @@ if __name__ == "__main__":
             ax.add_patch(rect2)
 
 
-    ax.plot(np.arange(7), np.ones(7)*3, c='r', lw=3)
     cbar = fig.colorbar(img, ax=axes, orientation='horizontal', fraction=0.05, boundaries=np.linspace(-1,1,20), ticks=[-1,0,1])
     cbar.ax.set_xticklabels(['-1 (np)', '0 (r)', '1 (p)'])
     cbar.ax.tick_params(labelsize=12)

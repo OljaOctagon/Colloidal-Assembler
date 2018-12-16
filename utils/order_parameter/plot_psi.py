@@ -12,7 +12,7 @@ rc('text', usetex=True)
 sns.set(style='white')
 
 # ncluster > 400
-names = ['dma-c', 'dmo-c', 'whitlam et al', 'comparison']
+names = ['dma-c', 'dmo-c', 'whitelam et al. (4-eq)', 'w. comparison']
 marker=['o', 'X', 's', 'd']
 color=['r', 'b', 'k', 'g']
 x = np.array([[0.028080306781609193, 0.04677896872550968],
@@ -75,21 +75,23 @@ def plot_synthetic_error_curve(x,y, name, marker, color):
 
 # plot assym manta
 ad_manta = parse_json("psi_mean_assym_manta.json")
-plot_error_curve(ad_manta, 'dma-as', 'o', '#ff6600')
+plot_error_curve(ad_manta, 'dma-as2', 'o', '#ff6600')
 
 # plot assym mouse
 ad_mouse = parse_json("psi_mean_assym_mouse.json")
-plot_error_curve(ad_mouse, 'dmo-as', 'X', '#6600ff')
+plot_error_curve(ad_mouse, 'dmo-as2', 'X', '#6600ff')
 
 # plot checkers symm
-plot_synthetic_error_curve(np.arange(0.5,0.8,0.1), np.ones(4), 'checkers-s', 'D', 'y')
+plot_synthetic_error_curve(np.arange(0.5,0.8,0.1), np.ones(4), 'checkers-s1', 'D', 'y')
 
 # plot checkers asymm
-plot_synthetic_error_curve(np.arange(0.5,0.8,0.1), np.ones(4), 'checkers-as', 'P', '#33cc33')
+plot_synthetic_error_curve(np.arange(0.5,0.8,0.1), np.ones(4), 'checkers-as2', 'P', '#33cc33')
 
 # plot dma-s
-plot_synthetic_error_curve(np.arange(0.6,0.8,0.1), -1*np.ones(3), 'dma-s', 'o', '#cc0066')
+plot_synthetic_error_curve(np.arange(0.6,0.8,0.1), -1*np.ones(3), 'dma-s1', 'o', '#cc0066')
 
+
+plt.tick_param(axis='both', which='major', labelsize=14)
 plt.legend(loc='best')
 plt.savefig("psi.png", bbox_inches='tight', dpi=500)
 plt.show()
