@@ -230,8 +230,11 @@ if __name__ == "__main__":
 
         xdict = dict(zip(patch_values,np.arange(len(patch_values))-0.25))
         ydict = dict(zip(energy_values[::-1]*-1,np.arange(len(energy_values))))
+
+        round = lambda x: np.round(x, decimals=2)
+
         for i in range(len(arr)):
-            ax.text(xdict[arr[i,1]],ydict[arr[i,0]], np.round(arr[i,2], decimals=2), size=8)
+            ax.text(xdict[arr[i,1]],ydict[arr[i,0]], "{} $\pm$ {}".format(round(arr[i,2]),round(arr[i,3])), size=5)
 
 
         if filen in dmo_to_replace:
@@ -249,6 +252,8 @@ if __name__ == "__main__":
                                         alpha=0.3)
             ax.add_patch(rect2)
 
+
+    ax.plot(np.arange(7), np.ones(7)*3, c='r', lw=3)
     cbar = fig.colorbar(img, ax=axes, orientation='horizontal', fraction=0.05, boundaries=np.linspace(-1,1,20), ticks=[-1,0,1])
     cbar.ax.set_xticklabels(['-1 (np)', '0 (r)', '1 (p)'])
     cbar.ax.tick_params(labelsize=12)
