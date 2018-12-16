@@ -12,7 +12,7 @@ rc('text', usetex=True)
 sns.set(style='white')
 
 # ncluster > 400
-names = ['dma-c', 'dmo-c', 'whitelam et al. (4-eq)', 'w. comparison']
+names = ['dma-c', 'dmo-c', 'whitelam et al. (w.)', 'w. comparison']
 marker=['o', 'X', 's', 'd']
 color=['r', 'b', 'k', 'g']
 x = np.array([[0.028080306781609193, 0.04677896872550968],
