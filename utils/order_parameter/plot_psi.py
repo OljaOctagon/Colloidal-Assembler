@@ -90,7 +90,7 @@ plot_synthetic_error_curve(np.arange(0.5,0.8,0.1), np.ones(4), 'checkers-as2', '
 # plot dma-s
 plot_synthetic_error_curve(np.arange(0.6,0.8,0.1), -1*np.ones(3), 'dma-s1', 'o', '#cc0066')
 
-
+plt.tight_layout()
 plt.tick_params(axis='both', which='major', labelsize=14)
 plt.legend(loc='best')
 plt.savefig("psi.png", bbox_inches='tight', dpi=500)
