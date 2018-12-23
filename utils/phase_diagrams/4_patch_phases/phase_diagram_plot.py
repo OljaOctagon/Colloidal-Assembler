@@ -222,8 +222,8 @@ if __name__ == "__main__":
                    poly_function_dict[filen],
                    ax)
 
-        ax.set_xlabel("$\\Delta$", labelpad=-1, size=5)
-        ax.set_ylabel("$\\epsilon [ k_{B}T ]$", labelpad=-1, size=5)
+        ax.set_xlabel("$\\Delta$", labelpad=-3, size=13)
+        ax.set_ylabel("$\\epsilon$", labelpad=-3, size=13)
 
         ax.tick_params(axis='both',labelsize=5)
         return img
@@ -254,7 +254,7 @@ if __name__ == "__main__":
             zvals[:,3] = zvals_replacement[:,3]
 
         img = draw_basic_figure(l_p,l_e, patch_values, energy_values, zvals,fig,ax)
-        ax.set_title(name_dict[filen], size=8)
+        ax.set_title(name_dict[filen], size=10)
 
         if psi_key == 0:
             rect2 = mpatches.Rectangle((-0.5,-1.9),7.1,1.5,
@@ -311,9 +311,9 @@ if __name__ == "__main__":
     #ax.set_xticks(x_og-(deltax/2), minor=True);
     #ax.set_yticks(y_og-(deltax/2), minor=True);
 
-    ax.set_xlabel("$\\Delta$", labelpad=0.1, size=5)
-    ax.set_ylabel("$\\epsilon [ k_{B}T ]$", labelpad=0.1, size=5)
-    ax.tick_params(axis='both',labelsize=5)
+    ax.set_xlabel("$\\Delta$", labelpad=0.1, size=10)
+    ax.set_ylabel("$\\epsilon [ k_{B}T ]$", labelpad=0.1, size=10)
+    ax.tick_params(axis='both',labelsize=7)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     ax.spines['left'].set_position('center')

@@ -1,0 +1,312 @@
+%\documentclass[a4paper,twocolumn]{revtex4}
+\documentclass[a4paper,preprint]{revtex4}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{subscript}
+\usepackage{siunitx}
+\usepackage{xcolor}
+\usepackage{gensymb}
+% * <carinanatalia.karner@gmail.com> 2018-08-17T16:06:11.135Z:
+%
+% ^.
+\begin{document}
+
+\title{Supporting Information to Mosaics of patchy rhombi: from close-packed arrangements to open lattices}
+
+\author{Carina Karner}
+\email{}
+\affiliation{Faculty of Physics, University of of Vienna, Boltzmanngasse 5, A-1090, Vienna, Austria}
+
+\author{Emanuela Bianchi}
+\email{emanuela.bianchi@tuwien.ac.at}
+\affiliation{Faculty of Physics, University of of Vienna, Boltzmanngasse 5, A-1090, Vienna, Austria}
+
+\author{Christoph Dellago}
+\email{}
+\affiliation{Faculty of Physics, University of of Vienna, Boltzmanngasse 5, A-1090, Vienna, Austria}
+
+\date{\today}
+
+\maketitle
+
+\section{Simulation Details} 
+We assembled hard rhombi in 2D with four attractive/repulsive patches into different structures using Monte Carlo simulations. To model the absorption of 2D colloids on a surface we chose the grand canonical ensemble ($\mu VT$) with single particle rotation and translation moves and particle insertion and deletion. 
+In order to avoid kinetic traps we implemented cluster moves \cite{XX}.
+The used system parameters are summarized in  table \ref{table:system_param}.
+To start the self assembly process we followed the same procedure in all investigated systems:
+After equilibration of $\approx 10^5$ MC-sweeps in a regime of very low concentrations of $\phi\approx 0.05$ with $\mu_{eq}$ we increased the chemical potential to $\mu^{*}$ to observe possible nucleation processes.
+Typical system sizes of the completed assembly are in the range of $N\approx 1000$.
+ 
+We restricted the exploration of the parameter space to hard rhombi with $\alpha = 60 \degree$ decorated with four patches of two specificities with one patch per edge ( 4/2-2 types ).
+
+The interaction potential between two hard rhombi $i$ and $j$ is $0$ whenever they do not overlap and infinity if they do overlap: 
+\[ U(\vec{r}_{ij}, \Omega(i), \Omega(j))  =
+  \begin{cases}
+    0     & \quad \text{if  $i$ and $j$ do not overlap}\\
+    \infty  & \quad \text{if $i$ and $j$ do overlap}.\\
+  \end{cases}
+\]
+where $\vec{r}_{ij}$ is the distance vector, and $\Omega(i)$ and $\Omega(j)$ denote the particle orientations.
+The patches exhibit an attractive or repulsive square-well type potential:
+\[ W(p_{ij})  =
+  \begin{cases}
+    - \epsilon     & \quad \text{if}\quad p_{ij}< \sigma_{p}\\
+    0 & \quad  \text{if}\quad p_{ij} \geq \sigma_{p} \\
+  \end{cases}
+\]
+where $p_{ij}$ is the patch distance vector, $\sigma_{p}$ is the patch diameter and $\epsilon$ denotes the patch energy.  
+
+Patches of the same kind are set to attract each other with interaction strength $-\epsilon$, whereas patches of different kind repel each other with $\epsilon$. Table \ref{table:geom} gives a full overview of the particle parameters.
+\begin{table}[]
+    \begin{center}
+    \begin{tabular}{|l|l|l|}
+        \hline
+        \bf{system parameter} &  \bf{symbol} & \bf{value} \\
+        \hline
+         Volume & V & \\
+         \hline
+         box lengths & $(V_{x},V_{y},V_{z})$ &  $(\sqrt{\frac{V}{V_{z}\sin(\alpha)}},V_{x}\sin(\alpha), 0.2)$ \\
+          \hline
+         chemical potential eq. & \mu_{eq}& 0.1 \\
+         \hline
+         chemical potential & \mu^{*} & [0.2,0.25]\\
+         \hline
+         Temperature & T & 0.1\\ 
+         \hline
+    \end{tabular}
+    \caption{System parameters.}
+    \label{table:system_param}
+    \end{center}
+\end{table}
+The restriction to the 4/2-2 types leads to three different particle classes: the double manta rhombi (patches of the same kind enclose the large angle), the double mouse rhombi (patches of the same kind enclose the small angle), and the checkers rhombi ( patches of the same kind lie on opposing edges). 
+In this paper we investigated how the particle class and the positioning of every patch $\left\{\Delta_{1},\Delta_{2}, \Delta_{3}, \Delta_{4}\right\}$ influence the resulting phases. 
+For every particle class we chose $3-4$ specific ways to move the patches (e.g dma-s$_1$,dma-s$_2$, dma-as$_1$, dma-a$_2$ for double manta rhombi). We called the resulting set of patch positions $\left\{\Delta_{k}\right\}$ patch topology. 
+% explain movement types and reasoning behind that. 
+
+
+\begin{table}[]
+\begin{center}
+\begin{tabular}{ |l|l|l| } 
+\hline
+ \bf{parameter} & \bf{symbol} & \bf{value} \\
+ \hline
+ angle & $\alpha$ & $60\degree$ \\ 
+ \hline
+ side length & Lx & 1.0 \\ 
+ \hline
+ depth & Lz & 0.1 \\
+ \hline
+ patch radius & $r_{p}$  & 0.05 \\
+ \hline
+ interaction strength & \epsilon & $\pm [4.2, 5.2, 6.2, 7.2, 8.2]$ $k_{B}T$\\
+ \hline
+ patch position  & $\Delta$ & [0.2,0.3,0.4,0.5,0.6,0.7,0.8] \\
+ \hline
+\end{tabular}
+\caption{Particle parameters. Note that patch position refers to the relative placement of a patch on a rhombi edge. See FIG.1 in the main paper for the selected patch position topologies.}\label{table:geom}
+\end{center}
+\end{table}
+
+%Cluster Move Variables:
+%beta_f = 5.0
+%kB=1.0
+
+\section{Order parameters}
+\subsection{Measure of randomness}
+The order parameter $\Psi$ \cite{Stannard2012, Whitelam2012} distinguishes between parallel, non-parallel and random tiling phases of two-dimensional rhombi.
+It is given by
+\begin{equation}
+\Psi = \frac{p_{0}\cdot N_{p} - n_{0}\cdot N_{n}}{ p_{0}\cdot N_{p} + n_{0}\cdot N_{n}} \quad p_{0} = 0.392, n_{0} = 0.608
+\end{equation}
+where $N_{p}$ is the number of parallel bonds in the system or cluster and $N_{n}$ is the number of non-parallel bonds. The constants $p_{0}$ and $n_{0}$ are the numerically estimated numbers of parallel and non-parallel bonds for an 
+ideal, defect free random phase \cite{Stannard2012}. So, for a phase to be perfectly random there have to be about $p_{0}/n_{0} \approx 1.55 $ times more parallel than non-parallel bonds.
+
+\subsection{Pore area}
+In the sticky limit the pores of the anti-parallel open phase have the shape of perfect hexagons and the pores of the asymmetric parallel phase are $60\degree$ rhombi.
+In both cases the pore side length $pl$ is given by 
+\begin{equation}
+pl = Lx - 2\Delta,
+\end{equation}
+where Lx is the side length of the rhombi and $\Delta$ the patch position (see figure X).
+
+\subsection{Domain sizes}
+In phases with mixed bonding, the typical sizes of parallel and non-parallel domains are good phase characteristics. 
+We calculated the domain sizes by interpreting bonds of the same alignment as network, with particles as vertices bonds as edges. The parallel (non-parallel) domain size is then given by counting the connected components in that network. 
+We find that domain sizes are distributed exponentially in all investigated systems ( dma-c, dma-0.6, dmo-c, comparison). See Fig. \ref{fig:domain_sizes} for domain size histograms.
+\begin{figure}
+    \centering
+    \includegraphics{supporting_information/figures/domain_size_histogram.png}
+    \caption{Caption}
+    \label{fig:domain_sizes}
+\end{figure}
+
+
+\section{Phase diagrams}
+
+%We chose to explore the phases of four-patch systems with two different kinds of patches where 
+%patches of the same kind attract each other and patches of a different kind repel each other (see figure x) 
+%Those constraints give rise to three different systems, which we termed double manta, double mouse and checkers (see figure X for illustration) 
+
+%In each of the studied systems we explored how the relative positioning of the patches on the rhombi edges influences the resulting phases. We called the relative patch positioning parameters $\Delta*$  (Footnote1)  and the specific patch parameter settings “patch toplology”.
+%In every studied system we explored symmetric patch topologies, where patches of the same specificity have the same $\Delta$ and asymmetric patch topologies, where patches of the same specificity have opposite patch parameters, i.e $/Delta_{b} = 1 - \Delta_{a}$.  
+
+A general law we already like to reveal is that symmetric patch topologies lead to closed lattices, whereas asymmetric patch topologies lead to open lattices. That said for some systems and choices of patch parameter neither symmetric nor asymmetric patch topologies lead to any form of coherent phase. We proceed by discussing the systems one by one.
+
+The double manta system arises when positioning patches of the same specificity to enclose the larger rhombus angles. 
+
+In the symmetric double manta we get two different phases:  All patches in the center of the edges, i.e $\Delta_{a} = \Delta_{b} = 0.5 $ yields a 
+random tiling phase with $\phi = xx$ (compare to Whitlam).
+Moving the patches symmetrically off-center results in a non-parallel tiling phase ($\phi=-1$).  In this topology, parallel bonds are disfavoured because parallel neighbourhoods are impossible due to the patch topology (see figure X): Parallel pairs inevitably lead to holes with unsatisfied bonds.
+
+Depending on the specific patch topology, the asymmetric double manta either leads to an open non-parallel phase with hexagonal and triangular pores, which we call open-star phase or to a disconnected set of clusters and chains with unsatisfied bonds.
+Although open three-particle boxes, the building blocks for the open-star phase can form in both families of asymmetric topologies, only in 
+one family open boxes can connect to form a hexagonal open-box lattice. In the other case, the open boxes can not bind together without overlapping (see figure X).
+We will discuss open-star phase in greater detail in the next section.
+
+In the double mouse system patches of the same specificity enclose the smaller rhombus angles. 
+
+The only tiling phase we observe in the symmetric double mouse is the random tiling for the patch topology with all patches in the center of the edges ($\Delta_{a} = \Delta_{b} = 0.5 $) with $\phi = xx$ (compare to Whitlam) .
+For symmetric off-center double mouse systems we observe disconnected clusters of 6-particle “star” clusters and parallel chains. Neither of these  building blocks can connect to form a tiling phase. 
+ The asymmetric double mouse topologies yield a parallel open phase with rhombic pores and a set of disconnected chain and ring like clusters. 
+Note that aside from the patch specificity, the patch topology of the open parallel pore phase is equal to the topology of open non-parallel phase. 
+
+In the checkers system patches of the same specificity sit on the parallel edges.
+In this case a topology is defined as symmetric if the patches are positioned exactly opposite of each other. 
+All topologies of the symmetric checkers system inevitably yield a purely parallel phase as only parallel bonds are energetically feasible and because the symmetric placement of the patches only allows for full edge-on-edge contact.
+In the asymmetric topologies we explored two different topology families:
+In the first case, only one set of patches was set to asymmetrical while the other set remained in the center ( see figure X for illustration). The resulting phase is a brick phase, a parallel phase with layers of rhombi shifted by $\Delta$. 
+In the second asymmetric case, we set all patches to asymmetrical, which results in the same topology family as the asymmetric double mouse and double manta. Equivalently the resulting phase is the parallel open lattice with rhombic pores. 
+\newline
+\textit{Detailed discussion of open lattices.}
+
+We found that all three explored 4-patch systems yield open lattices in a specific asymmetric patch topology family where all patches are placed asymmetrically with respect to all nodes (see figure X). 
+The corresponding asymmetric double manta system yields the open-star phase, an open non-parallel phase with hexagonal and triangular pores, whereas the double mouse and checkers systems yield an open parallel phase with rhombic pores. 
+
+Figure 2 shows that the pore area of the open lattices can be controlled by the patch parameter $\Delta$.
+The pore area is biggest for extreme values of $\Delta$s  (close  0 or 1), while for  $\Delta = 0.5$  the patch topology is symmetric and the systems form their respective closed lattices. (see supp info for packing fraction plots) 
+
+In contrast to the other two systems, in the double manta system both the open star phase and the open parallel phase 
+are configurationally possible (all bonds satisfied, no strained pair bonds). Consequently, we do observe a competition between those two open lattices during nucleation (see supplementary videos).
+In the resulting lattice the open star phase dominates for all values of $\Delta$, but the number of parallel bond defects rises for $\Delta$ close to 0.5.
+At extreme values of $\Delta$, i.e when the pores are big, defects are highly discouraged, because of the high strain it induces on the lattice. 
+We do observe open parallel defects form during nucleation, but they quickly self-heal to open star neighbourhoods.
+At values of $\Delta$ close to 0.5, due to smaller pore sizes the induced strain of parallel defects is not as high and the resulting lattice 
+shows occasional parallel defects. 
+Apart from single particle attachment in the nucleation of the open-star phase, we also observe hierarchal crystallisation: 
+Open three-particle boxes form and attach to growing open-star clusters (see video in supplementary info and Footnote 2).
+The more extreme the $/Delta$ value the faster this phase transition takes place. (Theory why?).
+
+In the systems that lead to closed packed lattices and the open parallel lattice we found nucleation to proceed solely via single particle attachment. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+We calculated phase diagrams for all explored particle classes and movement types (see Fig. \ref{fig:phase_diagram}).
+Each phase diagram consists of phase points observed at different interaction strengths $\epsilon$ and patch positions $\Delta$.
+We characterized the emerging phases with the randomness parameter $\Psi$, where -1 denotes a completely non-parallel phase (np, blue), 0 a random phase (r, green) and 1 a completely parallel phase (p, red).  
+
+The sweet spot for phase formation at the selected state $\mu^{*}VT$ is at $\epsilon = 5.2 k_{B}T$. For interaction strengths $\epsilon \leq  4.2 k_{B}T$ all investigated systems remain liquid, while for $\epsilon \geq 6.2$ we observe defects due to low energy barriers and percolating networks or random cluster phases due to high interaction energies. 
+
+% Explain the movement patterns --> maybe in the simulation details. 
+
+% when do what phases form 
+% mention up front: off center versus center differ ( for different reasons)
+% open versus closed (symmetric - closed, asymmetric open)
+% keep in mind: Whitelam is the starting point 4 equal patches in the center
+% Explain figure a bit: where are the movement patterns, where are the resulting phases, where are the allowed/forbidden configurations
+% say something general about the why asymmetric topologies form open lattices. 
+
+% center versus off center phases 
+\textbf{Central versus off-center patch positions.}
+The phases at the center patch position $\Delta=0.5$ differ qualitatively from the phases resulting from off center patch positioning. 
+% As we we will see the reasons for this behaviour are system dependent. 
+
+% double manta: 
+
+The central double manta (dma-c) forms a random tiling very close to/at the same $\Psi$ value as \cite{Whitlam2012} and our reference implementation (comparison) ($Psi=0$).
+Off-center double mantas on the other hand yield non-parallel tilings (dma-s2, dma-s2), non-parallel open lattices (dma-as2) or no coherent phase at all (dma-as1).
+While the central topology allows for multi-particle parallel, non-parallel as well as mixed-bonded clusters, in the off-center symmetric topologies (dma-s1/s2) more than two-particle parallel clusters are forbidden (see FIG XX) and the result are defect-free non-parallel tilings.
+The asymmetric dma-as2 toplology yields and open phase 
+Open anti-parallel phase. 
+
+In the as1 topology non-parallel three particle boxes (maybe invent a name) are possible, but no coherent phases can be formed,
+ase 
+
+
+
+
+
+The reason for this different center - off-center phase behaviour ist 
+
+
+
+
+The central double mouse (dmo-c) forms a tiling with a tendency to parallel bonds ($\Psi = 0.5$). The off-center double mice yield either no coherent phase at all (dmo-s1, dmo-s2, dmo-as1) or the open parallel lattice (dmo-as2). 
+
+The checkers phases yield parallel structures for all $\Delta$ in all three explored types (checkers-s1/as1/as2), but in checkers-as1 the off-center phase is a brick tiling and in checkers-as2 the off-center phase is the open parallel lattice. 
+
+\textbf{Open versus closed lattices.}
+
+\textbf{Defects.}
+
+\textbf{Self healing.}
+
+% don'f forget: discuss pore sizes, psi values, domain sizes. 
+
+
+
+dma-s1 and dma-s2, defect free 
+double manta more prone to defects than double mouse, double mouse more prone to defects than checkers at higher energies.
+Double manta has parallel defects off-center. In fact parallel phase is also possible and sometimes taken on. 
+closed double manta not likely for defects (parallel bonding not possible) 
+
+the non-phases tend to more balanced out parallel non parallel binding.
+Reason for small energies clusters are not big, pair bonds parallel and non-parallel equally likely. 
+At higher packing fraction non parallel becomse more likely 
+in double mouse Open five/6 star networks (non parallel)
+in double manta: 
+
+Main text: 
+Double manta systems tend to be non parallel.
+The others tend to be more parallel.
+double mouse doesn't yield phases off center for 3 of 4 movement types.
+checkers yields only parallel phases but with different edge alignment 
+(closed, bricks, open). Explain why.
+The center is the same for all movement types.
+Open systems are yielded always by same patch topology (but differing specificity). 
+Also open systems fall back into random (ish) tiling at center position.
+(Mention: Sweet spot of phase diagram is $\epsilon = 5.2$. Below there is liquid, and above the energy barrier is low and the interaction strength high. Spinodal decompostion and not nucleaation, defects ensue)
+(Mention: Double manta has parallel defects off-center. In fact parallel phase is also possible and sometimes taken on) 
+Pores open up off-center. 
+(mention: closed double manta not likely for defects (parallel bonding not possible)
+
+
+
+
+
+
+\begin{figure}
+    \centering
+    \includegraphics{supporting_information/figures/phase_diagram.png}
+    \caption{Phase diagrams for all particle classes and movement types. The first row shows double manta systems, the second row the double mouse systems and the third row the checkers systems. The depicted pores are proportional to pore sizes in the sticky limit.}
+    \label{fig:phase_diagram}
+\end{figure}
+
+\section{Packing fraction of open lattices}
+
+\section{Nucleation Snapshots}
+0.6 double manta asymm with defects
+asymm1 checkers defects
+nucleation cores for open lattices 
+
+%In order to test our code we used ref \cite{Whitelam2012} as comparison. In their paper, they studied the self assembly of two dimensional rhombi of varying geometry and with four patches positioned in the middle of each edge.
+
+\footnotesize{
+\bibliography{patchy-review-uniq} 
+\bibliographystyle{rsc} 
+%the RSC's .bst file
+}
+
+\end{document}
+
