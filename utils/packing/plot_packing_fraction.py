@@ -20,7 +20,7 @@ def area_pores(Lx, patch_pos):
 
 def area_particles_jm(Lx):
     ''' the particles of the unit cell are 2 full rhombi'''
-    area_rhombi = Lx*np.sin(np.pi/3.) 
+    area_rhombi = np.power(Lx,2)*np.sin(np.pi/3.) 
     return 2*area_rhombi
 
 def area_pores_jm(Lx,patch_pos):
@@ -28,7 +28,7 @@ def area_pores_jm(Lx,patch_pos):
     Its area is a function of the patch size. '''
     pore_p = 1 - 2*np.minimum(patch_pos,1-patch_pos)
     pore_length = pore_p*Lx
-    rhombi_p = pore_length*np.sin(np.pi/3.)
+    rhombi_p = np.power(pore_length,2)*np.sin(np.pi/3.)
     return rhombi_p
 
 # starboxes
