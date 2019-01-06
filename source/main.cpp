@@ -97,7 +97,7 @@ int main(int argc, char * argv[]){
 	    order_parameter Order_Parameter(Box, Particles);
 		cluster Cluster(Box);
 		
-		move Move(Box->N, Particles.edge_N, Fileio.delta_tmax, Fileio.delta_amax, Fileio.delta_thetamax, Fileio.delta_Vmax, Fileio.delta_Lmax, Fileio.delta_alpha_max, Fileio.delta_beta_max, Fileio.delta_gamma_max);
+		pmove Move(Box->N, Particles.edge_N, Fileio.delta_tmax, Fileio.delta_amax, Fileio.delta_thetamax, Fileio.delta_Vmax, Fileio.delta_Lmax, Fileio.delta_alpha_max, Fileio.delta_beta_max, Fileio.delta_gamma_max);
 		//Move.Calculate_Cluster_List(Particles, Box);
 		Move.Set_Random_State(r,r01);
 	

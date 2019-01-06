@@ -123,7 +123,7 @@ int main(int argc, char * argv[]){
 	 	order_parameter Order_Parameter(Box, Particles, Fileio.MAX_coll_p_in);
 	 	cluster Cluster(Box);
 		
-		move Move(Particles.Res_Size, Particles.edge_N, Fileio.delta_tmax, Fileio.delta_rmax, Fileio.delta_Vmax, Fileio.Temperature, Fileio.is_translation_ON, Fileio.is_rotation_ON, Fileio.is_volumemove_ON, Fileio.is_grand_canonical_ON, Fileio.is_cluster_move_ON, Fileio.is_2D);
+		pmove Move(Particles.Res_Size, Particles.edge_N, Fileio.delta_tmax, Fileio.delta_rmax, Fileio.delta_Vmax, Fileio.Temperature, Fileio.is_translation_ON, Fileio.is_rotation_ON, Fileio.is_volumemove_ON, Fileio.is_grand_canonical_ON, Fileio.is_cluster_move_ON, Fileio.is_2D);
 		
 		
 		Move.Set_Random_State(r,r01);
