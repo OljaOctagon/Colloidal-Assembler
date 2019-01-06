@@ -1,22 +1,22 @@
 
-#include "move.h"
+#include "pmove.h"
 
 
 
-	double move::Calculate_Cross_Product_x(m_vector a, m_vector b){
+	double pmove::Calculate_Cross_Product_x(m_vector a, m_vector b){
 		double cx;
 		cx = a.y*b.z - a.z*b.y;			
 		return cx;	
 		
 	}
 	
-	double move::Calculate_Cross_Product_y(m_vector a, m_vector b){	
+	double pmove::Calculate_Cross_Product_y(m_vector a, m_vector b){	
 		double cy;
 		cy = a.z*b.x - a.x*b.z;
 		return cy;	
 	}	
 	
-	double move::Calculate_Cross_Product_z(m_vector a, m_vector b){
+	double pmove::Calculate_Cross_Product_z(m_vector a, m_vector b){
 		double cz;
 		cz = a.x*b.y - a.y*b.x;
 		return cz;	
@@ -24,7 +24,7 @@
 	}	
 
 
-	int move::Calculate_Separating_Axis_GENERAL(particles& Particles, int id, int j, m_vector* L_axis){
+	int pmove::Calculate_Separating_Axis_GENERAL(particles& Particles, int id, int j, m_vector* L_axis){
 		
 	
 		
@@ -85,7 +85,7 @@
 	}
 
 
-	double move::Scalar_Product(m_vector a, m_vector b){
+	double pmove::Scalar_Product(m_vector a, m_vector b){
 
 		 m_scalar_product = a.x*b.x + a.y*b.y + a.z*b.z;	
          return m_scalar_product;	
@@ -94,7 +94,7 @@
          
     
     
-    void move::Collision_Test( particles& Particles, box* Box, int id, collision_list* Collision_List){
+    void pmove::Collision_Test( particles& Particles, box* Box, int id, collision_list* Collision_List){
 		
 		int cp_id = 0;
 		int N_it;
@@ -238,7 +238,7 @@
 
 
 
-void move::Reset_Pair_Potential(particles& Particles, box* Box){
+void pmove::Reset_Pair_Potential(particles& Particles, box* Box){
 
 	
 	Total_Energy = Total_Energy_old;
@@ -259,7 +259,7 @@ void move::Reset_Pair_Potential(particles& Particles, box* Box){
 
 }
 
-void move::Set_Pair_Potential( particles& Particles, box* Box){
+void pmove::Set_Pair_Potential( particles& Particles, box* Box){
 
 	Total_Energy_old = Total_Energy;
 
@@ -279,7 +279,7 @@ void move::Set_Pair_Potential( particles& Particles, box* Box){
 }
 
 
-double move::Calculate_Patch_Distance(int id1, int id2, int patch_id1, int patch_id2, particles& Particles, box* Box){
+double pmove::Calculate_Patch_Distance(int id1, int id2, int patch_id1, int patch_id2, particles& Particles, box* Box){
 
 
 	double particle_dist_x, particle_dist_y, particle_dist_z;
@@ -301,7 +301,7 @@ double move::Calculate_Patch_Distance(int id1, int id2, int patch_id1, int patch
 }
 
 
-void move::Calculate_Pair_Potential( particles& Particles, box* Box){
+void pmove::Calculate_Pair_Potential( particles& Particles, box* Box){
 
 	Total_Energy = 0;
 	int l,m;
@@ -348,7 +348,7 @@ void move::Calculate_Pair_Potential( particles& Particles, box* Box){
 }
 
 
-double move::Calculate_Pair_Potential(int id1, particles& Particles, box* Box, collision_list* Collision_List){
+double pmove::Calculate_Pair_Potential(int id1, particles& Particles, box* Box, collision_list* Collision_List){
 
 	double delta_U;
 	double patch_distance_squared;

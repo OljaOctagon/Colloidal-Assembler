@@ -1,7 +1,7 @@
 
-#include "move.h"
+#include "pmove.h"
 
-	void move::Rotate( particles& Particles, box* Box, fileio& Fileio, int id, int mc_time){
+	void pmove::Rotate( particles& Particles, box* Box, fileio& Fileio, int id, int mc_time){
 
 		 Particles.N_Particle[id]->trans_periodic[0] = 0.0;
 		 Particles.N_Particle[id]->trans_periodic[1] = 0.0;

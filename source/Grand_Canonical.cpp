@@ -1,6 +1,6 @@
-#include "move.h"
+#include "pmove.h"
 
-    void move::Particle_Insertion(particles& Particles, box* Box, fileio& Fileio, int mc_time){
+    void pmove::Particle_Insertion(particles& Particles, box* Box, fileio& Fileio, int mc_time){
 			
     	id = Box->N;
     	double phi_t;
@@ -169,7 +169,7 @@
 }        
 
 
-void move::Particle_Deletion(particles& Particles, box* Box, fileio& Fileio, int mc_time){
+void pmove::Particle_Deletion(particles& Particles, box* Box, fileio& Fileio, int mc_time){
 				
 		
 		id =  gsl_rng_uniform_int(r,Box->N);  

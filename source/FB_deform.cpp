@@ -1,7 +1,7 @@
 
 
 
-void move::change_to_fractional(particles& Particles, box* Box){
+void pmove::change_to_fractional(particles& Particles, box* Box){
 	 
 	 double lx,ly,lz;
 	 double eta;
@@ -58,7 +58,7 @@ void move::change_to_fractional(particles& Particles, box* Box){
 	}	 
 
 
-void move::change_to_cartesian(){
+void pmove::change_to_cartesian(){
 	
 	 double lx,ly,lz;
 	 double eta;
@@ -106,7 +106,7 @@ void move::change_to_cartesian(){
 
 	} 
 
- void move::Vol_deform (particles& Particles, box* Box, fileio& Fileio, int mc_time){
+ void pmove::Vol_deform (particles& Particles, box* Box, fileio& Fileio, int mc_time){
 				
 				
 		//SAVE OLD COORDINATES

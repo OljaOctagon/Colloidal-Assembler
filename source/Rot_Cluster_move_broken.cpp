@@ -1,4 +1,4 @@
-void move::Rot_Pseudocluster_Recursion(int id_j, int cn, int fl, particles& Particles, box* Box){
+void pmove::Rot_Pseudocluster_Recursion(int id_j, int cn, int fl, particles& Particles, box* Box){
 
 	int j;
 
@@ -242,7 +242,7 @@ void move::Rot_Pseudocluster_Recursion(int id_j, int cn, int fl, particles& Part
 }
 
 
-void move::Rot_Cluster_Move(particles& Particles, box* Box, fileio& Fileio, int mc_time) {
+void pmove::Rot_Cluster_Move(particles& Particles, box* Box, fileio& Fileio, int mc_time) {
  	
 
 	cout<<"move"<<endl;

@@ -9,8 +9,8 @@ LIBS=-lm -lstdc++ -lgsl -lgslcblas
 
 all: McPoly
 
-McPoly:  Three_Particle_Move.o Cluster_Move.o Grand_Canonical.o polyhedra.o cube.o octahedron.o cuboid.o truncated_cube.o rhombohedron.o hexbipyramid.o particles.o move.o Translate_Brownian.o Rotate_2.o box.o fileio.o cell_list.o cell.o main3.o order_parameter_2.o cluster_1.o Vol_move.o alg_struct.o Collision_Test.o tis_window.o parallelepiped.o Rotate_2D.o gear.o
-	$(CC) $(CFLAGS) Three_Particle_Move.o Cluster_Move.o Grand_Canonical.o polyhedra.o cube.o octahedron.o particles.o cuboid.o truncated_cube.o rhombohedron.o hexbipyramid.o move.o Translate_Brownian.o Rotate_2.o box.o fileio.o cell_list.o cell.o main3.o order_parameter_2.o cluster_1.o Vol_move.o alg_struct.o Collision_Test.o tis_window.o parallelepiped.o Rotate_2D.o gear.o  $(INCLUDES) $(LDFLAGS) $(LIBS) -o McPoly 
+McPoly:  Three_Particle_Move.o Cluster_Move.o Grand_Canonical.o polyhedra.o cube.o octahedron.o cuboid.o truncated_cube.o rhombohedron.o hexbipyramid.o particles.o pmove.o Translate_Brownian.o Rotate_2.o box.o fileio.o cell_list.o cell.o main3.o order_parameter_2.o cluster_1.o Vol_move.o alg_struct.o Collision_Test.o tis_window.o parallelepiped.o Rotate_2D.o gear.o
+	$(CC) $(CFLAGS) Three_Particle_Move.o Cluster_Move.o Grand_Canonical.o polyhedra.o cube.o octahedron.o particles.o cuboid.o truncated_cube.o rhombohedron.o hexbipyramid.o pmove.o Translate_Brownian.o Rotate_2.o box.o fileio.o cell_list.o cell.o main3.o order_parameter_2.o cluster_1.o Vol_move.o alg_struct.o Collision_Test.o tis_window.o parallelepiped.o Rotate_2D.o gear.o  $(INCLUDES) $(LDFLAGS) $(LIBS) -o McPoly 
 
 gear.o: gear.cpp
 	$(CC) $(CFLAGS) -c gear.cpp
@@ -27,8 +27,8 @@ particles.o: particles.cpp
 cuboid.o: cuboid.cpp
 	$(CC) $(CFLAGS) -c cuboid.cpp 
 
-move.o: move.cpp
-	$(CC) $(CFLAGS) -c move.cpp
+pmove.o: pmove.cpp
+	$(CC) $(CFLAGS) -c pmove.cpp
 
 Rotate_2.o: Rotate_2.cpp
 	$(CC) $(CFLAGS) -c Rotate_2.cpp 

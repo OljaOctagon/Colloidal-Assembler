@@ -1,7 +1,7 @@
-#include "move.h"
+#include "pmove.h"
 #include <gsl/gsl_math.h>
 
-double move::Calculate_Potential(int a, int b, particles& Particles, box* Box){
+double pmove::Calculate_Potential(int a, int b, particles& Particles, box* Box){
 
 	double patch_distance_squared;
 	double epsilon_ij;
@@ -40,7 +40,7 @@ double move::Calculate_Potential(int a, int b, particles& Particles, box* Box){
 }
 
 
-void move::Reset_Pseudo_Cluster(box* Box){
+void pmove::Reset_Pseudo_Cluster(box* Box){
 
 	for(int i=0; i<Box->N;i++){
 		is_element[i]=false;
@@ -53,7 +53,7 @@ void move::Reset_Pseudo_Cluster(box* Box){
 }
 
 
-void move::Pseudocluster_Recursion(int id_j, int cn, int fl, particles& Particles, box* Box){
+void pmove::Pseudocluster_Recursion(int id_j, int cn, int fl, particles& Particles, box* Box){
 
 	int j;
 
@@ -100,7 +100,7 @@ void move::Pseudocluster_Recursion(int id_j, int cn, int fl, particles& Particle
 }
 
 
-void move::Rot_Cluster_Move(particles& Particles, box* Box, fileio& Fileio, int mc_time) {
+void pmove::Rot_Cluster_Move(particles& Particles, box* Box, fileio& Fileio, int mc_time) {
  	
 
 	double Total_Energy_old;
@@ -346,7 +346,7 @@ void move::Rot_Cluster_Move(particles& Particles, box* Box, fileio& Fileio, int 
 }
 
 
-void move::Trans_Pseudocluster_Recursion(int id_j, int cn, int fl, particles& Particles, box* Box){
+void pmove::Trans_Pseudocluster_Recursion(int id_j, int cn, int fl, particles& Particles, box* Box){
 
 	
 	int j;
@@ -532,7 +532,7 @@ void move::Trans_Pseudocluster_Recursion(int id_j, int cn, int fl, particles& Pa
 }
 
 /*
-void move::Trans_Cluster_Move(particles& Particles, box* Box, fileio& Fileio, int mc_time) {
+void pmove::Trans_Cluster_Move(particles& Particles, box* Box, fileio& Fileio, int mc_time) {
 
 
  	N_List = 0;
@@ -840,7 +840,7 @@ void move::Trans_Cluster_Move(particles& Particles, box* Box, fileio& Fileio, in
 */
 
 
-void move::Trans_Cluster_Move(particles& Particles, box* Box, fileio& Fileio, int mc_time) {
+void pmove::Trans_Cluster_Move(particles& Particles, box* Box, fileio& Fileio, int mc_time) {
 
  	N_List = 0;
  	N_Bonds= 0;

@@ -3,7 +3,7 @@
 
 
 
-	void move::Rot_Update_Quarternions_VON_MISES(particles& Particles, int id){
+	void pmove::Rot_Update_Quarternions_VON_MISES(particles& Particles, int id){
 			
 			
 		m_quarternion mu;

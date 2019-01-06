@@ -1,6 +1,6 @@
-#include "move.h"
+#include "pmove.h"
 
-    void move::Translate(particles& Particles, box* Box, fileio& Fileio, int id, int mc_time){
+    void pmove::Translate(particles& Particles, box* Box, fileio& Fileio, int id, int mc_time){
 	
     	double dU_old, dU_new;	
 		double delta_U;

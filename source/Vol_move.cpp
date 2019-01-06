@@ -1,6 +1,6 @@
-#include "move.h"
+#include "pmove.h"
 
-    void move::Iso_Vol_Change (particles& Particles, box* Box, fileio& Fileio, int mc_time){
+    void pmove::Iso_Vol_Change (particles& Particles, box* Box, fileio& Fileio, int mc_time){
 		
     	double dU_old, dU_new;	
 		double delta_U;

@@ -12,9 +12,9 @@
 
 
 
-#include "move.h"
+#include "pmove.h"
 
-	void move::Rot_Update_Random_2D(particles& Particles, int id){
+	void pmove::Rot_Update_Random_2D(particles& Particles, int id){
 
 	double rand_phi;
 	
@@ -51,7 +51,7 @@
 	
 	
 	
-	void move::Rotate2D( particles& Particles, box* Box, fileio& Fileio, int id, int mc_time){
+	void pmove::Rotate2D( particles& Particles, box* Box, fileio& Fileio, int id, int mc_time){
 
 		
 		double phi_t;

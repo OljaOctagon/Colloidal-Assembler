@@ -1,8 +1,8 @@
-#include "move.h"
+#include "pmove.h"
 
 
 
-void move::change_to_cartesian(particles& Particles, box* Box){
+void pmove::change_to_cartesian(particles& Particles, box* Box){
 	 
 	 double lx,ly,lz;
 	 double eta;
@@ -71,7 +71,7 @@ void move::change_to_cartesian(particles& Particles, box* Box){
 	}	 
 
 
-void move::change_to_fractional(particles& Particles, box* Box){
+void pmove::change_to_fractional(particles& Particles, box* Box){
 	
 	 double lx,ly,lz;
 	 double eta;
@@ -127,7 +127,7 @@ void move::change_to_fractional(particles& Particles, box* Box){
 	} 
 
 
-    void move::Iso_Vol_Change (particles& Particles, box* Box, fileio& Fileio, int mc_time){
+    void pmove::Iso_Vol_Change (particles& Particles, box* Box, fileio& Fileio, int mc_time){
 						 
 		
 		Box->V_old = Box->V;

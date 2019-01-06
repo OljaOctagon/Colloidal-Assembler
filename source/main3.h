@@ -18,7 +18,7 @@
 # include "particles.h"
 # include "box.h"
 //#include "box_non_ortho.h"
-# include "move.h"
+# include "pmove.h"
 # include "fileio.h"
 # include "polyhedra.h"
 # include "order_parameter_2.h"

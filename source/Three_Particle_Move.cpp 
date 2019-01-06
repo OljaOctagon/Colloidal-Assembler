@@ -1,9 +1,9 @@
 
-#include "move.h"
+#include "pmove.h"
 #include <gsl/gsl_math.h>
 
 
-void move::Three_Particle_Move(particles& Particles, box* Box, fileio& Fileio, int mc_time){
+void pmove::Three_Particle_Move(particles& Particles, box* Box, fileio& Fileio, int mc_time){
 
 
 	double phi_t;
