@@ -604,7 +604,7 @@
 
 		if(rhombus_type.compare("checkers_asymm_2")==0){
 			d0 = patch_delta;
-			d1 = 1- patch_delta;
+			d1 = 1 - patch_delta;
 			d2 = 1 - patch_delta; 
 			d3 = 1 - patch_delta; 
 
@@ -615,7 +615,7 @@
 
 		}
 
-		if(rhombus_type.compare("four_patch_equal")==0){
+		if(rhombus_type.compare("feq")==0){
 			d0 = patch_delta;
 			d1 = patch_delta;
 			d2 = patch_delta;
@@ -627,6 +627,35 @@
 			patch_type[3] = 0;
 
 		}
+
+
+		if(rhombus_type.compare("feq_asymm_3")==0){
+			d0 = patch_delta;
+			d1 = 1 - patch_delta;
+			d2 = 1 - patch_delta;
+			d3 = 1 - patch_delta;
+
+			patch_type[0] = 0;
+			patch_type[1] = 0;
+			patch_type[2] = 0;
+			patch_type[3] = 0;
+
+		}
+
+    
+		if(rhombus_type.compare("feq_asymm_2")==0){
+			d0 = patch_delta;
+			d1 = 1 - patch_delta;
+			d2 = 1 - patch_delta;
+			d3 = patch_delta;
+
+			patch_type[0] = 0;
+			patch_type[1] = 0;
+			patch_type[2] = 0;
+			patch_type[3] = 0;
+
+		}
+
 		halo_energy = 0;
 		halo_cutoff = (2*Lx)/10.0;
 		

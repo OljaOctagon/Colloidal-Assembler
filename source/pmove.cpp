@@ -283,11 +283,11 @@
 	}
 
 
-	void move::Rot_Move_Map(particles& Particles, int id1, int id2, box* Box, double (&Rot_mat)[9]){
+	void pmove::Rot_Move_Map(particles& Particles, int id1, int id2, box* Box, double (&Rot_mat)[9]){
 
 	}
 
-	void move::Check_Periodic_Center_of_Mass(m_vector &center_mass, box* Box){
+	void pmove::Check_Periodic_Center_of_Mass(m_vector &center_mass, box* Box){
 
 		int left_count, right_count;
 		int front_count, back_count;
@@ -352,7 +352,7 @@
   
  
 
-	void move::Rot_Move_Map(particles& Particles, int id1, box* Box, m_vector &center_mass, double (&Rot_mat)[9]){
+	void pmove::Rot_Move_Map(particles& Particles, int id1, box* Box, m_vector &center_mass, double (&Rot_mat)[9]){
 	   
 		
 		double particle_dist_x, particle_dist_y, particle_dist_z;
@@ -417,12 +417,12 @@
 
 
 	 	 
-	int move::Random(int N){
+	int pmove::Random(int N){
 	    id = gsl_rng_uniform_int(r,N);  
 	    return id;
 	}  
 
-	void move::Iterate(particles& Particles, box* Box, fileio& Fileio, int mc_time){
+	void pmove::Iterate(particles& Particles, box* Box, fileio& Fileio, int mc_time){
 
 		
 
@@ -561,7 +561,7 @@
 
     } 
 		
-	void move::Calculate_Acceptances(int mc_time){
+	void pmove::Calculate_Acceptances(int mc_time){
 		
 		accept_translate_procent = double(accept_translate)/double(N_trans_moves);
 		accept_rotate_procent = double(accept_rotate)/double(N_rotate_moves);
@@ -569,7 +569,7 @@
 		accept_complete_procent = double(accept_translate_procent + accept_rotate_procent + accept_iso_vol_procent)/double(3.0);
 	}	
 
-	void move::Calculate_Cluster_List( particles& Particles, box* Box){
+	void pmove::Calculate_Cluster_List( particles& Particles, box* Box){
 		
 		cluster_radius = Box->Lx/3.0;
 		cluster_radius_square = (Box->Lx*Box->Lx)/9.0;
@@ -603,7 +603,7 @@
 						
 	}
 		
-	void move::Update_Periodic_Positions(particles& Particles, box* Box, int id){
+	void pmove::Update_Periodic_Positions(particles& Particles, box* Box, int id){
 		
 		if(Particles.N_Particle[id]->cm_out>=1){
 				
@@ -631,7 +631,7 @@
 		
 	}	
 	
-	void move::Reset_Positions(particles& Particles, int id){
+	void pmove::Reset_Positions(particles& Particles, int id){
 	
 		Particles.N_Particle[id]->x_center = Particles.N_Particle_old[id]->x_center;
 		Particles.N_Particle[id]->y_center = Particles.N_Particle_old[id]->y_center;
@@ -662,7 +662,7 @@
 	}
 	
 	
-	void move::Set_Positions(particles& Particles, int id){
+	void pmove::Set_Positions(particles& Particles, int id){
 	
 		Particles.N_Particle_old[id]->x_center = Particles.N_Particle[id]->x_center;
 		Particles.N_Particle_old[id]->y_center = Particles.N_Particle[id]->y_center;
@@ -699,7 +699,7 @@
 	
 	
 
-	void move::Rot_Update_Quarternions_VON_MISES(particles& Particles, int id){
+	void pmove::Rot_Update_Quarternions_VON_MISES(particles& Particles, int id){
 			
 		
 		mu.w= Particles.N_Particle[id]->q.w;
@@ -789,7 +789,7 @@
 	
 
 	
-	void move::Rot_Update_Quarternions_RANDOM(particles& Particles, int id){
+	void pmove::Rot_Update_Quarternions_RANDOM(particles& Particles, int id){
 		
 		
 		 

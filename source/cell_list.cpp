@@ -565,7 +565,7 @@
 			 
 
 			for (int id2=0;id2<Box->N; id2++){
-        ofstream patch_out("patch_network.dat", ios::out | ios::app);
+        //ofstream patch_out("patch_network.dat", ios::out | ios::app);
 
         for (int pid1=0; pid1<N_Particle[id1]->N_patches;pid1++){
 					for (int pid2=0; pid2<N_Particle[id1]->N_patches;pid2++){
@@ -597,9 +597,9 @@
 
 
               
-              if (id2<id1){
-                patch_out<<id1<<" "<<id2<<" "<<pid1<<" "<<pid2<<endl;
-              }
+              //    if (id2<id1){
+              //patch_out<<id1<<" "<<id2<<" "<<pid1<<" "<<pid2<<endl;
+              //}
 
 									
 							
@@ -607,7 +607,7 @@
 					}
 
 				}	
-        patch_out.close(); 
+        //patch_out.close(); 
 			}
 
 
