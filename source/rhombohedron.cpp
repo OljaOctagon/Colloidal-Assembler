@@ -564,21 +564,8 @@
 			patch_type[3] = 2;
 		}
 
+
 		if(rhombus_type.compare("checkers_symm_1")==0){
-			d0 = patch_delta;
-			d1 = patch_delta;
-			d2 = 1 - patch_delta; 
-			d3 = 1 - patch_delta; 
-
-
-			patch_type[0] = 0;
-			patch_type[1] = 2;
-			patch_type[2] = 2;
-			patch_type[3] = 0;
-
-		}
-
-		if(rhombus_type.compare("checkers_symm_2")==0){
 			d0 = patch_delta;
 			d1 = patch_x;
 			d2 = patch_x; 
@@ -606,6 +593,20 @@
 			d0 = patch_delta;
 			d1 = 1 - patch_delta;
 			d2 = 1 - patch_delta; 
+			d3 = patch_delta; 
+
+			patch_type[0] = 0;
+			patch_type[1] = 2;
+			patch_type[2] = 2;
+			patch_type[3] = 0;
+
+		}
+
+    // checkers asymm_3 is like dma-as1 
+		if(rhombus_type.compare("checkers_asymm_3")==0){
+			d0 = patch_delta;
+			d1 = 1 - patch_delta;
+			d2 = patch_delta;
 			d3 = 1 - patch_delta; 
 
 			patch_type[0] = 0;
@@ -655,6 +656,77 @@
 			patch_type[3] = 0;
 
 		}
+
+    
+		if(rhombus_type.compare("feq_symm_1")==0){
+
+			d0 = patch_delta;
+			d1 = patch_delta;
+			d2 = patch_delta; 
+			d3 = patch_delta;
+
+      patch_type[0] = 0;
+			patch_type[1] = 0;
+			patch_type[2] = 0;
+			patch_type[3] = 0;
+
+		}
+
+		if(rhombus_type.compare("feq_symm_2")==0){
+
+			d0 = patch_delta;
+			d1 = patch_delta;
+			d2 = 1 - patch_delta; 
+			d3 = 1 - patch_delta; 
+
+      patch_type[0] = 0;
+			patch_type[1] = 0;
+			patch_type[2] = 0;
+			patch_type[3] = 0;
+
+		}
+
+		if(rhombus_type.compare("feq_asymm_1")==0){
+
+			d0 = patch_delta;
+			d1 = 1 - patch_delta;
+			d2 = patch_delta;
+			d3 = 1 - patch_delta; 
+
+      patch_type[0] = 0;
+			patch_type[1] = 0;
+			patch_type[2] = 0;
+			patch_type[3] = 0;
+
+		}
+
+		if(rhombus_type.compare("feq_symm_3")==0){
+			d0 = patch_delta;
+			d1 = patch_x;
+			d2 = patch_x;
+			d3 = 1 - patch_delta; 
+
+			patch_type[0] = 0;
+			patch_type[1] = 0;
+			patch_type[2] = 0;
+			patch_type[3] = 0;
+
+		}
+
+
+    
+		if(rhombus_type.compare("feq_asymm_4")==0){
+			d0 = patch_delta;
+			d1 = patch_x;
+			d2 = patch_x;
+			d3 = patch_delta; 
+
+			patch_type[0] = 0;
+			patch_type[1] = 0;
+			patch_type[2] = 0;
+			patch_type[3] = 0;
+		}
+
 
 		halo_energy = 0;
 		halo_cutoff = (2*Lx)/10.0;

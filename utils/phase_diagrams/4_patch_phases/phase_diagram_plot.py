@@ -265,7 +265,10 @@ if __name__ == "__main__":
                                         alpha=0.3)
             ax.add_patch(rect2)
 
-    cbar = fig.colorbar(img, ax=axes, orientation='horizontal', fraction=0.05, boundaries=np.linspace(-1,1,20), ticks=[-1,0,1])
+    cbar = fig.colorbar(img, ax=axes,
+                        orientation='horizontal',
+                        fraction=0.05,
+                        boundaries=np.linspace(-1,1,20), ticks=[-1,0,1])
     cbar.ax.set_xticklabels(['-1 (np)', '0 (r)', '1 (p)'])
     cbar.ax.tick_params(labelsize=12)
     cbar.set_label('$\psi$', size=12)

@@ -75,10 +75,15 @@ int main(int argc, char * argv[]){
 			Box->edges_from_center();
 			
 			//random state initialize
-			Fileio.Read_Random_State(r,r01, checkpoint_time);
+			//Fileio.Read_Random_State(r,r01, checkpoint_time);
 			
-			//gsl_rng_set(r01,Fileio.seed1_in);
-			//gsl_rng_set(r, Fileio.seed2_in);
+			int R1, R2;
+
+			R1=atoi(argv[4]);
+			R2=atoi(argv[5]);	
+
+			gsl_rng_set(r01,R1);
+			gsl_rng_set(r, R2);
 
 			// initialize former positions
 
