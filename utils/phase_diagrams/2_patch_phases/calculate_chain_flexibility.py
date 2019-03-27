@@ -103,34 +103,42 @@ def order_chains(chains, pos, box_l):
 def calculate_flex_and_kink(chains, orient):
 
     def flex_and_kink(chain):
+
+        rel_delta_angle = orient[chain[:-1]] - orient[chain[1:]]
         delta_angle = np.fabs(orient[chain[:-1]] - orient[chain[1:]])
 
         parallel_angles=np.array([0, np.pi, 2*np.pi,0])
         non_parallel_angles = np.array([np.pi/3, 2*np.pi/3, 4*np.pi/3, 5*np.pi/3])
-
+        all_angles = np.concatenate((parallel_angles, non_parallel_angles)) 
         chain_bonds = np.zeros(len(delta_angle))
-
+        rel_angle = np.zeros(len(delta_angle))
         for i, angle in enumerate(delta_angle):
+            #abs
             parallel_min = np.min(np.fabs(parallel_angles - angle))
             non_parallel_min = np.min(np.fabs(non_parallel_angles - angle))
-
             pnp_min = np.array([parallel_min, non_parallel_min])
             delta_angle[i] = np.min(pnp_min)
             chain_bonds[i] = np.argmin(pnp_min)
 
+
+            #rel
+            rel_v = angle - all_angles
+            rel_angle[i]=rel_v[np.argmin(np.fabs(rel_v))]
+
         flex = np.average(delta_angle)
         kink = np.average(chain_bonds)
+        rel_flex = np.fabs(np.average(rel_angle))
 
-        return flex, kink
+        return flex, rel_flex, kink
 
 
     flex_kink = np.array([ np.array(flex_and_kink(chain)) for chain in chains if len(chain)>1]) 
     chain_length = [ len(chain) for chain in chains if len(chain)>1]
     if flex_kink.shape[0] > 0:
-        return flex_kink[:,0], flex_kink[:,1], chain_length
+        return flex_kink[:,0], flex_kink[:,1], flex_kink[:,2], chain_length
 
     else:
-        return None, None, None
+        return None, None, None, None
 
 def aggregate_chain_parameters(directory):
 
@@ -148,11 +156,11 @@ def aggregate_chain_parameters(directory):
         # Order chains
         ordered_chains = order_chains(chains,pos, box_l)
         # List of flexibilities for every chain
-        flex, kink, chain_length = calculate_flex_and_kink(ordered_chains, orient)
+        flex, rel_flex, kink, chain_length = calculate_flex_and_kink(ordered_chains, orient)
         # List of kinkyness for every chain
         #kink = calculate_kinkyness(ordered_chains, arr_orient)
         if flex is not None:
-            df_chain = pd.DataFrame({'flex': flex, 'kink': kink, 'length': chain_length})
+            df_chain = pd.DataFrame({'flex': flex, 'rel_flex': rel_flex, 'kink': kink, 'length': chain_length})
     return df_chain
 
 
