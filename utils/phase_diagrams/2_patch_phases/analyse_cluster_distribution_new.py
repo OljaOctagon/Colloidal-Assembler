@@ -1,134 +1,232 @@
-import numpy as np 
-import pandas as pd
-import matplotlib.pyplot as plt
-import os.path
+import numpy as np
+import pandas as pd 
+import matplotlib.pyplot as plt 
+from matplotlib import colors 
+import matplotlib as mpl 
+from matplotlib import pyplot
+import numpy as np
+from matplotlib.ticker import MultipleLocator
+import argparse
 
-def check_file(fname):
-    try:
-        open(fname,"r")
-        return 1
-    except IOError:
-        print("Error: File doesn't seem to exist.")
-        return 0
+def get_color_box(a,b,c):
+	# 3 unique phases
+	#pink
+    if c > 2/3.:
+        cv = 7
+    #yellow
+    elif b > 2/3.:
+        cv = 8
+    #blue
+    elif a > 2/3.:
+        cv = 0
+    # 6 mixtures
+    # pink mixtures
+    # pink + yellow = salmon
+    elif c > 1/3. and b > 1/3.:
+        cv = 2
+    # pink + blue = pale purple
+    elif c > 1/3. and a > 1/3.:
+       cv = 3
+    # pink + rest = pale pink
+    elif c > 1/3.  and a < 1/3. and b < 1/3.:
+        cv = 1
+    # blue mixtures
+	# blue + yellow = pale green
+    elif a > 1/3. and b > 1/3.:
+        cv = 4
+    # blue + rest = pale blue
+    elif a > 1/3. and b < 1/3. and c < 1/3.:
+        cv = 5
+    # yellow mixtures
+    # yellow + rest = pale yellow
+    elif b > 1/3. and c < 1/3. and a < 1/3.:
+        cv = 6
 
-Chemical_Potentials = [0.3,0.4]
-Energies = [ 5.2,6.2,7.2,8.2,9.2,10.2]
-Patch_Toplogies = ['Asymm']
-Patch_Positions = [0.2, 0.3 ,0.4 ,0.5, 0.6, 0.7, 0.8] 
+    return cv 
 
-Nruns=8
-# stars
-bins = [0,5,6,7,1000]
+def get_color_star(a,b,c,d,e,f):
+			# 3 unique phases
+			#pink 
+			if c > 2/3.:
+				cv = 7
+			# purple 
+			elif d > 2/3.:
+				cv = 9
+			#yellow
+			elif b > 2/3.:
+				cv = 8
+			#blue 
+			elif a > 2/3.:
+				cv = 0
+			# 6 mixtures
+			# pink mixtures 
+			# pink + yellow = salmon
+			elif (c > 1/3. and b > 1/3.) or (d > 1/3. and e > 1/3.):
+				cv = 2
+			# pink + blue = pale purple
+			elif (c > 1/3. and f > 1/3.)  or ( d>1/3. and a > 1/3.):
+				cv = 3
+			# pink + rest = pale pink
+			elif (c > 1/3. and f < 1/3. and b < 1/3.) or ( d > 1/3. and a < 1/3. and e < 1/3.) :
+				cv = 1
+				print(c,d)
+			# blue mixtures 
+			# blue + yellow = pale green
+			elif (f > 1/3. and b > 1/3.) or ( a>1/3. and e> 1/3.):
+				cv = 4
+			# blue + rest = pale blue 
+			elif ( f > 1/3. and b < 1/3. and c < 1/3. ) or ( a <1/3. and e < 1/3. and d < 1/3. ):
+				cv = 5
+			# yellow mixtures 
+			# yellow + rest = pale yellow
+			elif ( b > 1/3. and c < 1/3.  and f < 1/3.) and (e > 1/3. and d < 1/3.  and a < 1/3.):
+				cv = 6
 
-# boxes 
-#bins = [0,3,4,1000]
-n_bars = 4
-cluster_sizes = np.zeros(n_bars)
-    
-f = open("cluster_distribution.csv", 'w')
-f.write("chemical_potential,energy,phi_mean,phi_std,patch_topoloy,patch_position,Nleq5,N5,N6,Ngeq6\n")
+			return cv 
 
-for patch_kind in Patch_Toplogies:
-    for mu in Chemical_Potentials:
-        for patch_pos in Patch_Positions: 
-            cluster_sizes = np.zeros((len(Energies), n_bars))
-            std_cluster_sizes = np.zeros((len(Energies), n_bars))
-            N_times = np.zeros(len(Energies))
-            phi = np.zeros(len(Energies))
-            phi_std = np.zeros(len(Energies))
-            for ei, energy in enumerate(Energies):
-                for nrun in range(1,Nruns+1):
-                    directory = "mu_"+str(mu)+"Energy_"+str(energy)+patch_kind+"_patchpos_"+str(patch_pos)+"_"+str(nrun)
-                    fname = directory+"/All_Clusters.dat"
-                    f_exist = check_file(fname)
+def star_vars(df_sub):
+    a = df_sub.n_liquid.values[0]
+    b = df_sub.n_chain_and_loop.values[0]
+    c = df_sub.n_micell_1.values[0]
+    d = df_sub.n_micell_2.values[0]
+    # bigger than 5
+    e =  df_sub.n_micell_1.values[0] + df_sub.n_chain_and_loop.values[0]
+    # smaller than 6
+    f =  df_sub.n_micell_2.values[0] + df_sub.n_liquid.values[0]
 
-                    if f_exist == 1: 
-                        # Calculate packing fraction 
-                        if nrun == 1:
-                            dg = pd.read_csv(directory+"/NPT_OUT.txt", header=None, delim_whitespace=True)
-                        else:
-                            de = pd.read_csv(directory+"/NPT_OUT.txt", header=None, delim_whitespace=True)
-                            dg = dg.append(de)
+    return a,b,c,d,e,f
 
-                        # Read cluster data 
-                        df = pd.read_csv(fname, delim_whitespace=True, header=None)                                                                                                                                                    
-                        df.columns=['time','size']
-                        unique_times = np.unique(df.time.values)
-                        for time in unique_times:
-                            cluster_size = df[df.time==time]['size'].values  
-                        
-                            # with percentage of particle in cluster 
-                            cluster_size = np.repeat(cluster_size, cluster_size)
-                            cluster_size_percent, bin_edges = np.histogram(cluster_size, 
-                                bins=bins)
+def box_vars(df_sub):
+    a = df.n_liquid.values[0]
+    b = df.n_chain_and_loop.values[0]
+    c = df_sub.n_micell_2.values[0]
+    return a,b,c
 
-                            cluster_size_percent = cluster_size_percent/len(cluster_size)
-                            std_cluster = cluster_size_percent * cluster_size_percent
+def asymm_box_vars(df_sub):
+    a = df_sub.n_liquid.values[0] 
+    b = df_sub.n_chain_and_loop.values[0]
+    c = df_sub.n_micell_2[0]
+    return a,b,c
 
-                            cluster_sizes[ei] = cluster_sizes[ei] + cluster_size_percent 
-                            std_cluster_sizes[ei] = std_cluster_sizes[ei] + std_cluster
+def ternary(df,Epsi,Pos,cluster_type):
+    N_Epsi = len(Epsi)
+    N_Pos = len(Pos)
+    vals = np.zeros((N_Epsi, N_Pos, 4))
+    zvals = np.zeros((N_Epsi, N_Pos))
 
+    for ei, nei in zip(Epsi, range(N_Epsi)):
+        for pi, npi in zip(Pos, range(N_Pos)):
+            df_sub = df[(df.energy == ei) & (df.delta == pi)] 
 
-                        N_times[ei] += len(unique_times)
+            if cluster_type == 'asymm_box':
+                a,b,c = asymm_box_vars(df_sub)
+                d=0
+                zvals[nei,npi] = get_color_box(a,b,c)
 
-                cluster_sizes[ei] = cluster_sizes[ei]/N_times[ei] 
-                std_cluster_sizes[ei] = np.sqrt( - np.power(cluster_sizes[ei],2) + (std_cluster_sizes[ei]/N_times[ei]))  
+            if cluster_type == 'box':
+                a,b,c = box_vars(df_sub)
+                d=0
+                zvals[nei,npi] = get_color_box(a,b,c)
+            if cluster_type == 'star':
+                a,b,c,d,e,f = star_vars(df_sub)
+                zvals[nei,npi] = get_color_star(a,b,c,d,e,f)
 
-                arr = dg.values[:,4]
-                phi[ei] = np.round(np.mean(arr), decimals=3)
-                phi_std[ei] = np.round(np.std(arr), decimals=3)
+            vals[nei,npi] = np.array([a,b,c,d])
 
-                f.write(str(mu)+
-                    ","+str(energy)+
-                    ","+str(phi[ei])+
-                    ","+str(phi_std[ei])+
-                    ","+patch_kind+
-                    ","+str(patch_pos)+
-                    ","+str(cluster_sizes[ei,0])+
-                    ","+str(cluster_sizes[ei,1])+
-                    ","+str(cluster_sizes[ei,2])+
-                    ","+str(cluster_sizes[ei,3])+
-                    "\n") 
-     
-            colors = ["#236AB9", "#9900cc", "#ff0066", "#ffff00"]
+            zvals = zvals[::-1,:]
+    return zvals, vals
 
-            error_config = dict(ecolor='black', lw=2, capsize=6, capthick=2, alpha=0.8)
-            fig, ax =  plt.subplots(figsize=(15,11))
-            width = 1
-            ind = np.arange(len(Energies)) + 5.2 - width/2.
-            lw=3
-            plt.xticks(ind+width/2.)
-            plt.xlim((5.2-width/2.,10.2+width/2.))
-            plt.ylim((0,1))
-            plt.tick_params(axis='both', which='major', labelsize=28)
-            plt.xlabel("$\\epsilon [k_{B}T]$", size=38)
-            plt.ylabel("$\\phi [\\%]$", size=38)
-                
-            plt.bar(ind+0.5, cluster_sizes[:,0], width, lw=lw,yerr=std_cluster_sizes[:,0], error_kw=error_config, color=colors[0], alpha=0.7)
-            plt.bar(ind+0.5, cluster_sizes[:,1], width, lw=lw,yerr=std_cluster_sizes[:,1], error_kw=error_config, color=colors[1],bottom=cluster_sizes[:,0],alpha=0.7)
-            plt.bar(ind+0.5, cluster_sizes[:,2], width, lw=lw,yerr=std_cluster_sizes[:,2], error_kw=error_config, color=colors[2],bottom=cluster_sizes[:,0]+cluster_sizes[:,1], alpha=0.9)
-            plt.bar(ind+0.5, cluster_sizes[:,3], width, lw=lw,yerr=std_cluster_sizes[:,3], error_kw=error_config, color=colors[3], bottom=cluster_sizes[:,0]+cluster_sizes[:,1]+cluster_sizes[:,2], alpha=0.7)
-            
-            for ei in range(len(Energies)):
+'''
+Row dimension is number of energies
+Column dimension is number of positions
 
-                ax.text(ind[ei], 1.07, "$\\psi=$"+str(phi[ei]), fontsize=24)
-                ax.text(ind[ei], 1.03, "$\pm$"+str(phi_std[ei]), fontsize=24)
+The color vector is 3 dimensional: 
+0: N_cluster < x
+1: N_cluster == x 
+2: N_cluster > x
 
-            plt.savefig("mu_"+str(mu)+patch_kind+"_patchpos_"+str(patch_pos)+"_percent.pdf")
-            
+colors:
+0: blue #236AB9
+1: pale pink #ff80b3
+2: salmon #ff9999
+3: pale purple #ccccff
+4: pale green: #92C591
+5: pale blue: #67AFCB
+6: pale yellow: #F1F791
+7: pink #0099cc #ff0066
+8: yellow #ffff00
+9: purple "#9900cc"
 
-    
+'''
+
+#------------- parse file ----------
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-type", help="available types: star, box, asymm_box",
+                    type=str)
+
+args = parser.parse_args()
 
 
+#------------ read and process file 
+df = pd.read_csv("cluster_distribution.csv")
+df = df.fillna(value=0)
+
+Epsi = df.energy.unique()
+Pos = df.delta.unique()
+zvals, vals = ternary(df, Epsi, Pos, args.type)
+
+#------------ plot teneray phase diagram 
+
+color_list = ['#236AB9', '#ff80b3', '#ff9999',
+'#ccccff', '#92C591', '#67AFCB', 
+'#F1F791', '#ff0066', '#ffff00', "#9900cc"]
 
 
+fig, ax = plt.subplots()
+
+cmap = mpl.colors.ListedColormap(color_list)
+bounds = np.arange(11) - 0.1 
+norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
+
+img = pyplot.imshow(zvals,interpolation='nearest',
+                    cmap = cmap,norm=norm)
+
+x_og = np.arange(0,len(Pos),1)
+y_og = np.arange(0,len(Epsi),1)
+ax.set_xticks(x_og)
+ax.set_yticks(y_og)
+
+xlabels=[0.2,0.3,0.4,0.5,0.6,0.7,0.8]
+ax.set_xticklabels(xlabels, minor=False)
+
+ylabels=[5.2,6.2,7.2,8.2,9.2,10.2]
+ax.set_yticklabels(ylabels[::-1], minor=False)
+
+# minor ticks
+ax.set_xticks(x_og-0.5, minor=True);
+ax.set_yticks(y_og-0.5, minor=True);
+
+ax.xaxis.set_major_formatter(plt.NullFormatter())
+ax.yaxis.set_major_formatter(plt.NullFormatter())
 
 
+plt.grid(b=True,
+         which='minor',
+         axis='both',
+         linestyle='-',
+         color='k', linewidth=1)
+
+plt.xlabel("$\\Delta$", size=22)
+plt.ylabel("$\\epsilon [ k_{B}T ]$", size=22)
 
 
+ax.set_xticklabels(xlabels, minor=False)
+ax.set_yticklabels(ylabels[::-1], minor=False)
 
+ax.tick_params(axis='both',labelsize=16)
 
+plt.tight_layout()
+plt.savefig("phase_diagram_"+str(args.type)+".pdf")
+plt.show()
 
-
-                        
-                        

@@ -1,0 +1,20 @@
+import numpy as np
+import networkx as nx
+import pandas as pd
+
+fn="patch_network.dat"
+arr = pd.read_csv(fn, header=None, delim_whitespace=True).values
+
+# get id of largest connected domain (largest cluster)
+
+def calculate_max_domain(arr):
+    G=nx.Graph()
+    G.add_edges_from(arr[:,:2])
+    domains = list(nx.connected_components(G))
+    domain_length = np.array([ len(domain) for domain in domains ])
+    d_id = np.argmax(domain_length)
+    particles_max_domain = np.array(domains[d_id])
+    return particles_max_domain
+
+print(calculate_max_domain(arr))
+

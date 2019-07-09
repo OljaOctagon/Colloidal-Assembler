@@ -42,6 +42,7 @@ m_vector rb;
 m_vector rc;
 double d0,d1,d2,d3;
 double patch_x;
+double patch_size; 
 
 m_vector vc;
 m_vector cross_p;

@@ -85,27 +85,28 @@ def get_color_star(a,b,c,d,e,f):
 			return cv 
 
 def star_vars(df_sub):
-    a = df_sub.Nleq5.values[0]
-    b = df_sub.Ngeq6.values[0]
-    c = df_sub.N6.values[0]
-    d = df_sub.N5.values[0]
+    a = df_sub.n_liquid.values[0]
+    b = df_sub.n_chain_and_loop.values[0]
+    c = df_sub.n_micell_1.values[0]
+    d = df_sub.n_micell_2.values[0]
     # bigger than 5
-    e =  df_sub.Ngeq6.values[0] + df_sub.N6.values[0]
+    e =  df_sub.n_micell_1.values[0] + df_sub.n_chain_and_loop.values[0]
     # smaller than 6
-    f =  df_sub.Nleq5.values[0] + df_sub.N5.values[0]
+    f =  df_sub.n_micell_2.values[0] + df_sub.n_liquid.values[0]
 
     return a,b,c,d,e,f
 
 def box_vars(df_sub):
-    a = df_sub.N1.values[0] + df_sub.N2.values[0]
-    b = df_sub.N4.values[0] + df_sub.btN4.values[0]
-    c = df_sub.N3.values[0]
+
+    a = df_sub.n_liquid.values[0]
+    b = df_sub.n_chain_and_loop.values[0]
+    c = df_sub.n_micell_2.values[0]
     return a,b,c
 
 def asymm_box_vars(df_sub):
-    a = df_sub.Nl3.values[0] 
-    b = df_sub.Nb3.values[0]
-    c = df_sub.N3.values[0]
+    a = df_sub.n_liquid.values[0] 
+    b = df_sub.n_chain_and_loop.values[0]
+    c = df_sub.n_micell_2[0]
     return a,b,c
 
 def ternary(df,Epsi,Pos,cluster_type):
@@ -114,9 +115,9 @@ def ternary(df,Epsi,Pos,cluster_type):
     vals = np.zeros((N_Epsi, N_Pos, 4))
     zvals = np.zeros((N_Epsi, N_Pos))
 
-    for ei, nei in zip(Epsi, range(N_Epsi)):
+    for ei, nei in zip(Epsi[::-1], range(N_Epsi)):
         for pi, npi in zip(Pos, range(N_Pos)):
-            df_sub = df[(df.energy == ei) & (df.patch_position == pi)] 
+            df_sub = df[(df.energy == ei) & (df.delta == pi) &(df.mu == 0.3)] 
 
             if cluster_type == 'asymm_box':
                 a,b,c = asymm_box_vars(df_sub)
@@ -133,8 +134,7 @@ def ternary(df,Epsi,Pos,cluster_type):
 
             vals[nei,npi] = np.array([a,b,c,d])
 
-    zvals = zvals[::-1,:]
-    return zvals, vals
+    return zvals[:,::-1],vals
 
 '''
 Row dimension is number of energies
@@ -172,8 +172,8 @@ args = parser.parse_args()
 df = pd.read_csv("cluster_distribution.csv")
 df = df.fillna(value=0)
 
-Epsi = df.energy.unique()
-Pos = df.patch_position.unique()
+Epsi = [5.2,6.2,7.2,8.2,9.2,10.2]
+Pos = [0.2,0.3,0.4,0.5,0.6,0.7,0.8]
 zvals, vals = ternary(df, Epsi, Pos, args.type)
 
 #------------ plot teneray phase diagram 

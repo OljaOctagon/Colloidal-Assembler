@@ -19,7 +19,11 @@ def gr_per_run(data, Delta, R, delta_time):
     end_time=data['time'].values[-1]
     norm_time=(end_time-start_time)/float(delta_time)
 
-    for t in range(start_time, end_time, delta_time):
+    print(start_time)
+    print(end_time)
+    print('norm', norm_time)
+
+    for t in range(start_time, end_time+delta_time, delta_time):
         print(t)
         is_time = data["time"] == t
         P_t = data[is_time]
@@ -55,7 +59,6 @@ def gr_per_run(data, Delta, R, delta_time):
                 dx= particle_dist[id]
                 na=len(dx[np.where((dx > ra) & (dx < rb))])      
                 gr = gr + na/normed
-                                  
             G[i] = G[i] + gr/float(Np)
 
     G=G/float(norm_time)
@@ -69,63 +72,33 @@ def check_file(fname):
         print("Error: File doesn't seem to exist.")
         return 0
 
-Chemical_Potentials = [0.3]
-Energies = [8.2]
-Patch_Toplogies = ['symm']
-Patch_Positions = [0.7] 
-Pressure=[100]
-Nruns=8
-Delta=0.01
-R=10
-delta_time=100
 
-for patch_kind in Patch_Toplogies:
-    for patch_pos in Patch_Positions:
-        for mu in Chemical_Potentials:
-            for energy in Energies:
-                for p in Pressure:
-                    G = np.zeros(int((R-Delta)/Delta))
-                    for nrun in range(1,Nruns+1):
-                        print(nrun)
-                        directory = "mu_"+str(mu)+"Energy_"+str(energy)+patch_kind+"_patchpos_"+str(patch_pos)+"_Pressure_"+str(p)+"_"+str(nrun)
-                        print(directory)
-                        fname = directory+"/cluster_center_of_mass.dat"
-                        f_exist = check_file(fname)
+import argparse
+import glob 
 
-                        if f_exist == 1: 
-                            data = pd.read_csv(fname, delim_whitespace=True, header=None)                                                                                                                                                    
-                            data.columns=["time","N", "Lx", "Ly", "id", "X", "Y"]
-                            G = G + gr_per_run(data, Delta, R, delta_time)
+if __name__ == '__main__':
 
-                    G = G/Nruns  
+    Delta=0.01
+    R=10
+    delta_time=20000
+    print('hi')
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-dirs', default='mu_0.4Energy_9.2symm_patchpos_*')
+    parser.add_argument('-fname', default='center_of_mass_stars.dat')
+    args = parser.parse_args()
 
-                    np.savetxt("gr_cluster_mu_"+str(mu)+patch_kind+"_patchpos_"+str(patch_pos)+".dat",G,newline="\n", delimiter=" ")            
-                    r=np.arange(Delta,R,Delta)/2.    
-                    plt.plot(r,np.ones(len(r)), 'k--', lw=2, alpha=0.2)
-                    plt.plot(r,G,c="#3399ff", lw=2, label="box phase at $ \displaystyle \phi \\approx 0.78$")
-                    plt.xlabel("$\displaystyle \sigma$", size=30)
-                    plt.tick_params(labelsize=22)
-                    plt.ylabel("$\displaystyle g(\sigma)$", size=30)
-                    plt.locator_params(nbins=6)
-                    plt.legend(prop={'size':18})
-                    plt.xlim([0,5])
-                    plt.ylim([0,10])
+    dirs = glob.glob("{}*".format(args.dirs))
+    print(dirs)
+    G = np.zeros(int((R-Delta)/Delta))
+    for dir_i in dirs:
+        print(dir_i)
+        filen = "{}/{}".format(dir_i,args.fname)
+        f_exist = check_file(filen)
+        if f_exist == 1:
+            df = pd.read_csv(filen, delim_whitespace=True, header=None)
+            df.columns=["time","N", "Lx", "Ly", "id", "X", "Y"]
+            G = G + gr_per_run(df, Delta, R, delta_time)
 
-                    plt.tight_layout()
-                    plt.savefig("gr_cluster_mu_"+str(mu)+patch_kind+"_patchpos_"+str(patch_pos)+".pdf")
-                    plt.show()      
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                        
+    G = G/len(dirs)
+    print(len(dirs))
+    np.savetxt("{}_gr2d.dat".format(args.dirs), G, delimiter=' ', newline='\n', fmt='%.5f')            

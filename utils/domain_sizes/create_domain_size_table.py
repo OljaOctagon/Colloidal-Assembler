@@ -25,10 +25,10 @@ files=[
     'domain_sizes_mean_whitlam.json',
     'domain_sizes_mean_dmoc.json']
 names_dict = {}
-names_dict[files[0]] = ('dmac',
-                        'dma-as (0.6)')
+names_dict[files[0]] = ('dma-c',
+                        'dma-as2')
 names_dict[files[1]] = ('w. et al.',)
-names_dict[files[2]] = ('dmoc',)
+names_dict[files[2]] = ('dmo-c',)
 
 param_dict = {}
 param_dict[files[0]] = ('0.5', '0.4')

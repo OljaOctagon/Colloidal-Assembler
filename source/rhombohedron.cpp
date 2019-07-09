@@ -30,12 +30,14 @@
 
 		double p1,p2,p3;
 		double T;	
-		
-		boost::property_tree::ptree pt;
+    double patch_size;
+
+    boost::property_tree::ptree pt;
 		boost::property_tree::ini_parser::read_ini("para.ini", pt);
 
+
 		p1 = pt.get<double>("Rhombus.Energy_Level");
-		
+
 		T=0.1;
 
 		p1 = p1*T;
@@ -333,10 +335,15 @@
 
 		V = fabs(ra.x*cross_p.x + ra.y*cross_p.y + ra.z*cross_p.z);
 
-		r_patch[0] = Lx/20.;
-		r_patch[1] = Lx/20.;
-		r_patch[2] = Lx/20.; 
-		r_patch[3] = Lx/20.;
+		boost::property_tree::ptree pt;
+		boost::property_tree::ini_parser::read_ini("para.ini", pt);
+  
+		patch_size = pt.get<double>("Rhombus.patch_size");
+
+    r_patch[0] = patch_size;
+		r_patch[1] = patch_size;
+		r_patch[2] = patch_size;
+		r_patch[3] = patch_size; 
 
 		patch_cutoff[0] = r_patch[0]*2;
 		patch_cutoff_squared[0] = patch_cutoff[0]*patch_cutoff[0];
@@ -350,12 +357,11 @@
 		patch_cutoff[3] = r_patch[3]*2;
 		patch_cutoff_squared[3] = patch_cutoff[3]*patch_cutoff[3];	
 	
-		boost::property_tree::ptree pt;
-		boost::property_tree::ini_parser::read_ini("para.ini", pt);
 	
 		patch_delta = pt.get<double>("Rhombus.patch_delta");
 		rhombus_type = pt.get<string>("Rhombus.rhombus_type");
-		// available types: 
+
+    // available types:
 		// one_patch, chain, manta_symm, manta_asymm, mouse_symm, mouse_asymm, 
 		// double_manta_symm_1, double_manta_symm_2; double_manta_asymm_1, double_manta_asymm_2, 
 		// double_mouse_symm_1, double_mouse_symm_2, double_mouse_asymm_1, double_mouse_asymm_2,

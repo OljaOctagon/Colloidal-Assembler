@@ -4,10 +4,10 @@ import seaborn as sns
 import pandas as pd 
 sns.set(style='white')
 
-file_id=['comparison',
-       'dmo-c',
-       'dma-c',
-       'dma-as2-0.6']
+file_id=['feq-center',
+       'dmo-center',
+       'dma-center',
+       'dma-as2']
 
 fig, axes = plt.subplots(2,2)
 

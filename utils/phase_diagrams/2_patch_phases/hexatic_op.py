@@ -55,12 +55,12 @@ def calc_max_domain_size(Angle,nn_list,TH):
 
 #Pressures = [5,6,8,10,11,12, 14, 16,17, 18, 19, 20, 25, 30, 35, 40, 50, 60, 80,100]
 Pressures = [5,10,14,18,20, 25, 30, 35, 40, 50, 60, 80,100]
-patch_positions = [0.3, 0.5, 0.7]
+patch_positions = [0.3, 0.4]
 
 Nruns=8
 phi = [ [] for i in range(Nruns) ]
 
-filetrace = 'mu_0.3Energy_8.2symm_patchpos_'
+filetrace = 'mu_0.4Energy_9.2symm_patchpos_'
 fig,ax = plt.subplots()
 eqs = []
 domains=[]
@@ -70,7 +70,7 @@ for p in Pressures:
     for pos in patch_positions:
         for nrun in range(1, Nruns+1):
             run_trace = filetrace+str(pos)+"_Pressure_"+str(p)+"_"+str(nrun)
-            file = "/cluster_center_of_mass.dat"
+            file = "/center_of_mass_stars.dat"
             dfile = run_trace+file
             df = pd.read_csv(dfile, header=None, delim_whitespace=True, 
                 names=['time','N','Lx', 'Ly', 'id', 'x', 'y'])
@@ -103,7 +103,7 @@ for p in Pressures:
                 with open('all_domains.dat', 'a') as f:
                     f.write("{} {} {} {}\n ".format(pos, p, nrun, size_l))
 
-                '''
+                
                 fig,ax = plt.subplots()
                 plt.scatter(df_sub.x.values,
                             df_sub.y.values,
@@ -114,7 +114,7 @@ for p in Pressures:
                 plt.tight_layout()
                 plt.savefig("hexatic_pressure_{}_patch_{}_{}.png".format(p,pos,nrun), dpi=300)
                 plt.close()
-                '''
+                
 
     domains.append(np.array([np.mean(max_domain), np.std(max_domain)]))
 
