@@ -1,0 +1,17 @@
+#!/bin/sh
+
+#SBATCH -J rr_sym 
+#SBATCH -N 1
+#SBATCH -p mem_0064
+#SBATCH --tasks-per-node=16
+#SBATCH --time=15:00:00
+
+
+for dir in */
+  do 
+  cd $dir 
+  echo $dir
+  bash COMMITT.sh &
+  cd .. 
+  done
+wait 

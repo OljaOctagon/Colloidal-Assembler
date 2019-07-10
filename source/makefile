@@ -1,6 +1,6 @@
 #!/bin/make -f
 LDFLAGS=-L/usr/local/opt/ -L/usr/local/Cellar/gsl/2.5/lib
-CFLAGS=-O3 -fopenmp -march=native -msse4.1 --fast-math -flto -Wall -Wno-deprecated -I../include -I/usr/local/opt/ -I/usr/local/Cellar/gsl/2.5/include -I/usr/local/Cellar/boost/1.67.0_1/include
+CFLAGS=-O3 -fopenmp -march=native -msse4.1 --fast-math -flto  -I../include -I/usr/local/opt/ -I/usr/local/Cellar/gsl/2.5/include -I/usr/local/Cellar/boost/1.67.0_1/include
 
 #INCLUDES=-I../include/ 
 INCLUDES= -I../include
