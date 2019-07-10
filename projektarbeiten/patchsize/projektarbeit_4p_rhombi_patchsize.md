@@ -7,7 +7,7 @@ The aim of this project is to study the influence of the patch size on the self 
 - **Molceular Level**
 For some tetracarboxylic acids, the respective rhombi models overlap where the molecules would not overlap. Larger patches allow a larger edge to edge distance and therefore eleminate the problematic overlap.
 
-![08583e3a.png](/Users/ada/Desktop/4p-overlap.png =250x)
+![08583e3a.png](4p-overlap.png =250x)
 **FIG.1** Overlap in rhombi model of a tetracid.
 - **Colloidal Level**
 In experiments with patchy colloids it is often easier to craft larger patches.
@@ -18,10 +18,10 @@ the system changes to an unordered structure.
 Pleniminary results for **feq-as2** show 
 that the critical patch size, depending on $\Delta$, is around $r_{p}=0.1$ for an edge length $L_x = 1.0$.
 
-![88454ed0.png](/Volumes/phd/rhombi/phase_diagram_snaps/double_manta/rpatch_0.1/0.3/4.2/delta_03_r01.png =250x)
+![88454ed0.png](delta_03_r01.png =250x)
 **FIG.2** Onp tiling at $r_p = 0.1, \Delta=0.3, \epsilon=-4.2k_{B}T, \mu=0.25$
 
-![538d2ea8.png](/Volumes/phd/rhombi/phase_diagram_snaps/double_manta/rpatch_0.1/0.2/4.2/dma-as2-rp01.png =250x)
+![538d2ea8.png](dma-as2-rp01.png =250x)
 **FIG.3** Unordered assembly product at $r_p = 0.1, \Delta=0.2, \epsilon=-4.2 k_{B}T, \mu=0.25$
 
 #### Relevant literature
