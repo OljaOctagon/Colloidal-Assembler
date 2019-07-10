@@ -23,8 +23,8 @@
 #include "cube.h"
 #include "box.h"
 //#include "box_non_ortho.h"
-#include "order_parameter_2.h"
-#include "cluster_1.h"
+#include "order_parameter.h"
+#include "cluster.h"
 #include "polyhedra.h"
 #include "gear.h"
 

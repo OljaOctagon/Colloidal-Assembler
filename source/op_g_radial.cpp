@@ -1,5 +1,5 @@
 
-#include "order_parameter_2.h"
+#include "order_parameter.h"
 
 void order_parameter::g_radial(double r_start, double r_stop, double delta_r){
 	
