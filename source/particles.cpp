@@ -1,13 +1,18 @@
 # include "particles.h"
-
+#include <iostream>
 
 	particles::~particles(){
 		
-		delete [] N_Particle;
-		delete [] Collision_List;
-		delete [] Collision_List_old;
+        if (ALLOCATED) {
+    		delete [] N_Particle;
+    		delete [] Collision_List;
+    		delete [] Collision_List_old;
+            ALLOCATED = false;
+			// std::cout << "DEALLOCATED" << "\n" << std::flush;
+        }
 
-			
+        // std::cout << "particles destructor called!!!\n";
+
 	}
 
     particles::particles(){
@@ -17,11 +22,16 @@
 		Cell = 0;
 		Cell_old = 0;
 		 
-		  
+		ALLOCATED = false;
+
+        // std::cout << "particles empty constructor called!!!\n";
     }
 
 
 	particles::particles(int number_of_cells_in, int size, int MAX_coll_p_in, int MAX_fshell_in, string particle_type, string binary_on_in, double phi_binary_in){
+        ALLOCATED = true;
+
+        // std::cout << "particles custom constructor called!!!\n";
   
 
 		randpatch = gsl_rng_alloc(gsl_rng_ranlxd2);

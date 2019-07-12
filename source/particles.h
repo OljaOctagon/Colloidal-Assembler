@@ -97,6 +97,9 @@ class particles: public polyhedra {
   
 public:  
 particles();
+particles(particles const&) {
+    std::cout << "particles copy constructor called!!! This is bad!\n" << std::flush; 
+}
 particles(int number_of_cells_in, int size, int MAX_coll_p_in, int MAX_fshell_in, string particle_type, string binary_on_in, double phi_binary_in);
 ~particles();
 
@@ -216,14 +219,8 @@ void Reset_Cell_List(box* Box, int id, int& c_id, int& n_id, int& id_num);
 
 void Startconfig_SPHERE(box* Box);
 
-
-};
-
-
-	
-	
-	
-	
+bool ALLOCATED;
+};	
 	
 
 
