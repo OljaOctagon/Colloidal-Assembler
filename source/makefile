@@ -1,16 +1,13 @@
 #!/bin/make -f
-LDFLAGS=-L/usr/local/opt/ -L/usr/local/Cellar/gsl/2.5/lib
-CFLAGS=-O3 -fopenmp -march=native -msse4.1 --fast-math -flto  -I../include -I/usr/local/opt/ -I/usr/local/Cellar/gsl/2.5/include -I/usr/local/Cellar/boost/1.67.0_1/include
 
-#INCLUDES=-I../include/ 
-INCLUDES= -I../include
-CC=g++-8
-LIBS=-lm -lstdc++ -lgsl -lgslcblas 
+CC=clang++
+LIBS=-lgsl -lgslcblas 
+CFLAGS=-march=native -msse4.1 -flto -O3 -ffast-math #-fsanitize=address
 
 all: McPoly
 
-McPoly:  Three_Particle_Move.o Cluster_Move.o Grand_Canonical.o polyhedra.o cube.o octahedron.o cuboid.o truncated_cube.o rhombohedron.o hexbipyramid.o particles.o pmove.o Translate_Brownian.o Rotate_2.o box.o fileio.o cell_list.o cell.o main3.o order_parameter_2.o cluster_1.o Vol_move.o alg_struct.o Collision_Test.o tis_window.o parallelepiped.o Rotate_2D.o gear.o
-	$(CC) $(CFLAGS) Three_Particle_Move.o Cluster_Move.o Grand_Canonical.o polyhedra.o cube.o octahedron.o particles.o cuboid.o truncated_cube.o rhombohedron.o hexbipyramid.o pmove.o Translate_Brownian.o Rotate_2.o box.o fileio.o cell_list.o cell.o main3.o order_parameter_2.o cluster_1.o Vol_move.o alg_struct.o Collision_Test.o tis_window.o parallelepiped.o Rotate_2D.o gear.o  $(INCLUDES) $(LDFLAGS) $(LIBS) -o McPoly 
+McPoly:  Three_Particle_Move.o Cluster_Move.o Grand_Canonical.o polyhedra.o cube.o octahedron.o cuboid.o truncated_cube.o rhombohedron.o hexbipyramid.o particles.o pmove.o translate.o rotate_3D.o box.o fileio.o cell_list.o cell.o main.o order_parameter.o cluster.o Vol_move.o alg_struct.o Collision_Test.o tis_window.o parallelepiped.o rotate_2D.o gear.o
+	$(CC) $(CFLAGS) Three_Particle_Move.o Cluster_Move.o Grand_Canonical.o polyhedra.o cube.o octahedron.o particles.o cuboid.o truncated_cube.o rhombohedron.o hexbipyramid.o pmove.o translate.o rotate_3D.o box.o fileio.o cell_list.o cell.o main.o order_parameter.o cluster.o Vol_move.o alg_struct.o Collision_Test.o tis_window.o parallelepiped.o rotate_2D.o gear.o $(LIBS) -o McPoly 
 
 gear.o: gear.cpp
 	$(CC) $(CFLAGS) -c gear.cpp
@@ -30,17 +27,17 @@ cuboid.o: cuboid.cpp
 pmove.o: pmove.cpp
 	$(CC) $(CFLAGS) -c pmove.cpp
 
-Rotate_2.o: Rotate_2.cpp
-	$(CC) $(CFLAGS) -c Rotate_2.cpp 
+rotate_3D.o: rotate_3D.cpp
+	$(CC) $(CFLAGS) -c rotate_3D.cpp 
 
-Rotate_2D.o: Rotate_2D.cpp
-	$(CC) $(CFLAGS) -c Rotate_2D.cpp
- 
-Translate_Brownian.o: Translate_Brownian.cpp
-	$(CC) $(CFLAGS) -c Translate_Brownian.cpp 
+rotate_2D.o: rotate_2D.cpp
+	$(CC) $(CFLAGS) -c rotate_2D.cpp
+
+translate.o: translate.cpp
+	$(CC) $(CFLAGS) -c translate.cpp 
 
 box.o: box.cpp
-	$(CC) $(CFLAGS) -c box.cpp  	
+	$(CC) $(CFLAGS) -c box.cpp
 
 fileio.o: fileio.cpp
 	$(CC) $(CFLAGS) -c fileio.cpp 
@@ -51,14 +48,14 @@ cell_list.o: cell_list.cpp
 cell.o: cell.cpp
 	$(CC) $(CFLAGS) -c cell.cpp 
 
-main3.o: main3.cpp
-	$(CC) $(CFLAGS) -c main3.cpp 
+main.o: main.cpp
+	$(CC) $(CFLAGS) -c main.cpp 
 
-order_parameter_2.o: order_parameter_2.cpp
-	$(CC) $(CFLAGS) -c order_parameter_2.cpp   	
+order_parameter.o: order_parameter.cpp
+	$(CC) $(CFLAGS) -c order_parameter.cpp   	
 
-cluster_1.o: cluster_1.cpp
-	$(CC) $(CFLAGS) -c cluster_1.cpp
+cluster.o: cluster.cpp
+	$(CC) $(CFLAGS) -c cluster.cpp
 
 Vol_move.o: Vol_move.cpp
 	$(CC) $(CFLAGS) -c Vol_move.cpp   

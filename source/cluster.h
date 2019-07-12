@@ -1,25 +1,44 @@
-#ifndef __CLUSTER_H__
-#define __CLUSTER_H__
+#include "box.h"
+#include "order_parameter.h"
+#include "particles.h"
+#include <cstdio>
+#include <gsl/gsl_math.h>
+//#include "box_non_ortho.h"
 
-#include <stdbool.h>
+class particle_cluster_info {
 
-typedef struct {
+  public:
+    bool isactive;
+    int cluster_id;
+};
 
-	bool	isactive;
-	int		clusterid;
+class cluster {
 
-} particle_cluster_info;
+  public:
+    particle_cluster_info *op_cluster_info;
+    int *Largest_Cluster_List;
 
-// particle cluster info für jedes Particle/Würfel -> *op_cluster info
+    cluster(box *Box);
+    ~cluster();
 
-extern particle_cluster_info *op_cluster_info;
+    int Size_R;
+    int cnums;
+    int list_j;
 
-//op_cluster_build weist jedem Cluster eine id zu
-void op_cluster_build(void);
-//initialisiert op_cluster info
-void op_cluster_init(double cutoff1ss);
+    void HarvestClusterRecursion(int cluster_number, int id_j,
+                                 particles &Particles);
+    void op_cluster_build(box *Box, particles &Particles);
+    void op_cluster_free();
 
-void op_cluster_free(void);
-int op_cluster_get_largest_cluster_size(void);
+    int op_cluster_get_largest_cluster_size(int cnums, box *Box, int time_s);
+    int op_cluster_get_largest_cluster_size(int cnums, box *Box,
+                                            particles &Particles, int time_s,
+                                            bool is_mass_calc);
 
-#endif
+    void Calculate(order_parameter &Order_Parameter, particles &Particles,
+                   box *Box, int time_s);
+    void Calculate(order_parameter &Order_Parameter, particles &Particles,
+                   box *Box, int time_s, bool is_mass_calc);
+
+    void Reset_cluster(box *Box);
+};
