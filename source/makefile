@@ -1,16 +1,13 @@
 #!/bin/make -f
-LDFLAGS=-L/usr/local/opt/ -L/usr/local/Cellar/gsl/2.5/lib
-CFLAGS=-O3 -fopenmp -march=native -msse4.1 --fast-math -flto  -I../include -I/usr/local/opt/ -I/usr/local/Cellar/gsl/2.5/include -I/usr/local/Cellar/boost/1.67.0_1/include
 
-#INCLUDES=-I../include/ 
-INCLUDES= -I../include
-CC=g++-8
-LIBS=-lm -lstdc++ -lgsl -lgslcblas 
+CC=clang++
+LIBS=-lgsl -lgslcblas 
+CFLAGS=-march=native -msse4.1 -flto -O3 -ffast-math #-fsanitize=address
 
 all: McPoly
 
 McPoly:  Three_Particle_Move.o Cluster_Move.o Grand_Canonical.o polyhedra.o cube.o octahedron.o cuboid.o truncated_cube.o rhombohedron.o hexbipyramid.o particles.o pmove.o translate.o rotate_3D.o box.o fileio.o cell_list.o cell.o main.o order_parameter.o cluster.o Vol_move.o alg_struct.o Collision_Test.o tis_window.o parallelepiped.o rotate_2D.o gear.o
-	$(CC) $(CFLAGS) Three_Particle_Move.o Cluster_Move.o Grand_Canonical.o polyhedra.o cube.o octahedron.o particles.o cuboid.o truncated_cube.o rhombohedron.o hexbipyramid.o pmove.o translate.o rotate_3D.o box.o fileio.o cell_list.o cell.o main.o order_parameter.o cluster.o Vol_move.o alg_struct.o Collision_Test.o tis_window.o parallelepiped.o rotate_2D.o gear.o  $(INCLUDES) $(LDFLAGS) $(LIBS) -o McPoly 
+	$(CC) $(CFLAGS) Three_Particle_Move.o Cluster_Move.o Grand_Canonical.o polyhedra.o cube.o octahedron.o particles.o cuboid.o truncated_cube.o rhombohedron.o hexbipyramid.o pmove.o translate.o rotate_3D.o box.o fileio.o cell_list.o cell.o main.o order_parameter.o cluster.o Vol_move.o alg_struct.o Collision_Test.o tis_window.o parallelepiped.o rotate_2D.o gear.o $(LIBS) -o McPoly 
 
 gear.o: gear.cpp
 	$(CC) $(CFLAGS) -c gear.cpp
@@ -35,7 +32,7 @@ rotate_3D.o: rotate_3D.cpp
 
 rotate_2D.o: rotate_2D.cpp
 	$(CC) $(CFLAGS) -c rotate_2D.cpp
- 
+
 translate.o: translate.cpp
 	$(CC) $(CFLAGS) -c translate.cpp 
 
