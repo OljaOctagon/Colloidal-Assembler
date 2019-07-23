@@ -14,9 +14,9 @@ rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
 rc('text', usetex=True)
 
 
-X_03 = pd.read_csv("eqs_0.2.dat", header=None, delim_whitespace=True).values
+#X_03 = pd.read_csv("eqs_0.2.dat", header=None, delim_whitespace=True).values
 X_05 = pd.read_csv("eqs_0.3.dat", header=None, delim_whitespace=True).values
-X_07 = pd.read_csv("eqs_0.4.dat", header=None, delim_whitespace=True).values
+#X_07 = pd.read_csv("eqs_0.4.dat", header=None, delim_whitespace=True).values
 
 
 ''' 
@@ -39,14 +39,14 @@ for i in range(len(bg_arr)-1):
     ax.axvspan(X[i,1], X[i+1,1], color=plt.cm.magma_r(bg_arr[i+1,1]/max_frac), alpha=0.5)
 '''
 fig, ax = plt.subplots()
-plt.errorbar(X_03[:,1], X_03[:,0], xerr=X_03[:,2],
-             lw=0, ms=8, marker='o', c='#ff5e62', alpha=0.7, label="$\Delta=0.2$")
+#plt.errorbar(X_03[:,1], X_03[:,0], xerr=X_03[:,2],
+#             lw=0, ms=8, marker='o', c='#ff5e62', alpha=0.7, label="$\Delta=0.2$")
 
 plt.errorbar(X_05[:,1], X_05[:,0], xerr=X_05[:,2],
              lw=0, ms=8, marker='s', c='#00f2a3', alpha=0.7,label="$\Delta=0.3$")
 
-plt.errorbar(X_07[:,1], X_07[:,0], xerr=X_07[:,2],
-             lw=0, ms=8, marker='^', c='#6300ff', alpha=0.7, label="$\Delta=0.4$")
+#plt.errorbar(X_07[:,1], X_07[:,0], xerr=X_07[:,2],
+#             lw=0, ms=8, marker='^', c='#6300ff', alpha=0.7, label="$\Delta=0.4$")
 
 plt.legend(loc=2,prop={'size':14})
 
@@ -61,7 +61,7 @@ ax.text(0.71, 90, "solid", fontsize=16)
 '''
 
 plt.ylim([0,110])
-plt.xlim([0.35,0.7])
+#plt.xlim([0.35,0.7])
 plt.tick_params(axis='both', which='major', labelsize=14)
 plt.xlabel("$\phi$", size=30)
 plt.ylabel("$P$", size=25)

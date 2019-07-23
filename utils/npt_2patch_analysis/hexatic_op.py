@@ -16,14 +16,18 @@ colormap = plt.get_cmap('hsv')
 def get_pdist(df):
     Lx = df.Lx.unique()[0]
     Ly = df.Ly.unique()[0]
-    l = len(df.x)
+    
+    df_x = df.x.values
+    df_y = df.y.values
+    l = len(df_x)
+    print(df_x)
     pdist = np.zeros((l,l,2))
 
-    p = np.reshape(df.x, (l,1))
+    p = np.reshape(df_x, (l,1))
     p = p - p.transpose()
     pdist[:,:,0] = p - Lx*np.rint(p/Lx)
 
-    p = np.reshape(df.y, (l,1))
+    p = np.reshape(df_y, (l,1))
     p = p - p.transpose()
     pdist[:,:,1] = p - Ly*np.rint(p/Ly)
 
@@ -55,12 +59,11 @@ def calc_max_domain_size(Angle,nn_list,TH):
 
 #Pressures = [5,6,8,10,11,12, 14, 16,17, 18, 19, 20, 25, 30, 35, 40, 50, 60, 80,100]
 Pressures = [5,10,14,18,20, 25, 30, 35, 40, 50, 60, 80,100]
-patch_positions = [0.3, 0.4]
-
+patch_positions = [0.3]
 Nruns=8
 phi = [ [] for i in range(Nruns) ]
 
-filetrace = 'mu_0.4Energy_9.2symm_patchpos_'
+filetrace = 'mu_0.3Energy_8.2Asymm_patchpos_'
 fig,ax = plt.subplots()
 eqs = []
 domains=[]
@@ -70,7 +73,7 @@ for p in Pressures:
     for pos in patch_positions:
         for nrun in range(1, Nruns+1):
             run_trace = filetrace+str(pos)+"_Pressure_"+str(p)+"_"+str(nrun)
-            file = "/center_of_mass_stars.dat"
+            file = "/cluster_center_of_mass.dat"
             dfile = run_trace+file
             df = pd.read_csv(dfile, header=None, delim_whitespace=True, 
                 names=['time','N','Lx', 'Ly', 'id', 'x', 'y'])

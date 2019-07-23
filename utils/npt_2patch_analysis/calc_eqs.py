@@ -2,11 +2,11 @@ import numpy as np
 import pandas as pd 
 
 Pressures = [5,6,8,10,11,12, 14, 16,17, 18, 19, 20, 25, 30, 35, 40, 50, 60, 80,100]
-patch_positions = [0.3, 0.5, 0.7]
+patch_positions = [0.3]
 Nruns = 8 
 phi = [ [] for i in range(Nruns) ]
 
-filetrace = 'mu_0.3Energy_8.2symm_patchpos_'
+filetrace = 'mu_0.3Energy_8.2Asymm_patchpos_'
 for pos in patch_positions:
     eqs = []
     for p in Pressures:
