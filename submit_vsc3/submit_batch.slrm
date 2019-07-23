@@ -1,0 +1,19 @@
+#!/bin/sh
+
+#SBATCH -J npt_ob 
+#SBATCH -N 1
+#SBATCH -p mem_0064
+#SBATCH --tasks-per-node=16
+#SBATCH --time=72:00:00
+
+
+file_arr=( `cat bath_files.tmp` ) 
+echo "submit new batch" 
+for dir in "${file_arr[@]}" 
+  do 
+  cd $dir 
+  echo $dir
+  bash COMMITT.sh &
+  cd .. 
+  done
+wait 
