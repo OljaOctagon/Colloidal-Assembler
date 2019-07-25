@@ -110,7 +110,7 @@ if __name__ == '__main__':
 
     # parse arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument('-ptype', type=str, default='mouse', choices=['manta','mouse'])
+    parser.add_argument('-ptype', type=str, default='mouse', choices=['manta','mouse', 'parallel'])
     parser.add_argument('-tsize', type=int, default=3)
     parser.add_argument('-o', type=str, default='m_chains.csv')
     args  = parser.parse_args()
@@ -189,6 +189,8 @@ if __name__ == '__main__':
 
                 # sort chain graph
                 Gc_sorted, cluster_type = order_chain(domain,subarr)
+                print(Gc_sorted)
+
                 cluster_size = len(Gc_sorted)
                 # bend, bend_between_kink, straight_distribution
                 bend, bend_p, bend_np, sequence = calculate_flexibility(
