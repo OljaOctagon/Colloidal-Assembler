@@ -1,4 +1,5 @@
 test/*bin
 test/*dat
 test/*xyz
+tests/*
 .DS_Store
