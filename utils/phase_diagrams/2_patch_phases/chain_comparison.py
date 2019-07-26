@@ -19,6 +19,16 @@ patch_dict = {
     'manta': [0,1]
 }
 
+
+# calulate director of a chain. We take the director as the normed distance vector
+# from the first to last particle 
+def calculate_director(Gc_sorted,pos):
+    vec = pos[Gc_sorted[-1]] - pos[Gc_sorted[0]]
+    n_vec = np.linalg.norm(vec)
+    vec = vec/n_vec
+    return vec[:2]
+
+
 def parse_config(directory):
     """returns positions, box lengths of max_checkpoint as arrays. """
 
@@ -128,6 +138,11 @@ if __name__ == '__main__':
 
     df = pd.DataFrame(columns=features)
 
+
+    features_1 = ['mu', 'energy', 'topology', 'delta', 'nematic_op']
+    dg = pd.DataFrame(columns=features_1)
+
+
     for dir in dirlist:
         numbers = re.findall(r"[-+]?\d*\.\d+|\d+", dir)
         mu = numbers[0]
@@ -173,6 +188,9 @@ if __name__ == '__main__':
         # from previous calcs
         max_bend = 29.782761453318788
 
+
+        dir_u = []
+
         for domain in nx.connected_component_subgraphs(G):
             chain = list(domain)
             if(len(chain)>args.tsize):
@@ -184,12 +202,16 @@ if __name__ == '__main__':
                         if item.size > 0:
                                 subarr.append(item)
 
+
+
                 subarr = np.unique(subarr, axis=0)
                 kink_density = get_kink_density(subarr)
 
-                # sort chain graph
+                # sort chain graph: Gc_sorted: sorted list of chain_i
                 Gc_sorted, cluster_type = order_chain(domain,subarr)
-                print(Gc_sorted)
+
+                # calculate director
+                dir_u.append(calculate_director(Gc_sorted))
 
                 cluster_size = len(Gc_sorted)
                 # bend, bend_between_kink, straight_distribution
@@ -197,7 +219,6 @@ if __name__ == '__main__':
                     Gc_sorted, subarr,orient)
 
                 bend_per_particle[chain] = np.rint(((bend*360/(2*np.pi))/max_bend)*5)
-                
                 df = pd.concat([df,pd.DataFrame({'mu': [mu],
                                                 'energy': [energy],
                                                 'topology': [topology],
@@ -213,6 +234,14 @@ if __name__ == '__main__':
                                             'sequence': [sequence]})])
 
 
+        nematic_op = calculate_nematic_order(np.array(dir_u))
+
+        dg = pd.concat([dg,pd.DataFrame({'mu': [mu],
+                                        'energy': [energy],
+                                        'topology': [topology],
+                                         'delta': [delta],
+                                         'nematic_op': [nematic_op]})])
+
         with open(dir+'/bend_op.dat', 'w') as f:
             f.write(str(1000)+'\n')
             f.write("Particles of frame\n")
@@ -222,15 +251,6 @@ if __name__ == '__main__':
     with open(args.o, 'w') as f:
         df.to_csv(f)
 
-
-
-# # of schlaufen: = [p, np, p] === number of kinks
-
-# # of schlaufen pairs [p,np,p,np] per chain_length
-# schlaufe schlaufe - grade - schlaufe etc
-# schlaufen density
-# bend through schlaufe
-
-# configurability
-
+    with open("nematic_op.csv", 'w') as f:
+        dg.to_csv(f)
 

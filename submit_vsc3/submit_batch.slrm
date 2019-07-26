@@ -4,10 +4,15 @@
 #SBATCH -N 1
 #SBATCH -p mem_0064
 #SBATCH --tasks-per-node=16
-#SBATCH --time=72:00:00
+#SBATCH --time=0:01:00
+
+module purge
+module load gcc/7.2 openmpi/3.0.1 python/2.7 boost/1.64.0
+module load gsl/2.4
 
 
-file_arr=( `cat bath_files.tmp` ) 
+current_dir=$1
+file_arr=( `cat $current_dir/batch_files.tmp` ) 
 echo "submit new batch" 
 for dir in "${file_arr[@]}" 
   do 
