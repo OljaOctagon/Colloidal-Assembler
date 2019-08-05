@@ -511,7 +511,6 @@ void collision_list::Calculate_Bonds(box *Box, int id1, polyhedra **N_Particle,
         Elements[i].nl_id = -100;
     }
 
-    ofstream patch_out("patch_network.dat", ios::out | ios::app);
     for (int id2 = 0; id2 < Box->N; id2++) {
 
         for (int pid1 = 0; pid1 < N_Particle[id1]->N_patches; pid1++) {
@@ -552,15 +551,11 @@ void collision_list::Calculate_Bonds(box *Box, int id1, polyhedra **N_Particle,
 
                     coll_member_counter = coll_member_counter + 1;
 
-                    if (id2 < id1) {
-                        patch_out << id1 << " " << id2 << " " << pid1 << " "
-                                  << pid2 << endl;
                     }
                 }
             }
         }
     }
 
-    patch_out.close();
     Nm = coll_member_counter;
 }

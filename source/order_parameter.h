@@ -112,6 +112,7 @@ class order_parameter {
     int *gx_histo;
     int *gy_histo;
     int *gz_histo;
+
     data_point_2D *g_radial_distribution;
     data_point_2D *gx_distribution;
     data_point_2D *gy_distribution;
