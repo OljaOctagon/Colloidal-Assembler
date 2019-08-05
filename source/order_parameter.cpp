@@ -611,6 +611,9 @@ void order_parameter::Calculate_2D_Psi(particles &Particles, box *Box) {
         Particles.N_Particle[id]->Calculate_Long_Axis();
     }
 
+    ofstream patch_out("patch_network.dat", ios::out | ios::app);
+    patch_out<<"#new time"<<endl;
+
     for (int id1 = 0; id1 < Box->N; id1++) {
         for (int id2 = 0; id2 < Box->N; id2++) {
 
@@ -651,6 +654,12 @@ void order_parameter::Calculate_2D_Psi(particles &Particles, box *Box) {
                                 ->patch_cutoff_squared[pid1] &&
                         id1 != id2) {
 
+
+                       if (id2 < id1) {
+                          patch_out << id1 << " " << id2 << " " << pid1 << " "
+                                  << pid2 << endl;
+                       }
+
                         NH_bonds = NH_bonds + 1;
 
                         scp_long_axis =
@@ -671,6 +680,8 @@ void order_parameter::Calculate_2D_Psi(particles &Particles, box *Box) {
         }
     }
 
+
+    patch_out.close();
     NH_bonds = NH_bonds / 2;
     NH_parallel = NH_parallel / 2;
 

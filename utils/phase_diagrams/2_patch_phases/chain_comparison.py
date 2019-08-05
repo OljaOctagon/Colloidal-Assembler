@@ -5,7 +5,8 @@ import glob
 import os
 import re
 import networkx as nx
-
+from scipy import linalg as la
+import matplotlib.pyplot as plt
 cluster_type_dict = {
     '6-star': 6,
     '5-star': 5,
@@ -19,15 +20,131 @@ patch_dict = {
     'manta': [0,1]
 }
 
+S_threshold = 0.4
+Alignment_threshold = 0.85
+pos_threshold = np.power(1.5,2) + (2+2*np.cos(np.pi/3.))
+
+
+def calculate_chain_neighbours(i, chain, all_chains, pos, boxl):
+    chain_neighbours = []
+    for j, chain_j in enumerate(all_chains):
+        for elem_i in chain:
+            for elem_j in chain_j:
+                dist_v = (pos[elem_i] - pos[elem_j])[:2]
+                dist_v = dist_v - boxl*np.rint(dist_v/boxl)
+                dist = np.power(dist_v[0],2) + np.power(dist_v[1],2)
+
+                if dist < pos_threshold and i!=j:
+                    chain_neighbours.append(j)
+                    break
+
+            else:
+                continue
+            break
+
+    return chain_neighbours
+
+def calculate_local_nematic_op(i, chain_neighbours, dir_u):
+
+    if len(chain_neighbours) > 0:
+        denom = 1/len(chain_neighbours)
+
+    else:
+        denom = 1 
+    f = lambda i,j: 2*np.power(np.dot(dir_u[i], dir_u[j]),2) -  1
+    sum_terms = [ f(i,neigh) for neigh in chain_neighbours]
+    local_nematic = denom*np.sum(sum_terms)
+
+    return local_nematic
+
+
+def get_alignment(i, j, dir_u):
+    is_aligned = False
+    if np.fabs(np.dot(dir_u[i], dir_u[j])) > Alignment_threshold:
+        is_aligned = True
+
+    return is_aligned
+
+
+def get_length_type(l_chain):
+
+    if l_chain < 5:
+        length_type = 10
+
+    if l_chain >=5 and l_chain<10:
+        length_type = 11
+
+    if l_chain >=10 and l_chain<15:
+        length_type = 12
+
+    if l_chain >=15 and l_chain<20:
+        length_type = 13
+
+    if l_chain >=20:
+        length_type = 14
+
+    if l_chain >=30:
+        length_type = 15
+
+    return length_type
+
 
 # calulate director of a chain. We take the director as the normed distance vector
 # from the first to last particle 
-def calculate_director(Gc_sorted,pos):
-    vec = pos[Gc_sorted[-1]] - pos[Gc_sorted[0]]
-    n_vec = np.linalg.norm(vec)
-    vec = vec/n_vec
-    return vec[:2]
+def calculate_director(Gc_sorted,pos, boxl):
 
+    vec = np.zeros((len(Gc_sorted),2))
+
+    for i in range(1,len(Gc_sorted)):
+        distance = (pos[Gc_sorted[i]] - pos[Gc_sorted[i-1]])[:2]
+        distance = distance - boxl*np.rint(distance/boxl)
+
+        vec[i] = vec[i-1] + distance
+
+    full_vec = vec[-1]
+    pos_zero = pos[Gc_sorted[0]]
+
+    n_vec = np.linalg.norm(vec[-1])
+    dir_vec = vec[-1]/n_vec
+    return dir_vec, full_vec[:2], pos_zero[:2]
+
+
+
+def calculate_bond_vector_angles(Gc_sorted, pos, boxl):
+
+    L = len(Gc_sorted)
+    bond_vec = np.zeros((L-1,2))
+    bond_angle = np.zeros((L-2,1))
+
+    for i in range(1,L):
+        bond_vec[i-1] = (pos[Gc_sorted[i]] - pos[Gc_sorted[i-1]])[:2]
+        bond_vec[i-1] = bond_vec[i-1] - boxl*np.rint(bond_vec[i-1]/boxl)
+
+    N_bonds = L-1
+    for j in range(1,N_bonds):
+
+        ab_scalar = np.dot(bond_vec[j-1], bond_vec[j])
+        norm_a = np.linalg.norm(bond_vec[j-1])
+        norm_b = np.linalg.norm(bond_vec[j])
+
+        bond_angle[j-1] = np.arccos(ab_scalar/(norm_a*norm_b))
+
+    return bond_vec, bond_angle
+
+
+def calculate_nematic_order(dir_u):
+    # calculate nematic tensor 
+    Nm = len(dir_u)
+    Q_ab = np.zeros((2,2))
+    for i in range(2):
+        for j in range(2):
+            Q_ab[i,j] = (1/Nm) * np.sum(2*dir_u[:,i]*dir_u[:,j] - np.eye(2)[i,j])
+
+
+    eigen_val, eigen_vec = la.eig(Q_ab)
+    print('eigen_val', eigen_val)
+    nematic_op = max(eigen_val).real
+    return nematic_op 
 
 def parse_config(directory):
     """returns positions, box lengths of max_checkpoint as arrays. """
@@ -134,12 +251,16 @@ if __name__ == '__main__':
     features = ['mu', 'energy', 'topology',
                 'delta', 'percolation_coeff',
                 'packing_fraction', 'kink_density',
-                'bend','bend_parallel', 'bend_non_parallel', 'sequence']
+                'bend','bend_parallel', 'bend_non_parallel',
+                'end_to_end_distance'
+                'sequence','bond_vec', 'bond_angle']
 
     df = pd.DataFrame(columns=features)
 
+    features_1 = ['mu', 'energy', 'topology', 'delta',
+                  'nematic_op','local_nematic_op',
+                  'fraction_largest_nematic']
 
-    features_1 = ['mu', 'energy', 'topology', 'delta', 'nematic_op']
     dg = pd.DataFrame(columns=features_1)
 
 
@@ -190,9 +311,19 @@ if __name__ == '__main__':
 
 
         dir_u = []
+        full_vec = []
+        pos_zero = []
+
+        id_length_type = np.ones(1000)*10
+
+
+        all_chains = []
+        all_bond_angles = []
+        
 
         for domain in nx.connected_component_subgraphs(G):
             chain = list(domain)
+
             if(len(chain)>args.tsize):
                 # kink density
                 subarr=[]
@@ -203,20 +334,33 @@ if __name__ == '__main__':
                                 subarr.append(item)
 
 
-
                 subarr = np.unique(subarr, axis=0)
                 kink_density = get_kink_density(subarr)
 
                 # sort chain graph: Gc_sorted: sorted list of chain_i
                 Gc_sorted, cluster_type = order_chain(domain,subarr)
 
+                all_chains.append(Gc_sorted)
+
                 # calculate director
-                dir_u.append(calculate_director(Gc_sorted))
+                dir_u_i, full_vec_i, pos_zero_i = calculate_director(Gc_sorted,pos, boxl)
+                dir_u.append(dir_u_i)
+                full_vec.append(full_vec_i)
+                pos_zero.append(pos_zero_i)
+
+                # asign length category to particle ids
+                length_type = get_length_type(len(chain))
+                id_length_type[Gc_sorted] = length_type
+
 
                 cluster_size = len(Gc_sorted)
                 # bend, bend_between_kink, straight_distribution
                 bend, bend_p, bend_np, sequence = calculate_flexibility(
                     Gc_sorted, subarr,orient)
+
+                end_to_end_distance = np.sqrt(np.power(full_vec_i[0],2) + np.power(full_vec_i[1],2))
+
+                bond_vec, bond_angle = calculate_bond_vector_angles(Gc_sorted, pos, boxl)
 
                 bend_per_particle[chain] = np.rint(((bend*360/(2*np.pi))/max_bend)*5)
                 df = pd.concat([df,pd.DataFrame({'mu': [mu],
@@ -231,22 +375,82 @@ if __name__ == '__main__':
                                                 'bend': [bend],
                                                 'bend_parallel': [bend_p],
                                                 'bend_non_parallel': [bend_np],
-                                            'sequence': [sequence]})])
+                                                'end_to_end_distance': [end_to_end_distance],
+                                                 'sequence': [sequence],
+                                                 'bond_vec':[bond_vec],
+                                                 'bond_angle':[bond_angle]})])
+
+        dir_u = np.array(dir_u)
+        nematic_op = calculate_nematic_order(dir_u)
+       
+        is_nematic = []
+        NN_list = []
+
+        is_nematic = np.zeros(len(all_chains), dtype=bool)
+
+        for i, chain in enumerate(all_chains):
+   
+            # get all neigbours of chains 
+            chain_neighbours = calculate_chain_neighbours(i, chain, all_chains, pos, boxl)
+            NN_list.append(chain_neighbours)
+            # local order parameters
+            S_cid = calculate_local_nematic_op(i, chain_neighbours,dir_u)
+
+            if S_cid > S_threshold:
+                is_nematic[i] = True
 
 
-        nematic_op = calculate_nematic_order(np.array(dir_u))
+        N_graph_list = []
+        for i, chain in enumerate(all_chains):
+            for j in NN_list[i]:
+                if is_nematic[i] and is_nematic[j]:
+                    is_aligned = get_alignment(i, j, dir_u)
+                    if is_aligned:
+                        N_graph_list.append([i,j])
+
+        N_largest = 1
+        local_nematic_op = 0
+        if(len(N_graph_list)>0):
+            H = nx.Graph()
+            H.add_edges_from(N_graph_list)
+            domains = nx.connected_components(H)
+            clusters= [ list(domain) for domain in list(domains)]
+            domain_length = np.array([ len(domain) for domain in clusters ])
+            d_id = np.argmax(domain_length)
+            # size of largest cluster 
+            N_largest = len(clusters[d_id])
+            local_nematic_op = calculate_nematic_order(dir_u[clusters[d_id]])
+
+        fraction_largest = N_largest/len(all_chains)
+        print(mu, energy, topology, delta, fraction_largest, local_nematic_op, nematic_op)
+
 
         dg = pd.concat([dg,pd.DataFrame({'mu': [mu],
                                         'energy': [energy],
                                         'topology': [topology],
                                          'delta': [delta],
-                                         'nematic_op': [nematic_op]})])
+                                         'nematic_op': [nematic_op],
+                                         'local_nematic_op': [local_nematic_op],
+                                         'fraction_largest_nematic': [fraction_largest]})])
 
         with open(dir+'/bend_op.dat', 'w') as f:
             f.write(str(1000)+'\n')
             f.write("Particles of frame\n")
             for i in range(1000):
                 f.write(str(bend_per_particle[i]+10)+'\n')
+
+        with open(dir+'/length_op.dat', 'w') as f:
+            f.write(str(1000)+'\n')
+            f.write("Particles of frame\n")
+            for i in range(1000):
+                f.write(str(id_length_type[i])+'\n')
+
+        #for chain in all_chains:
+        #    plt.scatter(pos[chain][:,0], pos[chain][:,1])
+        #    plt.plot(pos[chain][:,0], pos[chain][:,1])
+
+        #plt.savefig(dir+"/director_particle_scatter.png")
+        #plt.close()
 
     with open(args.o, 'w') as f:
         df.to_csv(f)
