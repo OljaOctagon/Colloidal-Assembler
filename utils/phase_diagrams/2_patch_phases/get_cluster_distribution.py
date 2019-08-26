@@ -15,6 +15,62 @@ def check_file(fname):
         print("Error: File doesn't seem to exist.")
         return 0
 
+def plot_histogram_horizontal(dg):
+
+    colors = ["#236AB9", "#ff0066", "#9900cc","#ffff00"]
+
+    error_config = dict(ecolor='black', lw=2, capsize=6, capthick=2, alpha=0.8)
+    width = 0.1
+
+    delta_range = dg.delta.unique()
+    ind = np.arange(len(delta_range)) + 0.2  - width/2.
+    lw=3
+    plt.xticks(ind+width/2.)
+
+    min_delta = np.min(delta_range)
+    max_delta = np.max(delta_range)
+
+    for mu in dg.mu.unique():
+        for topo in dg.topology.unique():
+            for energy in dg.energy.unique():
+                df_sub = dg[(dg.mu == mu) & (dg.topology == topo) & (dg.energy == energy)]
+                arr = df_sub[['n_liquid', 'n_micell_1', 'n_micell_2','n_chain_and_loop']].values
+                brr = df_sub[['packing_fraction']].values
+
+                fig, ax =  plt.subplots(figsize=(15,11))
+
+                plt.xlim((min_delta-width/2.,max_delta+width/2.))
+                plt.ylim((0,1))
+                plt.tick_params(axis='both', which='major', labelsize=28)
+                plt.xlabel("$\\Delta $", size=38)
+                plt.ylabel("$P_{c}$", size=38)
+
+
+                plt.bar(ind+0.5, arr[:,0],
+                        width, lw=lw,yerr=arr[:,1],
+                        error_kw=error_config, color=colors[0], alpha=0.7)
+
+                plt.bar(ind+0.5, arr[:,2],
+                        width, lw=lw,yerr=arr[:,3],
+                        error_kw=error_config, color=colors[1]
+                        ,bottom=arr[:,0],alpha=0.7)
+
+                plt.bar(ind+0.5, arr[:,4],
+                        width, lw=lw,yerr=arr[:,5],
+                        error_kw=error_config, color=colors[2],
+                        bottom=arr[:,0]+arr[:,2], alpha=0.9)
+
+                plt.bar(ind+0.5, arr[:,6], width,
+                        lw=lw,yerr=arr[:,7],
+                        error_kw=error_config, color=colors[3],
+                        bottom=arr[:,0]+arr[:,2]+arr[:,4], alpha=0.7)
+
+                for ei in range(len(delta_range)):
+                    ax.text(ind[ei], 1.07, "$\\psi= {}$".format(round(brr[ei,0],3)), fontsize=24)
+                    ax.text(ind[ei], 1.03, "$\pm {}$".format(round(brr[ei,1],3)), fontsize=24)
+
+                plt.savefig("results_horizontal/mu_{}_{}_pachpos_{}_percent.pdf".format(mu,topo,delta))
+
 def plot_histogram(dg):
 
     colors = ["#236AB9", "#ff0066", "#9900cc","#ffff00"]
@@ -192,4 +248,4 @@ if __name__ == '__main__':
     # write dataframe
     dg.to_csv("results/{}".format(args.o), index=False)
     # plot histogram
-    plot_histogram(df_grouped)
+    plot_histogram_horizontal(df_grouped)

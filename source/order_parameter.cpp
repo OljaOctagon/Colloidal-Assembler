@@ -649,10 +649,14 @@ void order_parameter::Calculate_2D_Psi(particles &Particles, box *Box) {
 
                     // ONLY if all the radii are the same width
 
+
+                    int type_1 = Particles.N_Particle[id1]->patch_type[pid1];
+                    int type_2 = Particles.N_Particle[id2]->patch_type[pid2];
+
                     if (patch_distance_squared <
-                            Particles.N_Particle[id1]
-                                ->patch_cutoff_squared[pid1] &&
-                        id1 != id2) {
+                        Particles.N_Particle[id1]->patch_cutoff_squared[pid1] &&
+                        id1 != id2 &&
+                        Particles.N_Particle[id1]->patch_energy[type_1][type_2] != 0) {
 
 
                        if (id2 < id1) {

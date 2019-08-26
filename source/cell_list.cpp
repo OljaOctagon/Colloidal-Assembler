@@ -540,7 +540,7 @@ void collision_list::Calculate_Bonds(box *Box, int id1, polyhedra **N_Particle,
                 if (patch_distance_squared <
                         N_Particle[id1]->patch_cutoff_squared[pid1] &&
                     id1 != id2 &&
-                    N_Particle[id1]->patch_energy[type_1][type_2] != 0) {
+                    N_Particle[id1]->patch_energy[type_1][type_2] != 0){ 
 
                     Elements[coll_member_counter].nl_id = id2;
                     Elements[coll_member_counter].distance.x = particle_dist_x;
@@ -551,7 +551,7 @@ void collision_list::Calculate_Bonds(box *Box, int id1, polyhedra **N_Particle,
 
                     coll_member_counter = coll_member_counter + 1;
 
-                    }
+                    
                 }
             }
         }

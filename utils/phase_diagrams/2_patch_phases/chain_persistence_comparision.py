@@ -255,6 +255,7 @@ if __name__ == '__main__':
 
     dg = pd.DataFrame(columns=features_1)
 
+    arr_angle = []
 
     for dir in dirlist:
         print(dir)
@@ -273,7 +274,6 @@ if __name__ == '__main__':
 
         checkpoints = [ int(g(l)) for l in filelist]
         max_cp = max(checkpoints)
-        print(max_cp)
 
         #arr = pd.read_csv('{}/{}'.format(dir, filen),
         #                    header=None,
@@ -308,10 +308,8 @@ if __name__ == '__main__':
                                 header=None,
                                 delim_whitespace=True).values
 
-        np.savetxt("test.dat", network_list[1])
         k=0
         for time_i in range(max_cp-900,max_cp+100, 100):
-            print(time_i)
             N_particles = arr_npt[-1-k+11,2]
             packing_fraction = arr_npt[-1-k+11,4]
             arr = network_list[k]
@@ -393,6 +391,8 @@ if __name__ == '__main__':
 
                     bond_vec, bond_angle = calculate_bond_vector_angles(Gc_sorted, pos, boxl)
 
+                    arr_angle.extend(bond_angle)
+
                     bend_per_particle[chain] = np.rint(((bend*360/(2*np.pi))/max_bend)*5)
                     df = pd.concat([df,pd.DataFrame({'mu': [mu],
                                                     'energy': [energy],
@@ -411,51 +411,52 @@ if __name__ == '__main__':
                                                     'bond_vec':[bond_vec],
                                                     'bond_angle':[bond_angle]})])
 
-            dir_u = np.array(dir_u)
-            nematic_op = calculate_nematic_order(dir_u)
+            #dir_u = np.array(dir_u)
+            #nematic_op = calculate_nematic_order(dir_u)
 
-            is_nematic = []
-            NN_list = []
+            #is_nematic = []
+            #NN_list = []
 
-            is_nematic = np.zeros(len(all_chains), dtype=bool)
+            #is_nematic = np.zeros(len(all_chains), dtype=bool)
 
-            for i, chain in enumerate(all_chains):
+            #for i, chain in enumerate(all_chains):
 
                 # get all neigbours of chains 
-                chain_neighbours = calculate_chain_neighbours(i, chain, all_chains, pos, boxl)
-                NN_list.append(chain_neighbours)
+            #    chain_neighbours = calculate_chain_neighbours(i, chain, all_chains, pos, boxl)
+            #    NN_list.append(chain_neighbours)
                 # local order parameters
-                S_cid = calculate_local_nematic_op(i, chain_neighbours,dir_u)
+            #    S_cid = calculate_local_nematic_op(i, chain_neighbours,dir_u)
 
-                if S_cid > S_threshold:
-                    is_nematic[i] = True
+            #    if S_cid > S_threshold:
+            #        is_nematic[i] = True
 
 
-            N_graph_list = []
-            for i, chain in enumerate(all_chains):
-                for j in NN_list[i]:
-                    if is_nematic[i] and is_nematic[j]:
-                        is_aligned = get_alignment(i, j, dir_u)
-                        if is_aligned:
-                            N_graph_list.append([i,j])
+            #N_graph_list = []
+            #for i, chain in enumerate(all_chains):
+            #    for j in NN_list[i]:
+            #        if is_nematic[i] and is_nematic[j]:
+            #            is_aligned = get_alignment(i, j, dir_u)
+            #            if is_aligned:
+            #                N_graph_list.append([i,j])
 
-            N_largest = 1
-            local_nematic_op = 0
-            if(len(N_graph_list)>0):
-                H = nx.Graph()
-                H.add_edges_from(N_graph_list)
-                domains = nx.connected_components(H)
-                clusters= [ list(domain) for domain in list(domains)]
-                domain_length = np.array([ len(domain) for domain in clusters ])
-                d_id = np.argmax(domain_length)
+            #N_largest = 1
+            #local_nematic_op = 0
+            #if(len(N_graph_list)>0):
+            #    H = nx.Graph()
+            #    H.add_edges_from(N_graph_list)
+            #    domains = nx.connected_components(H)
+            #    clusters= [ list(domain) for domain in list(domains)]
+            #    domain_length = np.array([ len(domain) for domain in clusters ])
+            #    d_id = np.argmax(domain_length)
                 # size of largest cluster 
-                N_largest = len(clusters[d_id])
-                local_nematic_op = calculate_nematic_order(dir_u[clusters[d_id]])
+            #    N_largest = len(clusters[d_id])
+            #    local_nematic_op = calculate_nematic_order(dir_u[clusters[d_id]])
 
-            fraction_largest = N_largest/len(all_chains)
-            print(mu, energy, topology, delta, fraction_largest, local_nematic_op, nematic_op)
+            #fraction_largest = N_largest/len(all_chains)
+            print(mu, energy, topology, delta)
 
 
+            '''
             dg = pd.concat([dg,pd.DataFrame({'mu': [mu],
                                             'energy': [energy],
                                             'topology': [topology],
@@ -463,7 +464,7 @@ if __name__ == '__main__':
                                             'nematic_op': [nematic_op],
                                             'local_nematic_op': [local_nematic_op],
                                             'fraction_largest_nematic': [fraction_largest]})])
-
+            '''
             with open(dir+'/bend_op.dat', 'a') as f:
                 f.write(str(1000)+'\n')
                 f.write("Particles of frame\n")
@@ -483,8 +484,11 @@ if __name__ == '__main__':
             #plt.savefig(dir+"/director_particle_scatter.png")
             #plt.close()
 
+    #with open(args.o, 'w') as f:
     df.to_pickle(args.o)
 
-    with open("nematic_op.csv", 'w') as f:
-        dg.to_csv(f)
+    #with open("nematic_op.csv", 'w') as f:
+    #    dg.to_csv(f)
 
+    arr_angle = np.array(arr_angle)
+    print("max bond angle", np.max(arr_angle))
