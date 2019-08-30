@@ -15,25 +15,31 @@ rc('text', usetex=True)
 def gr_per_run(data, Delta, R, delta_time):
     a=Delta
     G = np.zeros(int((R-a)/Delta))
-    start_time=data['time'].values[0]
-    end_time=data['time'].values[-1]
-    norm_time=(end_time-start_time)/float(delta_time)
+    all_times = data['time'].values
+    times_unique_sorted = np.sort(np.unique(all_times))
 
-    print(start_time)
-    print(end_time)
+    start_time= times_unique_sorted[-400]
+    end_time= times_unique_sorted[-1]
+
+    print(start_time, end_time)
+
+    norm_time=(end_time-start_time)/float(delta_time)
     print('norm', norm_time)
 
     for t in range(start_time, end_time+delta_time, delta_time):
-        print(t)
         is_time = data["time"] == t
         P_t = data[is_time]
         is_id0 = P_t["id"] == 0
-        Np = P_t[is_id0]["N"].values
-        lx = P_t[is_id0]["Lx"].values
-        ly = P_t[is_id0]["Ly"].values
+        
+        print(t, P_t[is_id0])
+        
+        Np = P_t[is_id0]["N"].values[0]
+        lx = P_t[is_id0]["Lx"].values[0]
+        ly = P_t[is_id0]["Ly"].values[0]
 
-        center_x=P_t["X"]
-        center_y=P_t["Y"]
+        center_x=P_t["X"].values
+        center_y=P_t["Y"].values
+
 
         particle_distx = np.reshape(center_x, (len(center_x), 1))
         particle_distx = particle_distx - particle_distx.transpose()
@@ -75,30 +81,27 @@ def check_file(fname):
 
 import argparse
 import glob 
-
+import os 
 if __name__ == '__main__':
 
     Delta=0.01
     R=10
-    delta_time=20000
-    print('hi')
+    delta_time=5000
     parser = argparse.ArgumentParser()
-    parser.add_argument('-dirs', default='mu_0.4Energy_9.2symm_patchpos_*')
+    parser.add_argument('-dirs', default='mu_0.4Energy_9.2symm_patchpos_0.3_Pressure_100')
     parser.add_argument('-fname', default='center_of_mass_stars.dat')
     args = parser.parse_args()
 
     dirs = glob.glob("{}*".format(args.dirs))
-    print(dirs)
     G = np.zeros(int((R-Delta)/Delta))
     for dir_i in dirs:
         print(dir_i)
         filen = "{}/{}".format(dir_i,args.fname)
         f_exist = check_file(filen)
-        if f_exist == 1:
+        if f_exist == 1 and os.stat(filen).st_size!=0:
             df = pd.read_csv(filen, delim_whitespace=True, header=None)
             df.columns=["time","N", "Lx", "Ly", "id", "X", "Y"]
             G = G + gr_per_run(df, Delta, R, delta_time)
 
     G = G/len(dirs)
-    print(len(dirs))
     np.savetxt("{}_gr2d.dat".format(args.dirs), G, delimiter=' ', newline='\n', fmt='%.5f')            
