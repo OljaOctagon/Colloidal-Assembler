@@ -236,7 +236,7 @@ int cluster::op_cluster_get_largest_cluster_size(int cnums, box *Box,
         int cnums2;
         cnums2 = 0;
         for (int j = 0; j < cnums; j++) {
-            if (a[j] == 6) {
+            if (a[j] == 3) {
                 cnums2 += 1;
             }
         }
@@ -249,7 +249,7 @@ int cluster::op_cluster_get_largest_cluster_size(int cnums, box *Box,
             yp1 = 0;
             yp2 = 0;
             N_List = a[j];
-            if (a[j] == 6) {
+            if (a[j] == 3) {
 
                 for (int id = 0; id < Box->N; id++) {
                     if ((op_cluster_info[id].cluster_id - 1) == j) {

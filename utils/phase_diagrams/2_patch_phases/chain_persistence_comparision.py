@@ -24,6 +24,14 @@ S_threshold = 0.4
 Alignment_threshold = 0.85
 pos_threshold = np.power(1.5,2) + (2+2*np.cos(np.pi/3.))
 
+bond_type = {
+    'pl-s': {(0,0): 'p-off-sb', (3,3): 'p-off-bs', (0,3):'p-on',      (3,0): 'p-on'},
+    'mo-s': {(0,0): 'p-off-b',  (2,2): 'p-off-b',  (0,2):'np-on',     (2,0): 'np-on'},
+    'ma-s': {(0,0): 'p-off-s',  (1,1): 'p-off-s',  (0,1):'np-on',     (1,0): 'np-on'},
+    'pl-as':{(0,0): 'p-off-sb', (3,3): 'p-off-sb', (0,3):'p-off-sb',  (3,0): 'p-off-sb'},
+    'mo-as':{(0,0): 'p-off-sb', (1,1): 'p-off-bs', (0,1):'np-off',    (1,0): 'np-off'},
+    'ma-as':{(0,0): 'p-off-sb', (2,2): 'p-off-bs', (0,2):'np-off',    (2,0): 'np-off'}
+}
 
 def calculate_chain_neighbours(i, chain, all_chains, pos, boxl):
     chain_neighbours = []
@@ -183,7 +191,7 @@ def order_chain(Gc, subarr):
 
     return Gc_sorted, cluster_type
 
-def calculate_flexibility(Gc_sorted,arr,orient):
+def calculate_flexibility(Gc_sorted,arr,orient, p_bond_type):
     parallel_angles=np.array([0, np.pi, 2*np.pi])
     non_parallel_angles = np.array([np.pi/3, 2*np.pi/3, 4*np.pi/3, 5*np.pi/3])
     delta_angle = np.fabs(orient[Gc_sorted[:-1]] - orient[Gc_sorted[1:]])
@@ -198,7 +206,22 @@ def calculate_flexibility(Gc_sorted,arr,orient):
         connections = arr[
             np.where(((arr[:,0]==pid)&(arr[:,1]==nid))|((arr[:,0]==nid)&(arr[:,1]==pid)))][0][2:]
 
+        btype = p_bond_type[(connections[0], connections[1])] 
+        seq.append(btype)
+
+        if '-np' in btype:
+            rel_angle = np.fabs(parallel_angles - angle)
+            delta_angle[i]=np.min(rel_angle)
+            delta_angle_p.append(delta_angle[i])
+
+        else:
+            rel_angle = np.fabs(non_parallel_angles - angle)
+            delta_angle[i]=np.min(rel_angle)
+            delta_angle_np.append(delta_angle[i])
+
+
         # parallel bond
+        '''
         if connections[0] == connections[1]:
             rel_angle = np.fabs(parallel_angles - angle)
             delta_angle[i]=np.min(rel_angle)
@@ -210,7 +233,7 @@ def calculate_flexibility(Gc_sorted,arr,orient):
             delta_angle[i]=np.min(rel_angle)
             delta_angle_np.append(delta_angle[i])
             seq.append('np')
-
+        ''' 
     flex =np.average(delta_angle)
     flex_p = np.average(delta_angle_p)
     #flex_np = 0
@@ -229,7 +252,7 @@ if __name__ == '__main__':
 
     # parse arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument('-ptype', type=str, default='mouse', choices=['manta','mouse', 'parallel'])
+    parser.add_argument('-ptype', type=str, default='pl-s', choices=['pl-s','pl-as', 'mo-s', 'mo-as', 'ma-s', 'ma-as'])
     parser.add_argument('-tsize', type=int, default=3)
     parser.add_argument('-o', type=str, default='m_chains.csv')
     args  = parser.parse_args()
@@ -385,7 +408,7 @@ if __name__ == '__main__':
                     cluster_size = len(Gc_sorted)
                     # bend, bend_between_kink, straight_distribution
                     bend, bend_p, bend_np, sequence = calculate_flexibility(
-                        Gc_sorted, subarr,orient)
+                        Gc_sorted, subarr,orient,  bond_type[args.ptype])
 
                     end_to_end_distance = np.sqrt(np.power(full_vec_i[0],2) + np.power(full_vec_i[1],2))
 
