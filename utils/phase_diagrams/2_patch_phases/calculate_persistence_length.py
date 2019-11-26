@@ -48,7 +48,8 @@ def distance_pl_as(delta,a,b,c):
     return dp_sb(delta)
 
 def distance_pl_s(delta,a,b,c):
-    d =  (a*dp_sb(delta) + b*dp_bs(delta) + c*dp_on(delta))/3
+    d =  (a*dp_sb(delta) + b*dp_bs(delta) + c*dp_on(delta))
+
     return d 
 
 get_max_bond_length = {
@@ -58,10 +59,10 @@ get_max_bond_length = {
 def basic_plot_config(xlabel, ylabel, title, ncolors,cmap):
     fig, ax = plt.subplots(figsize=(12,10))
 
-    plt.tick_params(axis='both', labelsize=20) 
+    plt.tick_params(axis='both', labelsize=25) 
     plt.title(title, size=20)
-    plt.xlabel(xlabel, size=25)
-    plt.ylabel(ylabel, size=25)
+    plt.xlabel(xlabel, size=30)
+    plt.ylabel(ylabel, size=30)
     cmap=cmap
     c = cycler('color', cmap(np.linspace(0,1,ncolors)) )
     ax.set_prop_cycle(c)
@@ -78,7 +79,18 @@ def read_df(filen, Csize, sdelta):
     df = df.dropna(subset=['bond_vec'])
     df['delta'] = pd.to_numeric(df['delta'])
     df['average_cos'] = df.apply(lambda row: get_bond_angles(row['bond_vec'], row['sequence'], row['delta'], Csize), axis=1)
+    df['av_bond_length'] = df.apply(lambda row: get_bond_lengths(row['bond_vec'], Csize), axis=1)
+
     return df 
+
+
+def get_bond_lengths(bond_vec, Csize):
+     v_length = []
+     for vi in range(Csize-1):
+          v_length.append(np.linalg.norm(bond_vec[vi]))
+
+     average_dist = np.average(np.array(v_length))
+     return average_dist
 
 
 #Attention: 'p' and 'np' default to 'p-off-sb' because of the old versoin with which
@@ -132,8 +144,11 @@ parser.add_argument("-size", type=int, default=10)
 parser.add_argument("-srange", type=int, default=5)
 args = parser.parse_args()
 
-f_as = "/Users/ada/Documents/Code_Development_2016/2D_patchy/chain_analysis/small_data_set/rr_chains/lege_batterie/asymm/mu_0.3/chain_bond_angle.csv"
-f_s = "/Users/ada/Documents/Code_Development_2016/2D_patchy/chain_analysis/small_data_set/rr_chains/lege_batterie/symm/7.2_8.2/chain_bond_angle.csv"
+common_string =  "/Users/ada/Documents/Code_Development_2016/2D_patchy/chain_analysis/small_data_set/rr_chains/lege_batterie/"
+
+#f_as = common_string + "asymm/mu_0.3/chain_persistence_8.csv"
+f_s  = common_string + "/symm/7.2_8.2/chain_persistence_10.csv"
+f_as  = common_string + "/symm/7.2_8.2/chain_persistence_10.csv"
 
 Csize=args.size
 sdelta=args.srange
@@ -171,15 +186,21 @@ for energy in ['8.2']:
          cy = cycler('color', cmap(np.linspace(0,1,ncolors)) )
          ax2[-1].set_prop_cycle(cy)
          ax2[-1].set_xlabel("$l_{d}$", size=20)
-         ax2[-1].set_ylabel("$\\langle cos(\\theta)\\rangle$", size=20)
-         ax2[-1].set_title("bond angle decorrelation for {}".format(name_dict[topology]))
+         ax2[-1].set_ylabel("$\\langle cos(\\theta(l_{d}))\\rangle$", size=20)
+         ax2[-1].set_xticks([0,2,4,6])
+         ax2[-1].tick_params(axis='both', labelsize=14) 
+         #ax2[-1].set_title("bond angle decorrelation for {}".format(name_dict[topology]))
          ax2[-1].set_ylim([0.9,1.0])
 
 
          for delta in np.round(np.arange(0.2,0.9,0.1),2):
               dg = df[(df.energy == energy) & (df.delta == delta)]
+
+              av_bond_length = np.mean(dg.av_bond_length.values)
+              print(len(dg))
+
               if name_dict[topology] == 'pl-s':
-                   seq_arr = df.sequence.values
+                   seq_arr = dg.sequence.values
                    seq_arr = np.concatenate(seq_arr).ravel()
                    unique, counts = np.unique(seq_arr, return_counts=True)
                    # for all pl-off-sb
@@ -212,11 +233,10 @@ for energy in ['8.2']:
               lp = 1/popt[0]
               lp_err= lp * (perr/popt[0]) 
               sigma_contour = get_max_bond_length[name_dict[topology]](delta, a,b,c)
-              sigma_contour = 1
-              lp_lc.append((lp/sigma_contour)/(Csize*sigma_contour))
-              lp_lc_err.append((lp_err/sigma_contour)/(Csize*sigma_contour))
+              lp_lc.append((lp/av_bond_length)/((Csize-1)*sigma_contour))
+              lp_lc_err.append((lp_err/av_bond_length)/((Csize-1)*sigma_contour))
               
-              ax2[0].legend(bbox_to_anchor=(1.2,0.75), ncol=1, loc=2, borderaxespad=0, fontsize=10)
+              ax2[0].legend(bbox_to_anchor=(-0.2,1.3), ncol=7, loc=2, borderaxespad=0, fontsize=14)
 
          ax.errorbar(np.arange(0.2,0.9,0.1), lp_lc, lp_lc_err, lw=3, marker='o', ms=5, label=name_dict[topology])
          ax.legend(bbox_to_anchor=(0.4,0.2), ncol=1, loc=2, borderaxespad=0, fontsize=20)
