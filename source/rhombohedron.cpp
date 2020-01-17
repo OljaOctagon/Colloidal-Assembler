@@ -254,19 +254,21 @@ void rhombohedron::Set_Lengths() {
     Ly = 2.0; 
     Lz = 0.1 * Lx;
 
-    h = Lx * sin(alpha);
-
-    h_2 = double(h) / 2.0;
-
-    a_x = Lx * cos(alpha);
+    //h = Ly * sin(alpha);
+    //h_2 = double(h) / 2.0;
+    //a_x = Ly * cos(alpha);
 
     ra.x = Lx;
     ra.y = 0.0;
     ra.z = 0.0;
 
-    rb.x = a_x;
-    rb.y = h;
-    rb.z = 0.0;
+    //rb.x = a_x;
+    //rb.y = h;
+    //rb.z = 0.0;
+
+    rb.x = 0;
+    rb.y = Ly;
+    rb.z = 0;
 
     /*
     rc.x = a_x;
@@ -278,12 +280,20 @@ void rhombohedron::Set_Lengths() {
     rc.y = 0.0;
     rc.z = Lz;
 
-    diag2_short = sqrt((Lx - a_x) * (Lx - a_x) + h * h);
-    diag2_long = sqrt((Lx + a_x) * (Lx + a_x) + h * h);
+    //diag2_short = sqrt((Lx - a_x) * (Lx - a_x) + h * h);
+    //diag2_long = sqrt((Lx + a_x) * (Lx + a_x) + h * h);
 
-    diag3_short = sqrt(diag2_short * diag2_short + Lx * Lx);
-    diag3_long = sqrt(diag2_long * diag2_long + Lx * Lx);
 
+    diag2_short = sqrt((Lx*Lx + Ly*Ly));
+    diag2_long = diag2_short; 
+
+
+    //diag3_short = sqrt(diag2_short * diag2_short + Lx * Lx);
+    //diag3_long = sqrt(diag2_long * diag2_long + Lx * Lx);
+
+    diag3_short = sqrt(diag2_short*diag3_short + Lz*Lz);
+    diag3_long = diag3_short; 
+    
     // cut_off = diag3_long;
 
     vc.x = ra.x + rb.x + rc.x;
@@ -814,46 +824,37 @@ void rhombohedron::Calculate_Face_Normals() {
 
 double rhombohedron::Calculate_Projection_to_Separating_Axis(m_vector laxis) {
 
-    double Rp;
+    //double Rp;
 
-    Rp = (fabs(ax_1.x * laxis.x + ax_1.y * laxis.y + ax_1.z * laxis.z) +
-          fabs(ax_2.x * laxis.x + ax_2.y * laxis.y + ax_2.z * laxis.z) +
-          fabs(ax_3.x * laxis.x + ax_3.y * laxis.y + ax_3.z * laxis.z)) *
-         (Lx / 2.0);
+    //Rp = (fabs(ax_1.x * laxis.x + ax_1.y * laxis.y + ax_1.z * laxis.z)* +
+    //      fabs(ax_2.x * laxis.x + ax_2.y * laxis.y + ax_2.z * laxis.z)* +
+    //     fabs(ax_3.x * laxis.x + ax_3.y * laxis.y + ax_3.z * laxis.z)*(Ly/2));
 
-    return Rp;
+    //return Rp;
 
-    /*
+    
     double Rp;
     double rmax;
     double rmin;
     double scp_oc;
-
     double norm_ax;
 
-distance_from_center();
+    distance_from_center();
 
-rmin=  dist_x[0]*laxis.x + dist_y[0]*laxis.y + dist_z[0]*laxis.z;
-    rmax= rmin;
+    rmin =  dist_x[0]*laxis.x + dist_y[0]*laxis.y + dist_z[0]*laxis.z;
+    rmax = rmin;
 
     for (int j=1;j<edge_N;j++){
-
-            scp_oc = dist_x[j]*laxis.x + dist_y[j]*laxis.y + dist_z[j]*laxis.z;
-
-            if (scp_oc < rmin) {
-                    rmin = scp_oc;
-            }
-            else if (scp_oc > rmax) {
-                    rmax = scp_oc;
-            }
-
-
+	    scp_oc = dist_x[j]*laxis.x + dist_y[j]*laxis.y + dist_z[j]*laxis.z;
+	    if (scp_oc < rmin) {
+		    rmin = scp_oc;
+	    }
+	    else if (scp_oc > rmax) {
+		    rmax = scp_oc;
+	    }
     }
-
-Rp = fabs((rmax-rmin)/2.0);
+    
+    Rp = fabs((rmax-rmin)/2.0);
     //Rp=rmax-rmin;
-
-
     return Rp;
-    */
 }
