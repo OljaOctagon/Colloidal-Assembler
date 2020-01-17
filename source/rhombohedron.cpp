@@ -235,8 +235,8 @@ void rhombohedron::Set_Axis() {
 
 void rhombohedron::Set_Lengths() {
 
-    // Lx = 1.0;
-    alpha = (60 * M_PI) / 180.0;
+    alpha = (90 * M_PI) / 180.0;
+    //alpha = (60 * M_PI) / 180.0;
     // alpha=(64.6230*M_PI)/180.0;
     // alpha=60.0*M_PI/180.0;
     // alpha=(53.1301*M_PI)/180.0;
@@ -244,8 +244,14 @@ void rhombohedron::Set_Lengths() {
 
     // Lx if short diagonal is 1!!!!)
     // Lx=sqrt(1.0/(2*(1-cos(alpha))));
+
+
+    //Lx = 1.0;
+    //Ly = Lx;
+    //Lz = 0.1 * Lx;
+
     Lx = 1.0;
-    Ly = Lx;
+    Ly = 2.0; 
     Lz = 0.1 * Lx;
 
     h = Lx * sin(alpha);
