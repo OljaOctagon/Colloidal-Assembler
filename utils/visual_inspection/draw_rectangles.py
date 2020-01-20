@@ -10,7 +10,34 @@ Lx=1.0
 Ly=2.0
 a=0.2
 b=0.8
-radius=0.1
+radius=0.2
+
+pn_file = "patch_network.dat"
+
+def read_connections(filen):
+	first_line_pair = [0,0,0,0]
+	cut=False
+	with open(filen, 'r') as f:
+		network_list = []
+		for line in f:
+			if "#" in line:
+				network_list.append([])
+				first_line_pair = [0,0,0,0]
+				cut=False
+
+			else:
+				line_counter=len(network_list[-1])
+				pairs = list(map(int, line.split(" ")))
+				if pairs == first_line_pair or cut==True:
+					cut=True
+				else:
+					network_list[-1].append(np.array(pairs))
+
+				if line_counter == 0:
+					first_line_pair = pairs
+	network_list = [ np.array(item) for item in network_list]
+
+	return network_list
 
 def get_patches(Lx,Ly,a,b):
 
@@ -29,7 +56,24 @@ def get_patches(Lx,Ly,a,b):
 	return patches
 
 particle_patches = get_patches(Lx,Ly,a,b)
-os.mkdir("./frames")
+#os.mkdir("./frames")
+
+network_arr = read_connections("patch_network.dat")
+import networkx as nx
+
+for frame_i in range(len(network_arr)):
+	G = nx.Graph()
+	G.add_edges_from(network_arr[frame_i][:,:2])
+	domains = nx.connected_components(G)
+	domains=list(domains)
+	print(domains)
+	print()
+	print()
+# next step: color particles according to length of their cluster
+
+
+
+'''
 for j,val in enumerate(check_point_values):
 	pos_i = np.fromfile("positions_{}.bin".format(val))
 	pos_i = np.reshape(pos_i, (-1,3))
@@ -68,3 +112,4 @@ for j,val in enumerate(check_point_values):
 	plt.grid()
 	plt.savefig("./frames/frame_{}.png".format(j), dpi=600)
 	plt.close()
+'''
