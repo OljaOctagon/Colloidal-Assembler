@@ -3,8 +3,7 @@ import matplotlib.pyplot as plt
 from matplotlib import patches
 import matplotlib as mpl
 import glob
-from matplotlib.animation import FuncAnimation
-
+import matplotlib.animation as ani
 
 checkpoints= glob.glob("Box*.bin")
 check_point_values = np.sort([ int(point.split("_")[-1].split(".")[0]) for point in checkpoints ])
@@ -41,27 +40,11 @@ plt.xlim((-1,55))
 plt.ylim((-1,55))
 plt.grid()
 
-def on_press(event):
-    if event.key.isspace():
-        if anim.running:
-            anim.event_source.stop()
-        else:
-            anim.event_source.start()
-        anim.running ^= True
-    elif event.key == 'left':
-        anim.direction = -1
-    elif event.key == 'right':
-        anim.direction = +1
-
-    # Manually update the plot
-    if event.key in ['left','right']:
-        t = anim.frame_seq.next()
-        update_plot(t)
-        plt.draw()
+#txt = fig.text(0.5,0.5,'0')
 
 def update_time():
     t = 0
-    t_max = 10
+    t_max = 1000
     while t<t_max:
         t += anim.direction
         yield t
@@ -90,8 +73,35 @@ def update_plot(i):
         rect.set_transform(tra)
         ax.add_patch(rect)
 
-#fig.canvas.mpl_connect('key_press_event', on_press)
-anim = FuncAnimation(fig, update_plot, repeat=True)
-#anim.running = True
-#anim.direction = +1
+    return fig, ax
+
+
+def update_plot_test(t):
+    txt.set_text('%s'%t)
+    return txt
+
+def on_press(event):
+    if event.key.isspace():
+        if anim.running:
+            anim.event_source.stop()
+        else:
+            anim.event_source.start()
+        anim.running ^= True
+    elif event.key == 'left':
+        anim.direction = -1
+    elif event.key == 'right':
+        anim.direction = +1
+
+    # Manually update the plot
+    if event.key in ['left','right']:
+        t = next(anim.frame_seq)
+        update_plot(t)
+        plt.draw()
+
+
+fig.canvas.mpl_connect('key_press_event', on_press)
+anim = ani.FuncAnimation(fig, update_plot, frames=update_time,
+                         interval=1000, repeat=True)
+anim.running = True
+anim.direction = +1
 plt.show()

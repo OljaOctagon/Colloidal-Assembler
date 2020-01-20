@@ -2,10 +2,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import patches
 import matplotlib as mpl
-# Set lenghts
-
-#checkpoints= glob.glob("Box*.bin")
-#check_point_values = np.sort([ int(point.split("_")[-1].split(".")[0]) for point in checkpoints ])
+import os
+import glob
+checkpoints= glob.glob("Box*.bin")
+check_point_values = np.sort([ int(point.split("_")[-1].split(".")[0]) for point in checkpoints ])
+Lx=1.0
+Ly=2.0
+a=0.2
+b=0.8
+radius=0.1
 
 def get_patches(Lx,Ly,a,b):
 
@@ -23,17 +28,9 @@ def get_patches(Lx,Ly,a,b):
 
 	return patches
 
-
-check_point_values = [300000]
-Lx=1.0
-Ly=2.0
-a=0.2
-b=0.8
-radius=0.1
-
 particle_patches = get_patches(Lx,Ly,a,b)
-
-for val in check_point_values:
+os.mkdir("./frames")
+for j,val in enumerate(check_point_values):
 	pos_i = np.fromfile("positions_{}.bin".format(val))
 	pos_i = np.reshape(pos_i, (-1,3))
 	pos_i = pos_i[:,:2]
@@ -67,6 +64,7 @@ for val in check_point_values:
 
 	ax.scatter(pos_i[:,0], pos_i[:,1],s=1)
 	plt.xlim((-1,55))
-	plt.ylim((-1,55))
+	plt.ylim((-1,50))
 	plt.grid()
-	plt.savefig("rect.png", dpi=600)
+	plt.savefig("./frames/frame_{}.png".format(j), dpi=600)
+	plt.close()
