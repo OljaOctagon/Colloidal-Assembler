@@ -3,9 +3,7 @@ import matplotlib.pyplot as plt
 from matplotlib import patches
 import matplotlib as mpl
 import glob
-from PyQt5 import QtGui, uic
 from matplotlib.animation import FuncAnimation
-from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 
 
 checkpoints= glob.glob("Box*.bin")
@@ -43,71 +41,57 @@ plt.xlim((-1,55))
 plt.ylim((-1,55))
 plt.grid()
 
-def start():
-    def run(i):
-        plt.cla()
-        plt.xlim((-1,55))
-        plt.ylim((-1,55))
-        plt.grid()
+def on_press(event):
+    if event.key.isspace():
+        if anim.running:
+            anim.event_source.stop()
+        else:
+            anim.event_source.start()
+        anim.running ^= True
+    elif event.key == 'left':
+        anim.direction = -1
+    elif event.key == 'right':
+        anim.direction = +1
 
-        val = check_point_values[i]
-        pos_i = np.fromfile("positions_{}.bin".format(val))
-        pos_i = np.reshape(pos_i, (-1,3))
-        pos_i = pos_i[:,:2]
-        orient_i = np.fromfile("orientations_{}.bin".format(val))
-        orient_i = np.reshape(orient_i, (-1,5))[:,4]
-        #ax.scatter(pos_i[:,0], pos_i[:,1],s=1)
+    # Manually update the plot
+    if event.key in ['left','right']:
+        t = anim.frame_seq.next()
+        update_plot(t)
+        plt.draw()
 
-        N=len(pos_i)
-        for j in range(N):
-            rect = patches.Rectangle((-Lx/2,-Ly/2),
-            Lx,Ly, linewidth=0.5, edgecolor='k',facecolor='#9AE0D1', alpha=0.7)
-            theta = (orient_i[j]*180)/(np.pi)
-            r = mpl.transforms.Affine2D().rotate_deg_around(0,0,theta)
-            t = mpl.transforms.Affine2D().translate(pos_i[j,0],pos_i[j,1])
+def update_time():
+    t = 0
+    t_max = 10
+    while t<t_max:
+        t += anim.direction
+        yield t
 
-            #patch_1 = patches.Circle((particle_patches[0,0],particle_patches[0,1]),radius=radius,
-            #facecolor='r')
-            #patch_2 = patches.Circle((particle_patches[1,0],particle_patches[1,1]),radius=radius,
-            #facecolor='r')
-            tra = r + t + ax.transData
-            rect.set_transform(tra)
-            #patch_1.set_transform(tra)
-            #patch_2.set_transform(tra)
+def update_plot(i):
+    plt.cla()
+    plt.xlim((-1,55))
+    plt.ylim((-1,55))
+    plt.grid()
 
-            ax.add_patch(rect)
-            #ax.add_patch(patch_1)
-            #ax.add_patch(patch_2)
+    val = check_point_values[i]
+    pos_i = np.fromfile("positions_{}.bin".format(val))
+    pos_i = np.reshape(pos_i, (-1,3))
+    pos_i = pos_i[:,:2]
+    orient_i = np.fromfile("orientations_{}.bin".format(val))
+    orient_i = np.reshape(orient_i, (-1,5))[:,4]
 
-    def stop():
-         ani.event_source.stop()
+    N=len(pos_i)
+    for j in range(N):
+        rect = patches.Rectangle((-Lx/2,-Ly/2),
+        Lx,Ly, linewidth=0.5, edgecolor='k',facecolor='#9AE0D1', alpha=0.7)
+        theta = (orient_i[j]*180)/(np.pi)
+        r = mpl.transforms.Affine2D().rotate_deg_around(0,0,theta)
+        t = mpl.transforms.Affine2D().translate(pos_i[j,0],pos_i[j,1])
+        tra = r + t + ax.transData
+        rect.set_transform(tra)
+        ax.add_patch(rect)
 
-    def borr():
-        plt.clf()
-        canvas.draw()
-
-    def anim():
-        ani.event_source.start()
-
-    window.resume.clicked.connect(anim)
-    window.pause.clicked.connect(stop)
-    window.clean.clicked.connect(borr)
-
-    ani = animation.FuncAnimation(fig, run,repeat=False)
-    canvas.draw()
-
-layout=QtGui.QVBoxLayout()
-fig=plt.figure()
-canvas=FigureCanvas(fig)
-layout.addWidget(canvas)
-
-app = QtGui.QApplication(sys.argv)
-window = uic.loadUi("animacion.ui")
-
-window.start.clicked.connect(start)
-window.widget.setLayout(layout)
-window.show()
-sys.exit(app.exec_())
-
-#ani = FuncAnimation(fig, animate, frames=100)
-#plt.show()
+#fig.canvas.mpl_connect('key_press_event', on_press)
+anim = FuncAnimation(fig, update_plot, repeat=True)
+#anim.running = True
+#anim.direction = +1
+plt.show()
