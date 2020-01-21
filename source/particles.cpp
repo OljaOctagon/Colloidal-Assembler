@@ -39,7 +39,7 @@ particles::particles(int number_of_cells_in, int size, int MAX_coll_p_in,
     binary_on = binary_on_in;
     phi_binary = phi_binary_in;
 
-    Res_Size = 1000;
+    Res_Size = 2500;
     size = Res_Size;
 
     max_id = size - 1;
@@ -167,18 +167,18 @@ particles::particles(int number_of_cells_in, int size, int MAX_coll_p_in,
         if (binary_on.compare("on") == 0) {
             rand_s = gsl_rng_uniform(randpatch);
             cout << "binary!!!" << endl;
-            // binary parallel chains
+            // binary L's
             if (rand_s < phi_binary) {
                 a = 0;
-                b = 1;
+                b = 2;
                 c = 1;
-                d = 0;
+                d = 1;
             }
 
             if (rand_s >= phi_binary) {
-                a = 1;
+                a = 2;
                 b = 0;
-                c = 0;
+                c = 1;
                 d = 1;
             }
 

@@ -37,7 +37,7 @@ rhombohedron::rhombohedron() {
     T = 0.1;
 
     p1 = p1 * T;
-    p2 = -p1 * T;
+    p2 = - p1 * T;
     p3 = 0. * T;
     p4 = p1 * T / 2.;
 
@@ -51,7 +51,10 @@ rhombohedron::rhombohedron() {
     // A-B
     patch_energy[0][1] = p3;
     // A-C
-    patch_energy[0][2] = p2;
+    // OLD A-C
+    // patch_energy[0][2] = p2;
+    // New A-C for loop formers
+    patch_energy[0][2] = p3;
 
     // B-A
     patch_energy[1][0] = p3;
@@ -60,12 +63,25 @@ rhombohedron::rhombohedron() {
     // B-C
     patch_energy[1][2] = p3;
 
+
+    // Old C-A
+    // ------------------------
     // C-A
-    patch_energy[2][0] = p2;
+    //patch_energy[2][0] = p2;
+    // C-B
+    //patch_energy[2][1] = p3;
+    // C-C
+    //patch_energy[2][2] = p1;
+    // -----------------------
+
+    // New C-A for rectangle loop formers
+    // C-A
+    patch_energy[2][0] = p3;
     // C-B
     patch_energy[2][1] = p3;
     // C-C
-    patch_energy[2][2] = p1;
+    patch_energy[2][2] = p4;
+
 
     x = new double[edge_N];
     y = new double[edge_N];
@@ -251,7 +267,7 @@ void rhombohedron::Set_Lengths() {
     //Lz = 0.1 * Lx;
 
     Lx = 1.0;
-    Ly = 2.0; 
+    Ly = 2.0;
     Lz = 0.1 * Lx;
 
     //h = Ly * sin(alpha);
@@ -285,15 +301,15 @@ void rhombohedron::Set_Lengths() {
 
 
     diag2_short = sqrt((Lx*Lx + Ly*Ly));
-    diag2_long = diag2_short; 
+    diag2_long = diag2_short;
 
 
     //diag3_short = sqrt(diag2_short * diag2_short + Lx * Lx);
     //diag3_long = sqrt(diag2_long * diag2_long + Lx * Lx);
 
     diag3_short = sqrt(diag2_short*diag3_short + Lz*Lz);
-    diag3_long = diag3_short; 
-    
+    diag3_long = diag3_short;
+
     // cut_off = diag3_long;
 
     vc.x = ra.x + rb.x + rc.x;
@@ -403,7 +419,7 @@ void rhombohedron::Set_Lengths() {
 
     if (rhombus_type.compare("manta_asymm") == 0) {
         d0 = patch_delta;
-        d1 = 1 - patch_delta; 
+        d1 = 1 - patch_delta;
         d2 = patch_x;
         d3 = patch_x;
 
@@ -423,7 +439,7 @@ void rhombohedron::Set_Lengths() {
         patch_type[1] = 0;
         patch_type[2] = 1;
         patch_type[3] = 1;
-    }	    
+    }
 
 
     if (rhombus_type.compare("mouse_symm") == 0) {
@@ -845,7 +861,7 @@ double rhombohedron::Calculate_Projection_to_Separating_Axis(m_vector laxis) {
 
     //return Rp;
 
-    
+
     double Rp;
     double rmax;
     double rmin;
@@ -866,7 +882,7 @@ double rhombohedron::Calculate_Projection_to_Separating_Axis(m_vector laxis) {
 		    rmax = scp_oc;
 	    }
     }
-    
+
     Rp = fabs((rmax-rmin)/2.0);
     //Rp=rmax-rmin;
     return Rp;

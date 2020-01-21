@@ -290,7 +290,7 @@ void fileio::Save_Positions(box *Box, particles &Particles, int mc_time) {
 
 void fileio::Save_Patches(box *Box, particles &Particles, int mc_time) {
 
-    int size = 1000;
+    int size = 2500;
 
     stringstream mout;
     mout << mc_time;
@@ -320,7 +320,7 @@ void fileio::Save_Patches(box *Box, particles &Particles, int mc_time) {
 
 void fileio::Read_Patches(box *Box, particles &Particles, int mc_time) {
 
-    int size = 1000;
+    int size = 2500;
 
     stringstream mout;
     mout << mc_time;
