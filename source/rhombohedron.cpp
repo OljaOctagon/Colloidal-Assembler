@@ -403,7 +403,7 @@ void rhombohedron::Set_Lengths() {
 
     if (rhombus_type.compare("manta_asymm") == 0) {
         d0 = patch_delta;
-        d1 = 1 - patch_delta;
+        d1 = 1 - patch_delta; 
         d2 = patch_x;
         d3 = patch_x;
 
@@ -412,6 +412,19 @@ void rhombohedron::Set_Lengths() {
         patch_type[2] = 1;
         patch_type[3] = 1;
     }
+
+    if (rhombus_type.compare("manta_asymm_center")==0) {
+        d0 = patch_delta;
+        d1 = patch_x;
+        d2 = patch_x;
+        d3 = patch_x;
+
+        patch_type[0] = 0;
+        patch_type[1] = 0;
+        patch_type[2] = 1;
+        patch_type[3] = 1;
+    }	    
+
 
     if (rhombus_type.compare("mouse_symm") == 0) {
         d0 = patch_delta;
