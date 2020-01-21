@@ -47,20 +47,21 @@ def get_patches(Lx,Ly,a,b):
 
 	return patches
 
-def get_hexcolor(i):
+def get_hexcolor(i, cmap):
 	rgb = cmap(i)[:3]
-	return matplotlib.colors.rgb2hex(rgb)
+	return mpl.colors.rgb2hex(rgb)
 
-def get_domain_colors(N_particles, bond_arr):
+def get_domain_colors(N_particles, bond_arr, length_color_dict):
 	G = nx.Graph()
 	G.add_edges_from(bond_arr[:,:2])
 	domains = list(nx.connected_components(G))
-	domain_length = np.array([ len(domain) for domain in domains ])
-	domain_length[domain_length >= 6] = 6
-	domain_colors = np.zeros(N)
+	domain_colors = [length_color_dict[0]]*N
 	for cluster in domains:
+		length = len(cluster)
+		if length >=5:
+			length=5
 		for particle in cluster:
-			domain_colors[particle] = length_color_dict[domain_length[particle]]
+			domain_colors[particle] = length_color_dict[length]
 
 	return domain_colors
 
@@ -79,14 +80,15 @@ if __name__ == '__main__':
 	# --------------------------
 
 	pn_file = "patch_network.dat"
-	length_color_dict = dict(zip(np.arange(6),get_hexcolor(np.arange(6))))
-
-	# network_arr format: network_arr.shape = ( frame_i, bond_rows_frame_i )
-	network_arr = read_bonds("patch_network.dat")
 
 	# colormap for cluster size
 	cmap = plt.cm.get_cmap('cividis', 6)
+	hex_color = [ get_hexcolor(i, cmap) for i in range(6)]
+	hex_color[4] = '#8A2BE2'
+	length_color_dict = dict(zip(np.arange(6),hex_color))
 
+	# network_arr format: network_arr.shape = ( frame_i, bond_rows_frame_i )
+	network_arr = read_bonds("patch_network.dat")
 	# patch position calculation
 	Lx=1.0
 	Ly=2.0
@@ -99,7 +101,7 @@ if __name__ == '__main__':
 	if not os.path.isdir("./frames"):
 		os.mkdir("./frames")
 
-for j,val in enumerate(check_point_values):
+for j,val in enumerate(check_point_values[2:]):
 	pos_i = np.fromfile("positions_{}.bin".format(val))
 	pos_i = np.reshape(pos_i, (-1,3))
 	pos_i = pos_i[:,:2]
@@ -111,9 +113,8 @@ for j,val in enumerate(check_point_values):
 	ax.set_aspect('equal', 'box')
 
 	# domain_colors.shape = (N,) ( colors per particle )
-	domain_colors = get_domain_colors(N, network_arr[j]):
-	print(domain_colors)
-	'''
+	domain_colors = get_domain_colors(N, network_arr[j], length_color_dict)
+
 	for i in range(N):
 		rect = patches.Rectangle((-Lx/2,-Ly/2),
 		Lx,Ly, linewidth=0.5, edgecolor='k',facecolor=domain_colors[i], alpha=0.7)
@@ -136,9 +137,9 @@ for j,val in enumerate(check_point_values):
 		ax.add_patch(patch_2)
 
 	ax.scatter(pos_i[:,0], pos_i[:,1],s=1)
+	ax.set_title("Frame {}".format(j))
 	plt.xlim((-1,55))
 	plt.ylim((-1,50))
 	plt.grid()
 	plt.savefig("./frames/frame_{}.png".format(j), dpi=300)
 	plt.close()
-	'''
