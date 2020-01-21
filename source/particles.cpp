@@ -162,8 +162,7 @@ particles::particles(int number_of_cells_in, int size, int MAX_coll_p_in,
         N_Particle_old[id]->Set_Lengths();
 
         // choose left or right-handedness.
-        // distribution:0.5
-
+      
         if (binary_on.compare("on") == 0) {
             rand_s = gsl_rng_uniform(randpatch);
             cout << "binary!!!" << endl;

@@ -52,15 +52,15 @@ void pmove::Particle_Insertion(particles &Particles, box *Box, fileio &Fileio,
 
         if (rand_s < Particles.phi_binary) {
             patch_1 = 0;
-            patch_2 = 1;
+            patch_2 = 2;
             patch_3 = 1;
-            patch_4 = 0;
+            patch_4 = 1;
         }
 
         if (rand_s >= Particles.phi_binary) {
-            patch_1 = 1;
+            patch_1 = 2;
             patch_2 = 0;
-            patch_3 = 0;
+            patch_3 = 1;
             patch_4 = 1;
         }
         Particles.N_Particle[id]->Set_Lengths(patch_1, patch_2, patch_3,

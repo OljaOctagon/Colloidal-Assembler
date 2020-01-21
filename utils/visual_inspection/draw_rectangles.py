@@ -92,54 +92,63 @@ if __name__ == '__main__':
 	# patch position calculation
 	Lx=1.0
 	Ly=2.0
-	a=0.2
-	b=0.8
+	a=0.25
+	b=0.5
 	radius=0.2
 	particle_patches = get_patches(Lx,Ly,a,b)
+
+	patch_color_dict = {0:'red', 2:'yellow'}
 
 	# make frame directory if it doesn't exist
 	if not os.path.isdir("./frames"):
 		os.mkdir("./frames")
 
-for j,val in enumerate(check_point_values[2:]):
-	pos_i = np.fromfile("positions_{}.bin".format(val))
-	pos_i = np.reshape(pos_i, (-1,3))
-	pos_i = pos_i[:,:2]
-	orient_i = np.fromfile("orientations_{}.bin".format(val))
-	orient_i = np.reshape(orient_i, (-1,5))[:,4]
+	for j,val in enumerate(check_point_values[1:]):
+		pos_i = np.fromfile("positions_{}.bin".format(val))
+		pos_i = np.reshape(pos_i, (-1,3))
+		pos_i = pos_i[:,:2]
+		orient_i = np.fromfile("orientations_{}.bin".format(val))
+		orient_i = np.reshape(orient_i, (-1,5))[:,4]
 
-	N=len(pos_i)
-	fig,ax = plt.subplots()
-	ax.set_aspect('equal', 'box')
+		fb = open("patch_energy_{}.bin".format(val), "rb")
+		patch_i = np.fromfile(fb, dtype=np.int32)
+		patch_i = np.reshape(patch_i, (-1,4))[:,:2]
+		print(patch_i)
+		N=len(pos_i)
+		patch_i = patch_i[:N]
 
-	# domain_colors.shape = (N,) ( colors per particle )
-	domain_colors = get_domain_colors(N, network_arr[j], length_color_dict)
+		fig,ax = plt.subplots()
+		ax.set_aspect('equal', 'box')
 
-	for i in range(N):
-		rect = patches.Rectangle((-Lx/2,-Ly/2),
-		Lx,Ly, linewidth=0.5, edgecolor='k',facecolor=domain_colors[i], alpha=0.7)
-		theta = (orient_i[i]*180)/(np.pi)
-		r = mpl.transforms.Affine2D().rotate_deg_around(0,0,theta)
-		t = mpl.transforms.Affine2D().translate(pos_i[i,0],pos_i[i,1])
+		# domain_colors.shape = (N,) ( colors per particle )
+		domain_colors = get_domain_colors(N, network_arr[j], length_color_dict)
 
-		patch_1 = patches.Circle((particle_patches[0,0],particle_patches[0,1]),radius=radius,
-		facecolor='r')
-		patch_2 = patches.Circle((particle_patches[1,0],particle_patches[1,1]),radius=radius,
-		facecolor='r')
+		for i in range(N):
+			print(i, patch_i[i,0], patch_i[i,1])
+			rect = patches.Rectangle((-Lx/2,-Ly/2),
+			Lx,Ly, linewidth=0.5, edgecolor='k',facecolor=domain_colors[i], alpha=0.7)
+			theta = (orient_i[i]*180)/(np.pi)
+			r = mpl.transforms.Affine2D().rotate_deg_around(0,0,theta)
+			t = mpl.transforms.Affine2D().translate(pos_i[i,0],pos_i[i,1])
 
-		tra = r + t + ax.transData
-		rect.set_transform(tra)
-		patch_1.set_transform(tra)
-		patch_2.set_transform(tra)
+			patch_1 = patches.Circle((particle_patches[0,0],particle_patches[0,1]),radius=radius,
+			facecolor=patch_color_dict[patch_i[i,0]])
+			patch_2 = patches.Circle((particle_patches[1,0],particle_patches[1,1]),radius=radius,
+			facecolor=patch_color_dict[patch_i[i,1]])
 
-		ax.add_patch(rect)
-		ax.add_patch(patch_1)
-		ax.add_patch(patch_2)
+			tra = r + t + ax.transData
+			rect.set_transform(tra)
+			patch_1.set_transform(tra)
+			patch_2.set_transform(tra)
 
-	ax.scatter(pos_i[:,0], pos_i[:,1],s=1)
-	ax.set_title("Frame {}".format(j))
-	plt.xlim((-1,55))
-	plt.ylim((-1,50))
-	plt.grid()
-	plt.savefig("./frames/frame_{}.png".format(j), dpi=300)
-	plt.close()
+			ax.add_patch(rect)
+			ax.add_patch(patch_1)
+			ax.add_patch(patch_2)
+
+		ax.scatter(pos_i[:,0], pos_i[:,1],s=1)
+		ax.set_title("Frame {}".format(j))
+		plt.xlim((-1,80))
+		plt.ylim((-1,70))
+		plt.grid()
+		plt.savefig("./frames/frame_{}.png".format(j), dpi=300)
+		plt.close()
