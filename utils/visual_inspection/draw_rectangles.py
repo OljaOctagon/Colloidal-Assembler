@@ -113,7 +113,6 @@ if __name__ == '__main__':
 		fb = open("patch_energy_{}.bin".format(val), "rb")
 		patch_i = np.fromfile(fb, dtype=np.int32)
 		patch_i = np.reshape(patch_i, (-1,4))[:,:2]
-		print(patch_i)
 		N=len(pos_i)
 		patch_i = patch_i[:N]
 
@@ -124,7 +123,6 @@ if __name__ == '__main__':
 		domain_colors = get_domain_colors(N, network_arr[j], length_color_dict)
 
 		for i in range(N):
-			print(i, patch_i[i,0], patch_i[i,1])
 			rect = patches.Rectangle((-Lx/2,-Ly/2),
 			Lx,Ly, linewidth=0.5, edgecolor='k',facecolor=domain_colors[i], alpha=0.7)
 			theta = (orient_i[i]*180)/(np.pi)

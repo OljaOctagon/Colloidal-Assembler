@@ -38,5 +38,5 @@ if __name__ == '__main__':
     network_arr = np.array(network_list, dtype = 'i,i,i,i')
     print(network_arr.shape)
     uniques,indices,inverse, counts  = np.unique(network_arr,return_index=True, return_inverse=True, return_counts=True)
-    print(inverse)
+    print(inverse.shape)
     #print(indices[0])
