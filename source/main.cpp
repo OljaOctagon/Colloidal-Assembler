@@ -83,7 +83,7 @@ int main(int argc, char *argv[]) {
 
         Fileio.Read_Positions(Box, Particles, checkpoint_time);
         Fileio.Read_Orientations(Box, Particles, checkpoint_time);
-        // Fileio.Read_Patches(Box, Particles, checkpoint_time);
+        Fileio.Read_Patches(Box, Particles, checkpoint_time);
         Particles.Set_former_Config(Box);
 
         // Particles.Make_Cell_List(Box);
