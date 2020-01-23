@@ -28,18 +28,20 @@ rhombohedron::rhombohedron() {
     double p1, p2, p3;
     double T;
     double patch_size;
+    double delta_energy;
 
     boost::property_tree::ptree pt;
     boost::property_tree::ini_parser::read_ini("para.ini", pt);
 
     p1 = pt.get<double>("Rhombus.Energy_Level");
-
-    T = 0.1;
+    T  = pt.get<double>("System.Temperature");
+    
+    delta_energy = pt.get<double>("Rhombus.Energy_Difference");
 
     p1 = p1 * T;
     p2 = - p1 * T;
     p3 = 0. * T;
-    p4 = p1 * T / 2.;
+    p4 = p1 * T * delta_energy;
 
     // patch_energy(patchtype, patchtype)
 
