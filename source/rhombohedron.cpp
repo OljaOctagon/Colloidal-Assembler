@@ -1,4 +1,5 @@
 #include "rhombohedron.h"
+#include <iostream>
 
 rhombohedron::rhombohedron() {
 
@@ -25,23 +26,25 @@ rhombohedron::rhombohedron() {
 
     patch_type = new int[N_patches];
 
-    double p1, p2, p3;
+    double p1, p2, p3, p4;
     double T;
     double patch_size;
     double delta_energy;
+    double level;
 
     boost::property_tree::ptree pt;
     boost::property_tree::ini_parser::read_ini("para.ini", pt);
 
-    p1 = pt.get<double>("Rhombus.Energy_Level");
+    level = pt.get<double>("Rhombus.Energy_Level");
     T  = pt.get<double>("System.Temperature");
-    
+
     delta_energy = pt.get<double>("Rhombus.Energy_Difference");
 
-    p1 = p1 * T;
-    p2 = - p1 * T;
+
+    p1 = level * T;
+    p2 = - level * T;
     p3 = 0. * T;
-    p4 = p1 * T * delta_energy;
+    p4 = level * T * delta_energy;
 
     // patch_energy(patchtype, patchtype)
 
