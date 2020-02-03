@@ -41,8 +41,8 @@ int main(int argc, char *argv[]) {
     if (strcmp(runtype, new_runtype) == 0) {
 
         // initialize box
-
-        Box->Startconfig(Fileio.N_in, Fileio.P_sigma_in, Fileio.mu_in,
+        Box->Startconfig(Fileio.N_in, Fileio.P_sigma_in,
+            Fileio.mu_in_1, Fileio.mu_in_2,
                          Fileio.packing_fraction_in,
                          Particles.N_Particle[0]->V);
         start_time = 0;
@@ -63,7 +63,8 @@ int main(int argc, char *argv[]) {
         // Box->Startconfig(Fileio.N_in, Fileio.P_sigma_in, Fileio.mu_in,
         // Fileio.packing_fraction_in, Particles.N_Particle[0]->V);
         Fileio.Read_Box(Box, checkpoint_time);
-        Box->Startconfig_former(Fileio.N_in, Fileio.P_sigma_in, Fileio.mu_in);
+        Box->Startconfig_former(Fileio.N_in, Fileio.P_sigma_in,
+            Fileio.mu_in_1, Fileio.mu_in_2);
         Box->edges_from_center();
 
         // random state initialize
@@ -118,7 +119,8 @@ int main(int argc, char *argv[]) {
     cout << "Number of particles........." << Box->N << endl;
     cout << "Number resovoir particles..." << Particles.Res_Size << endl;
     cout << "Temperature................." << Move.T << endl;
-    cout << "Chemical potential mu......." << Box->mu << endl;
+    cout << "Chemical potential mu_1......." << Box->mu_1 << endl;
+    cout << "Chemical potential mu_2......." << Box->mu_2 << endl;
 
     for (int id = 0; id < Box->N; id++) {
         Particles.Collision_List[id].Calculate_OP(

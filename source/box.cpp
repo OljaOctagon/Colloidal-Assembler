@@ -53,13 +53,15 @@ box::box() {
     new_dist_z = new double[edge_N];
 }
 
-void box::Startconfig(int N_in, double P_sigma_in, double mu_in,
-                      double packing_fraction_in, double V_p) {
+void box::Startconfig(int N_in, double P_sigma_in,
+    double mu_in_1, double mu_in_2,
+    double packing_fraction_in, double V_p) {
 
     N = N_in;
     packing_fraction = packing_fraction_in;
     P_sigma = P_sigma_in;
-    mu = mu_in;
+    mu_1 = mu_in_1;
+    mu_2 = mu_in_2;
     // V_p = 1.0;
 
     T = 1.0;
@@ -105,10 +107,11 @@ void box::Startconfig(int N_in, double P_sigma_in, double mu_in,
     z_center = Lz / 2.0;
 }
 
-void box::Startconfig_former(int N_in, double P_sigma_in, double mu_in) {
+void box::Startconfig_former(int N_in, double P_sigma_in, double mu_in_1, double mu_in_2) {
 
     P_sigma = P_sigma_in;
-    mu = mu_in;
+    mu_1 = mu_in_1;
+    mu_2 = mu_in_2;
     // N = N_in;
     // V_p = 1.0;
     T = 1.0;

@@ -226,7 +226,9 @@ void fileio::Read_Parameters() {
 
     N_in = pt.get<int>("System.Number_of_Particles");
     P_sigma_in = pt.get<double>("System.Pressure");
-    mu_in = pt.get<double>("System.Chemical_Potential");
+    mu_in_1 = pt.get<double>("System.Chemical_Potential_1");
+    mu_in_2 = pt.get<double>("System.Chemical_Potential_2");
+    
     packing_fraction_in = pt.get<double>("System.Packing_Fraction");
     number_of_cells_in = pt.get<int>("System.Number_of_Cells");
     is_2D = pt.get<int>("System.is_2D");

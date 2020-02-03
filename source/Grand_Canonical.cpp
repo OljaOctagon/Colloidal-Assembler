@@ -41,6 +41,11 @@ void pmove::Particle_Insertion(particles &Particles, box *Box, fileio &Fileio,
     // set particle patch topology randomly but according to phi_binary
     double rand_s;
     int patch_1, patch_2, patch_3, patch_4;
+    int p_type;
+
+    double mu_current;
+    mu_current = Box->mu_1;
+
 
     if (Particles.binary_on.compare("on") == 0) {
 
@@ -50,18 +55,27 @@ void pmove::Particle_Insertion(particles &Particles, box *Box, fileio &Fileio,
         patch_4 = 0;
         rand_s = gsl_rng_uniform(r01);
 
-        if (rand_s < Particles.phi_binary) {
+
+        // particles are suggested uniformly. The different chemical potentials
+        // regulatethe proportions.
+        if (rand_s < 0.5) {
             patch_1 = 0;
             patch_2 = 2;
             patch_3 = 1;
             patch_4 = 1;
+
+            mu_current = Box->mu_1;
+
         }
 
-        if (rand_s >= Particles.phi_binary) {
+        if (rand_s >= 0.5) {
             patch_1 = 2;
             patch_2 = 0;
             patch_3 = 1;
             patch_4 = 1;
+
+            mu_current = Box->mu_2;
+
         }
         Particles.N_Particle[id]->Set_Lengths(patch_1, patch_2, patch_3,
                                               patch_4);
@@ -130,7 +144,7 @@ void pmove::Particle_Insertion(particles &Particles, box *Box, fileio &Fileio,
         double Vf;
         Vf = Box->V / double(Box->N + 1);
 
-        b_factor_pre = Vf * exp(-1.0 * beta * delta_U + beta * Box->mu);
+        b_factor_pre = Vf * exp(-1.0 * beta * delta_U + beta * mu_current);
         b_factor = minimum(1, b_factor_pre);
 
         // cout<<"b_factor_pre "<<b_factor_pre<<endl;
@@ -162,15 +176,17 @@ void pmove::Particle_Deletion(particles &Particles, box *Box, fileio &Fileio,
                               int mc_time) {
 
     id = gsl_rng_uniform_int(r, Box->N);
-    // id = Box->N-1;
 
     // Calculate old pair Potential
 
     double phi_t;
     double dU_old, dU_new;
     double delta_U;
+    double mu_current;
     dU_old = 0;
     dU_new = 0;
+
+    mu_current = Box->mu_1;
 
     Particles.Collision_List[id].Calculate_OP(Box, id, Particles.N_Particle,
                                               Particles.N_Particle[0]->cut_off,
@@ -190,10 +206,22 @@ void pmove::Particle_Deletion(particles &Particles, box *Box, fileio &Fileio,
 
     // calculate Boltzmann-factor
 
-    // cout<<"chemical potential: "<<Box->mu<<endl;
+    // get the different chemical potential for binary mixtures
+
+    double p0;
+    if (Particles.binary_on.compare("on") == 0) {
+        p0 = Particles.N_Particle[id]->patch_type[0];
+
+        if (p0 == 0){
+            mu_current = Box->mu_1;
+        }
+        if (p0 == 2){
+            mu_current = Box->mu_2;
+        }
+    }
 
     b_factor_pre = (double(Box->N + 1) / double(Box->V)) *
-                   exp(-beta * delta_U - beta * Box->mu);
+                   exp(-beta * delta_U - beta * mu_current);
     b_factor = minimum(1, b_factor_pre);
 
     XI = gsl_rng_uniform(r01);

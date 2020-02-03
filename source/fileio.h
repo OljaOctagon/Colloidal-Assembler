@@ -75,7 +75,8 @@ class fileio : public particles {
 
     double P_sigma_in;
     int N_in;
-    double mu_in;
+    double mu_in_1;
+    double mu_in_2; 
     double packing_fraction_in;
     int number_of_cells_in;
     int MAX_coll_p_in;
