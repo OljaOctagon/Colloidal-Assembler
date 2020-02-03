@@ -99,7 +99,8 @@ if __name__ == '__main__':
     radius=0.2
     particle_patches = get_patches(Lx,Ly,a,b)
 
-    patch_color_dict = {0:'red', 2:'yellow'}
+    patch_color_dict = {0:'green', 2:'yellow'}
+    type_color_dict = {0:'red', 2:'blue'}
 
     # make frame directory if it doesn't exist
     if not os.path.isdir("./frames"):
@@ -124,8 +125,11 @@ if __name__ == '__main__':
         domain_colors = get_domain_colors(N, network_arr[j], length_color_dict)
 
         for i in range(N):
+            #rhombus_color=domain_colors[i]
+            rhombus_color = type_color_dict[patch_i[i,0]]
+
             rect = patches.Rectangle((-Lx/2,-Ly/2),
-            Lx,Ly, linewidth=0.5, edgecolor='k',facecolor=domain_colors[i], alpha=0.7)
+            Lx,Ly, linewidth=0.5, edgecolor='k',facecolor=rhombus_color, alpha=0.7)
             theta = (orient_i[i]*180)/(np.pi)
             r = mpl.transforms.Affine2D().rotate_deg_around(0,0,theta)
             t = mpl.transforms.Affine2D().translate(pos_i[i,0],pos_i[i,1])
