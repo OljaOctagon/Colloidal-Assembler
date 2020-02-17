@@ -117,10 +117,7 @@ def plot_histogram(dg):
         for topo in dg.topology.unique():
             for delta in dg.delta.unique():
                 df_sub = dg[(dg.mu == mu) & (dg.topology == topo) & (dg.delta == delta)]
-                arr = df_sub[['n_liquid', 'n_micell_1', 'n_micel
-
-    if not os.path.isdir("./phase_histograms"):
-        os.mkdir("./phase_histograms")l_2','n_chain_and_loop']].values
+                arr = df_sub[['n_liquid', 'n_micell_1', 'n_micell_2','n_chain_and_loop']].values
                 brr = df_sub[['packing_fraction']].values
 
                 fig, ax =  plt.subplots(figsize=(15,11))
