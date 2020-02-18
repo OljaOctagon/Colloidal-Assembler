@@ -160,7 +160,7 @@ if __name__ == '__main__':
     # parse arguments
     parser = argparse.ArgumentParser()
     parser.add_argument('-tsizes', nargs='+')
-    parser.add_argument('-o', type=str, default='cluster_distribution_with_micell.csv')
+    parser.add_argument('-o', type=str, default='cluster_distribution.csv')
     args  = parser.parse_args()
 
 
@@ -191,7 +191,6 @@ if __name__ == '__main__':
         topology = 'symm'
 
         if check_file('{}/{}'.format(dir,filen)) and check_file('{}/{}'.format(dir,filenpt)):
-            print(dir,filen)
             network_arr = read_bonds('{}/{}'.format(dir, filen))
             arr = network_arr[-1]
 

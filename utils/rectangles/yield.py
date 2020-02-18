@@ -15,13 +15,15 @@ cluster_type_dict = {
     'open-box':3,
     'open-6-star':6,
     'open-5-star': 5,
-    'open-jenga':4}
+    'open-jenga':4,
+    'l-shape':2,
+    'line-shape':2,
+    'brick-shape':2}
 
 patch_dict = {
     'mouse': [0,2],
     'manta': [0,1]
 }
-
 
 def read_bonds(filen):
 	first_line_pair = [0,0,0,0]
@@ -107,29 +109,58 @@ def calculate_yield(arr, cluster_type, N_particles):
 
     '''
 
-    # Filter out mouse np bonds and construct graph
-    m_arr = filter(arr, args.ptype)
-    G_m = nx.Graph()
-    G_m.add_edges_from(m_arr[:,:2])
-    DG = nx.DiGraph(G_m)
-    loops = list(nx.simple_cycles(DG))
+    loop_shapes = ['5-star', '6-star', 'box', 'open-box', 'open-6-star', 'open-5-star', 'open-jenga']
+    dimer_shapes = ['l-shape', 'brick-shape', 'line-shape']
 
-    clusters = [ loop for loop in loops if len(loop)==cluster_type_dict[cluster_type] ]
-    clusters = [ sorted(item) for item in clusters]
-    clusters = list(clusters for clusters,_ in itertools.groupby(clusters))
-    N_clusters=len(clusters)
-    N_stars = N_clusters*cluster_type_dict[cluster_type]
-    p_yield = N_stars/N_particles
-    return p_yield
+    if cluster_type in loop_shapes:
+
+        # Filter out bonds and construct graph
+        m_arr = filter(arr, args.ptype)
+        G_m = nx.Graph()
+        G_m.add_edges_from(m_arr[:,:2])
+        DG = nx.DiGraph(G_m)
+        loops = list(nx.simple_cycles(DG))
+
+
+        clusters = [ loop for loop in loops if len(loop)==cluster_type_dict[cluster_type] ]
+        clusters = [ sorted(item) for item in clusters]
+        clusters = list(clusters for clusters,_ in itertools.groupby(clusters))
+        N_clusters=len(clusters)
+        N_stars = N_clusters*cluster_type_dict[cluster_type]
+        p_yield = N_stars/N_particles
+        return p_yield
+
+    if cluster_type in dimer_shapes:
+        labels = [ (i,j) for i,j in arr[:,2:]]
+
+        G_m = nx.Graph()
+        G_m.add_edges_from(arr[:,:2])
+        nx.set_edge_attributes(G_m, labels, 'patch_ids')
+
+        dimers = [ cluster for cluster in nx.connected_components(G_m) if len(cluster) == 2]
+
+        #dimer_attributes =
+        N_dimer = 0
+        for dimer in dimers:
+        #    print()
+            dimer = list(dimer)
+            id1 = dimer[0]
+            id2 = dimer[1]
+            patch_tuple  = G_m.edges[id1,id2]['patch_ids']
+            if patch_tuple == patch_dict[cluster_type]:
+                N_dimer +=1
+
+        p_yield = N_dimers/N_particles
+        return p_yield
 
 
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-o', type=str, default='yield.csv',
+    parser.add_argument('-o', type=str, default='yield_test.csv',
                help='output file name')
     parser.add_argument('-ctype', type=str, default='6-star',
-               choices=['5-star', '6-star', 'box', 'open-box', 'open-6-star', 'open-5-star', 'open-jenga'],
+               choices=['5-star', '6-star', 'box', 'open-box', 'open-6-star', 'open-5-star', 'open-jenga', 'l-shape', 'brick-shape', 'line-shape'],
                help='cluster type')
     parser.add_argument('-ptype', type=str, default='mouse',
                         choices=['mouse', 'manta'],
@@ -145,7 +176,6 @@ if __name__ == '__main__':
     df = pd.DataFrame(columns=['mu','energy', 'topology', 'delta', 'p_yield','cluster_type'])
 
     for dir in dirlist:
-        print(dir)
         numbers = re.findall(r"[-+]?\d*\.\d+|\d+", dir)
         mu = numbers[0]
         energy = numbers[1]
@@ -160,8 +190,6 @@ if __name__ == '__main__':
         N_particles = pd.read_csv('{}/{}'.format(dir, filenpt),
                                     header=None,
                                     delim_whitespace=True).values[-1,2]
-
-        print(N_particles)
 
         p_yield = calculate_yield(bond_arr,args.ctype,N_particles)
 
@@ -180,6 +208,5 @@ if __name__ == '__main__':
                                  'topology',
                                  'delta', 'cluster_type']).p_yield.agg(['mean','std']).reset_index()
 
-    print(args.o)
     with open(args.o, 'a') as f:
         yield_mean_std.to_csv(f, header=None)
