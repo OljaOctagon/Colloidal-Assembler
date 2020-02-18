@@ -7,6 +7,13 @@ import argparse
 import networkx as nx
 import itertools
 
+def check_file(fname):
+    try:
+        open(fname,"r")
+        return 1
+    except IOError:
+        print("Error: File doesn't seem to exist.")
+        return 0
 
 cluster_type_dict = {
     '6-star': 6,
@@ -16,7 +23,7 @@ cluster_type_dict = {
     'open-6-star':6,
     'open-5-star': 5,
     'open-jenga':4,
-    'l-shape':2,
+    'l-shape': 2,
     'line-shape':2,
     'brick-shape':2}
 
@@ -131,7 +138,14 @@ def calculate_yield(arr, cluster_type, N_particles):
         return p_yield
 
     if cluster_type in dimer_shapes:
+        print("dimer!")
         labels = [ (i,j) for i,j in arr[:,2:]]
+
+        patch_dict_2p = {
+        'l-shape': (0,1),
+        'line-shape': (1,1),
+        'brick-shape': (0,0)
+        }
 
         G_m = nx.Graph()
         G_m.add_edges_from(arr[:,:2])
@@ -147,10 +161,12 @@ def calculate_yield(arr, cluster_type, N_particles):
             id1 = dimer[0]
             id2 = dimer[1]
             patch_tuple  = G_m.edges[id1,id2]['patch_ids']
-            if patch_tuple == patch_dict[cluster_type]:
-                N_dimer +=1
+            print("ptuple", patch_tuple, patch_dict_2p[cluster_type])
+            if sorted(patch_tuple) == patch_dict_2p[cluster_type]:
+                N_dimer +=2
 
-        p_yield = N_dimers/N_particles
+        #N_dimer = len([ dimer for dimer in dimers if G_m.edges[dimer[0],dimer[1]]['patch_ids'] == patch_dict[cluster_type]])
+        p_yield = N_dimer/N_particles
         return p_yield
 
 
@@ -173,39 +189,45 @@ if __name__ == '__main__':
     filenpt = 'NPT_OUT.txt'
     dirlist = glob.glob("mu_*")
     pwd = os.getcwd()
-    df = pd.DataFrame(columns=['mu','energy', 'topology', 'delta', 'p_yield','cluster_type'])
+    df = pd.DataFrame(columns=['mu','energy', 'topology', 'delta', 'delta_energy', 'mu2', 'p_yield','cluster_type'])
 
     for dir in dirlist:
+        print(dir)
         numbers = re.findall(r"[-+]?\d*\.\d+|\d+", dir)
         mu = numbers[0]
         energy = numbers[1]
         delta = numbers[2]
+        delta_energy = numbers[3]
+        mu2 = numbers[4]
         topology = 'symm'
 
+        if check_file('{}/{}'.format(dir,filen)) and check_file('{}/{}'.format(dir,filenpt)):
+            arr = read_bonds('{}/{}'.format(dir, filen))
+            bond_arr = arr[-1]
 
+            N_particles = pd.read_csv('{}/{}'.format(dir, filenpt),
+                                        header=None,
+                                        delim_whitespace=True).values[-1,2]
 
-        arr = read_bonds('{}/{}'.format(dir, filen))
-        bond_arr = arr[-1]
+            p_yield = calculate_yield(bond_arr,args.ctype,N_particles)
 
-        N_particles = pd.read_csv('{}/{}'.format(dir, filenpt),
-                                    header=None,
-                                    delim_whitespace=True).values[-1,2]
-
-        p_yield = calculate_yield(bond_arr,args.ctype,N_particles)
-
-        df = pd.concat([df,pd.DataFrame({'mu': [mu],
-                                             'energy': [energy],
-                                             'topology': [topology],
-                                             'delta': [delta],
-                                             'p_yield': [p_yield],
-                                             'cluster_type': [args.ctype]})])
-        #except:
-        #print("warning: couldn't calculate for {}".format(dir))
+            df = pd.concat([df,pd.DataFrame({'mu': [mu],
+                                                 'energy': [energy],
+                                                 'topology': [topology],
+                                                 'delta': [delta],
+                                                 'delta_energy': [delta_energy],
+                                                 'mu2' : [mu2],
+                                                 'p_yield': [p_yield],
+                                                 'cluster_type': [args.ctype]})])
+            #except:
+            #print("warning: couldn't calculate for {}".format(dir))
 
 
     yield_mean_std = df.groupby(['mu',
                                  'energy',
                                  'topology',
+                                 'delta_energy',
+                                 'mu2'
                                  'delta', 'cluster_type']).p_yield.agg(['mean','std']).reset_index()
 
     with open(args.o, 'a') as f:
