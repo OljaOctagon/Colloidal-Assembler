@@ -140,11 +140,12 @@ def calculate_yield(arr, cluster_type, N_particles):
     if cluster_type in dimer_shapes:
         print("dimer!")
         labels = [ (i,j) for i,j in arr[:,2:]]
+        print(len(labels))
 
         patch_dict_2p = {
-        'l-shape': (0,1),
-        'line-shape': (1,1),
-        'brick-shape': (0,0)
+        'l-shape': {0,1},
+        'line-shape': {1,1},
+        'brick-shape': {0,0}
         }
 
         G_m = nx.Graph()
@@ -160,9 +161,12 @@ def calculate_yield(arr, cluster_type, N_particles):
             dimer = list(dimer)
             id1 = dimer[0]
             id2 = dimer[1]
-            patch_tuple  = G_m.edges[id1,id2]['patch_ids']
+            #patch_tuple  = G_m.edges[id1,id2]['patch_ids']
+            print('id', id1, id2)
+
+            patch_tuple=set(arr[(arr[:,0]==id1) | (arr[:,1]==id1)][0,2:])
             print("ptuple", patch_tuple, patch_dict_2p[cluster_type])
-            if sorted(patch_tuple) == patch_dict_2p[cluster_type]:
+            if  patch_tuple == patch_dict_2p[cluster_type]:
                 N_dimer +=2
 
         #N_dimer = len([ dimer for dimer in dimers if G_m.edges[dimer[0],dimer[1]]['patch_ids'] == patch_dict[cluster_type]])
@@ -227,7 +231,7 @@ if __name__ == '__main__':
                                  'energy',
                                  'topology',
                                  'delta_energy',
-                                 'mu2'
+                                 'mu2',
                                  'delta', 'cluster_type']).p_yield.agg(['mean','std']).reset_index()
 
     with open(args.o, 'a') as f:

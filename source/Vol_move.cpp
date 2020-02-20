@@ -155,8 +155,9 @@ void pmove::Iso_Vol_Change(particles &Particles, box *Box, fileio &Fileio,
                     Set_Positions(Particles, id);
                 }
 
+                Box->A = Box->V/0.1; 
                 Box->packing_fraction =
-                    Particles.N_Particle[0]->V * double(Box->N) / Box->V;
+                    Particles.N_Particle[0]->A * double(Box->N) / Box->A;
             }
         }
     }

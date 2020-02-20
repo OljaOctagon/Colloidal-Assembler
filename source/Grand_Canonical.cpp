@@ -167,7 +167,7 @@ void pmove::Particle_Insertion(particles &Particles, box *Box, fileio &Fileio,
             Set_Positions(Particles, id);
             Particles.Total_Energy = Particles.Total_Energy + delta_U;
             Box->packing_fraction =
-                (Particles.N_Particle[0]->V * double(Box->N)) / Box->V;
+                (Particles.N_Particle[0]->A * double(Box->N)) / Box->A;
         }
     }
 }
@@ -232,7 +232,7 @@ void pmove::Particle_Deletion(particles &Particles, box *Box, fileio &Fileio,
     if (b_factor >= XI) {
 
         Box->packing_fraction =
-            (Particles.N_Particle[0]->V * double(Box->N - 1)) / Box->V;
+            (Particles.N_Particle[0]->A * double(Box->N - 1)) / Box->A;
 
         for (int k = id + 1; k < Box->N; k++) {
             Particles.N_Particle[k - 1]->x_center =
