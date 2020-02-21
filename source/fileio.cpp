@@ -228,7 +228,7 @@ void fileio::Read_Parameters() {
     P_sigma_in = pt.get<double>("System.Pressure");
     mu_in_1 = pt.get<double>("System.Chemical_Potential_1");
     mu_in_2 = pt.get<double>("System.Chemical_Potential_2");
-    
+
     packing_fraction_in = pt.get<double>("System.Packing_Fraction");
     number_of_cells_in = pt.get<int>("System.Number_of_Cells");
     is_2D = pt.get<int>("System.is_2D");
@@ -924,7 +924,7 @@ void fileio::Write_NPT(int mc_time, box *Box) {
     ofstream npt_out(string_3.c_str(), ios::out | ios::app);
 
     npt_out << mc_time << "     " << Box->P_sigma << "     " << Box->N
-            << "      " << Box->V << "      " << Box->packing_fraction << endl;
+            << "      " << Box->A << "      " << Box->packing_fraction << endl;
 
     npt_out.close();
 }

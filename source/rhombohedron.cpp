@@ -333,7 +333,7 @@ void rhombohedron::Set_Lengths() {
 
     V = fabs(ra.x * cross_p.x + ra.y * cross_p.y + ra.z * cross_p.z);
     A = Lx*h;
-
+    
 
     boost::property_tree::ptree pt;
     boost::property_tree::ini_parser::read_ini("para.ini", pt);
