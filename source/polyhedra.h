@@ -56,6 +56,7 @@ class polyhedra {
     double r;
     double cut_off_inner;
     double V;
+    double A;
 
     m_vector trans_init;
 

@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
         Box->Startconfig(Fileio.N_in, Fileio.P_sigma_in,
             Fileio.mu_in_1, Fileio.mu_in_2,
                          Fileio.packing_fraction_in,
-                         Particles.N_Particle[0]->V);
+                         Particles.N_Particle[0]->A);
         start_time = 0;
         Box->edges_from_center();
         // initialize lattice

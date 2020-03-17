@@ -52,7 +52,7 @@ def get_hexcolor(i, cmap):
 	return mpl.colors.rgb2hex(rgb)
 
 def get_domain_colors(N_particles, bond_arr, length_color_dict):
-    domain_colors = [length_color_dict[0]]*N
+    domain_colors = [length_color_dict[0]]*N_particles
 
     if bond_arr.size:
         G = nx.Graph()
@@ -68,7 +68,31 @@ def get_domain_colors(N_particles, bond_arr, length_color_dict):
 
     return domain_colors
 
+def color_by_identity(N_particles, bond_arr, color_dict, ncolors):
+        domain_colors = [color_dict[0]]*N_particles
+        if bond_arr.size:
+            G = nx.Graph()
+            G.add_edges_from(bond_arr[:,:2])
+            domains = list(nx.connected_components(G))
+
+            for cluster in domains:
+                color_id = np.random.randint(1,ncolors)
+                for particle in cluster:
+                    domain_colors[particle] = color_dict[color_id]
+
+        return domain_colors
+
+
+import argparse
+
 if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser(description='Particle coloring methods')
+    parser.add_argument('-kind', type=str, choices=['by_size', 'by_id', 'by_type'])
+    parser.add_argument('-ppos', type=float)
+
+
+    args = parser.parse_args()
     # get all check point values and sort them
     checkpoints= glob.glob("Box*.bin")
     check_point_values = np.sort(
@@ -82,25 +106,16 @@ if __name__ == '__main__':
     # --------------------------
 
     pn_file = "patch_network.dat"
-
-	# colormap for cluster size
-    cmap = plt.cm.get_cmap('cividis', 6)
-    hex_color = [ get_hexcolor(i, cmap) for i in range(6)]
-    hex_color[4] = '#8A2BE2'
-    length_color_dict = dict(zip(np.arange(6),hex_color))
-
     # network_arr format: network_arr.shape = ( frame_i, bond_rows_frame_i )
     network_arr = read_bonds("patch_network.dat")
     # patch position calculation
     Lx=1.0
     Ly=2.0
-    a=0.25
+    a=args.ppos
     b=0.5
     radius=0.2
     particle_patches = get_patches(Lx,Ly,a,b)
-
     patch_color_dict = {0:'green', 2:'yellow'}
-    type_color_dict = {0:'red', 2:'blue'}
 
     # make frame directory if it doesn't exist
     if not os.path.isdir("./frames"):
@@ -120,13 +135,35 @@ if __name__ == '__main__':
         patch_i = patch_i[:N]
         fig,ax = plt.subplots()
         ax.set_aspect('equal', 'box')
-        print(N, network_arr[j].shape)
+
         # domain_colors.shape = (N,) ( colors per particle )
-        domain_colors = get_domain_colors(N, network_arr[j], length_color_dict)
+        domain_colors = np.zeros(N)
+        if args.kind == 'by_size':
+
+            # colormap for cluster size
+            cmap = plt.cm.get_cmap('cividis', 6)
+            hex_color = [ get_hexcolor(i, cmap) for i in range(6)]
+            hex_color[4] = '#8A2BE2'
+            length_color_dict = dict(zip(np.arange(6),hex_color))
+            domain_colors = get_domain_colors(N, network_arr[j], length_color_dict)
+
+        if args.kind == 'by_id':
+
+            ncolors=10
+            cmap = plt.cm.get_cmap('cubehelix', ncolors)
+            hex_color = [ get_hexcolor(i, cmap) for i in range(ncolors)]
+            color_dict = dict(zip(np.arange(ncolors),hex_color))
+            domain_colors = color_by_identity(N, network_arr[j], color_dict, ncolors)
+
+        if args.kind == 'by_type':
+
+            type_color_dict = {0:'red', 2:'blue'}
+            domain_colors = np.array([ type_color_dict[patch_i[i,0]] for i in range(N)])
+
 
         for i in range(N):
-            #rhombus_color=domain_colors[i]
-            rhombus_color = type_color_dict[patch_i[i,0]]
+
+            rhombus_color = domain_colors[i]
 
             rect = patches.Rectangle((-Lx/2,-Ly/2),
             Lx,Ly, linewidth=0.5, edgecolor='k',facecolor=rhombus_color, alpha=0.7)

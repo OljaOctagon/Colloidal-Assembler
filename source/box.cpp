@@ -67,25 +67,20 @@ void box::Startconfig(int N_in, double P_sigma_in,
     T = 1.0;
     // P = P_sigma/(3.*sqrt(3.)/8.);
     P = P_sigma;
-    // V = double(N)*V_p/packing_fraction;
 
-    V = double(N) * V_p / packing_fraction;
+    //V = double(N) * V_p / packing_fraction;
 
-    cout << "Volume " << V << " "
-         << "Volume per particle :" << V_p << endl;
+    A = (double(N) * V_p) / packing_fraction;
+    Lz=0.1;
+    V = A*Lz;
 
-    // for 2D, height of cell is 'pseudoheihgt of particle set to 1'
-    // Lx = pow(V,(1./3.));
-    // Ly = Lx;
-    // Lz = Lx;
+    cout << "Area " << A << " "
+         << "Area per particle :" << V_p << endl;
 
-    Lz = 0.1;
     double alpha;
     alpha = (60 * M_PI) / 180.0;
-    // alpha=(64.6230*M_PI)/180.0;
-    // alpha=(53.1301*M_PI)/180.0;
 
-    Lx = sqrt(V / (Lz * sin(alpha)));
+    Lx = sqrt(A /sin(alpha));
     Ly = sin(alpha) * Lx;
 
     // Lx = sqrt(V/Lz);
@@ -117,6 +112,7 @@ void box::Startconfig_former(int N_in, double P_sigma_in, double mu_in_1, double
     T = 1.0;
     // P = P_sigma/(3.*sqrt(3.)/8.);
     P = P_sigma;
+    A = V/0.1
 
     g_factor = 100.0;
     g_trans_vec = g_factor * Lx;
@@ -187,11 +183,11 @@ void box::distance_from_center() {
 void box::Set_Lengths(double Vp) {
 
     // for isotropic box
+    A = double(N * Vp) / packing_fraction;
+    V = Lz*A;
 
-    V = double(N * Vp) / packing_fraction;
-
-    Lz = 0.2;
-    Lx = sqrt(V / Lz);
+    Lz = 0.1;
+    Lx = sqrt(A);
     Ly = Lx;
 
     // Lx = pow(V,(1./3.));
