@@ -122,7 +122,6 @@ void pmove::Translate(particles &Particles, box *Box, fileio &Fileio, int id,
         // Calculate_Pair_Potential(Particles, Box);
 
         // MC Step for Potential
-
         b_factor_pre = exp(-1.0 * beta * delta_U);
         // b_factor_pre = exp(-1.0*beta*(Total_Energy-Total_Energy_old));
         b_factor = minimum(1, b_factor_pre);

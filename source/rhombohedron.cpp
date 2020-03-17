@@ -40,10 +40,10 @@ rhombohedron::rhombohedron() {
 
     delta_energy = pt.get<double>("Rhombus.Energy_Difference");
 
-    p1 = level * T;
-    p2 = - level * T;
-    p3 = 0. * T;
-    p4 = level * T * delta_energy;
+    p1 = level;
+    p2 = - level;
+    p3 = 0.;
+    p4 = level * delta_energy;
 
     // patch_energy(patchtype, patchtype)
 
@@ -333,7 +333,7 @@ void rhombohedron::Set_Lengths() {
 
     V = fabs(ra.x * cross_p.x + ra.y * cross_p.y + ra.z * cross_p.z);
     A = Lx*h;
-    
+
 
     boost::property_tree::ptree pt;
     boost::property_tree::ini_parser::read_ini("para.ini", pt);

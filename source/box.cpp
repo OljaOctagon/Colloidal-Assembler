@@ -112,7 +112,7 @@ void box::Startconfig_former(int N_in, double P_sigma_in, double mu_in_1, double
     T = 1.0;
     // P = P_sigma/(3.*sqrt(3.)/8.);
     P = P_sigma;
-    A = V/0.1
+    A = V/0.1;
 
     g_factor = 100.0;
     g_trans_vec = g_factor * Lx;

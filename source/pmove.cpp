@@ -130,8 +130,8 @@ pmove::pmove(int size, int edge_length, double delta_tmax, double delta_rmax,
     // kB = 1.3806488*pow(10.0,-23.0);
     kB = 1.0;
     beta = 1. / (kB * T);
-    beta_f = 5.0;
-    // beta=1.0;
+    beta_f = beta/2.;
+    
 
     // init discrete distribution for move_type
     P_mt = new double[5];
