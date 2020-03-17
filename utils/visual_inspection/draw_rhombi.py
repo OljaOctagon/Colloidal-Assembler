@@ -1,0 +1,212 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib import patches
+import matplotlib as mpl
+import os
+import glob
+import networkx as nx
+import seaborn as sns
+import matplotlib.style as style
+style.use('seaborn-poster') 
+mpl.rcParams['font.family'] = "sans-serif"
+sns.set_context('poster')
+
+def get_edge_points(pos_i,ax_n,sign_p):
+    edge_n = np.zeros(2)
+    edge_n = pos_i + sign_p[0]*ax_n[:,0]/2. + sign_p[1]*ax_n[:,1]/2.
+
+    return edge_n
+
+def rotation_matrix(theta):
+    rot_mat = np.zeros((2,2))
+
+    rot_mat[0,0] = np.cos(theta) 
+    rot_mat[0,1] = -np.sin(theta)
+    rot_mat[1,0] = np.sin(theta)
+    rot_mat[1,1] = np.cos(theta)
+
+    return rot_mat
+
+
+def get_orient(v, rot_mat):
+    return rot_mat.dot(v)
+
+def read_bonds(filen):
+	first_line_pair = [0,0,0,0]
+	cut=False
+	with open(filen, 'r') as f:
+		network_list = []
+		for line in f:
+			if "#" in line:
+				network_list.append([])
+				first_line_pair = [0,0,0,0]
+				cut=False
+
+			else:
+				line_counter=len(network_list[-1])
+				pairs = list(map(int, line.split(" ")))
+				if pairs == first_line_pair or cut==True:
+					cut=True
+				else:
+					network_list[-1].append(np.array(pairs))
+
+				if line_counter == 0:
+					first_line_pair = pairs
+	network_list = [ np.array(item) for item in network_list]
+
+	return network_list
+
+def get_patches(Lx,Ly,a,b):
+
+	l = np.array([Lx/2,Ly/2])
+
+	edges = np.zeros((4,2))
+	edges[0] = np.array([-1,-1])*l
+	edges[1] = np.array([ 1,-1])*l
+	edges[2] = np.array([ 1, 1])*l
+	edges[3] = np.array([-1, 1])*l
+
+	patches = np.zeros((2,2))
+	patches[0] = edges[0] + a*(edges[3]-edges[0])
+	patches[1] = edges[2] + b*(edges[3]-edges[2])
+
+	return patches
+
+def get_hexcolor(i, cmap):
+	rgb = cmap(i)[:3]
+	return mpl.colors.rgb2hex(rgb)
+
+def get_domain_colors(N_particles, bond_arr, length_color_dict):
+    domain_colors = [length_color_dict[0]]*N
+
+    if bond_arr.size:
+        G = nx.Graph()
+        G.add_edges_from(bond_arr[:,:2])
+        domains = list(nx.connected_components(G))
+
+        for cluster in domains:
+            length = len(cluster)
+            if length >=5:
+                length=5
+            for particle in cluster:
+                domain_colors[particle] = length_color_dict[length]
+
+    return domain_colors
+
+if __name__ == '__main__':
+    # get all check point values and sort them
+    checkpoints= glob.glob("Box*.bin")
+    check_point_values = np.sort(
+    [ int(point.split("_")[-1].split(".")[0]) for point in checkpoints ])
+    # import the bonds file:
+    # file format:
+    # ------------------------
+    # #new time
+    # particle_id1 particle_id2  patch_id1 patch_id2]
+    #  ....
+    # --------------------------
+
+    pn_file = "patch_network.dat"
+
+	# colormap for cluster size
+    cmap = plt.cm.get_cmap('cividis', 6)
+    hex_color = [ get_hexcolor(i, cmap) for i in range(6)]
+    hex_color[4] = '#8A2BE2'
+    length_color_dict = dict(zip(np.arange(6),hex_color))
+
+    # network_arr format: network_arr.shape = ( frame_i, bond_rows_frame_i )
+    network_arr = read_bonds("patch_network.dat")
+    # patch position calculation
+    #Lx=1.0
+    #Ly=2.0
+    #a=0.25
+    #b=0.5
+    radius=0.1
+    #particle_patches = get_patches(Lx,Ly,a,b)
+
+    patch_color_dict = {0:'green', 2:'yellow'}
+    type_color_dict = {0:'red', 2:'blue'}
+
+    # make frame directory if it doesn't exist
+    if not os.path.isdir("./frames"):
+        os.mkdir("./frames")
+
+    for j,val in enumerate(check_point_values[1:]):
+        pos_i = np.fromfile("positions_{}.bin".format(val))
+        pos_i = np.reshape(pos_i, (-1,3))
+        pos_i = pos_i[:,:2]
+        orient_i = np.fromfile("orientations_{}.bin".format(val))
+        orient_i = np.reshape(orient_i, (-1,5))[:,4]
+
+        fb = open("patch_energy_{}.bin".format(val), "rb")
+        patch_i = np.fromfile(fb, dtype=np.int32)
+        patch_i = np.reshape(patch_i, (-1,4))[:,:2]
+        N=len(pos_i)
+        patch_i = patch_i[:N]
+        fig,ax = plt.subplots()
+        ax.set_aspect('equal', 'box')
+        print(N, network_arr[j].shape)
+        # domain_colors.shape = (N,) ( colors per particle )
+        domain_colors = get_domain_colors(N, network_arr[j], length_color_dict)
+
+        sin60 = np.sin(np.pi/3.)
+        cos60 = np.cos(np.pi/3.)
+
+        ax0 = np.array([[1,cos60],[0,sin60]])
+        edges = np.zeros((4,2))
+        ax_n = np.zeros((2,2))
+
+        particle_patches = np.zeros((4,2))
+
+        for i in range(N):
+            #rhombus_color=domain_colors[i]
+            #rhombus_color = type_color_dict[patch_i[i,0]]
+            rhombus_color = '#C17DCB'
+
+            rotmat_i = rotation_matrix(orient_i[i])
+            ax_n = get_orient(ax0, rotmat_i)
+
+            edges[0] = get_edge_points(pos_i[i],ax_n,np.array([-1,-1]))
+            edges[1] = get_edge_points(pos_i[i],ax_n,np.array([+1,-1]))
+            edges[2] = get_edge_points(pos_i[i],ax_n,np.array([+1,+1]))
+            edges[3] = get_edge_points(pos_i[i],ax_n,np.array([-1,+1]))
+
+            # dma as1 type
+
+            # patch type 1 
+            particle_patches[0] = edges[0] + 0.2*(edges[3]-edges[0])
+            particle_patches[1] = edges[2] + 0.8*(edges[3]-edges[2])
+
+            # patch type 2 
+            particle_patches[2] = edges[0] + 0.2*(edges[1]-edges[0])
+            particle_patches[3] = edges[1] + 0.2*(edges[2]-edges[1])
+
+            rhombi = patches.Polygon(edges, linewidth=0.5, edgecolor='k',facecolor=rhombus_color, alpha=0.7)
+
+            patch_1 = patches.Circle((particle_patches[0,0],particle_patches[0,1]),radius=radius,
+                                     facecolor='#FF9999')
+
+            patch_2 = patches.Circle((particle_patches[1,0],particle_patches[1,1]),radius=radius,
+                                     facecolor='#FF9999')
+
+            patch_3 = patches.Circle((particle_patches[2,0],particle_patches[2,1]),radius=radius,
+                                     facecolor='#9999FF')
+
+            patch_4 = patches.Circle((particle_patches[3,0],particle_patches[3,1]),radius=radius,
+                                     facecolor='#9999FF')
+
+            ax.add_patch(rhombi)
+            ax.add_patch(patch_1)
+            ax.add_patch(patch_2)
+            ax.add_patch(patch_3)
+            ax.add_patch(patch_4)
+
+        ax.scatter(pos_i[:,0], pos_i[:,1],s=1)
+        ax.set_title("Frame {}".format(j))
+        plt.xlim((-1,50))
+        plt.ylim((-1,60))
+        plt.axis("equal")
+        #plt.grid()
+        plt.axis('off')
+        plt.savefig("./frames/frame_{}.png".format(j), dpi=500)
+        plt.close()
