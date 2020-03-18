@@ -138,7 +138,7 @@ void pmove::Rotate2D(particles &Particles, box *Box, fileio &Fileio, int id,
         delta_U = dU_new - dU_old;
 
         // MC Step for Potential
-
+    
         b_factor_pre = exp(-1.0 * beta * delta_U);
         b_factor = minimum(1, b_factor_pre);
 
