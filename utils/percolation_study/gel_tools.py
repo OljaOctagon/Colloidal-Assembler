@@ -42,3 +42,8 @@ def make_cycles(G,size):
     cluster  = np.array([ loop for loop in loops if len(loop)==size ]).flatten()
 
     return cluster
+
+
+def find_cliques(G):
+    cliques=find_cliques(G)
+    print(list(cliques))

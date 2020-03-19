@@ -37,7 +37,7 @@ def plot_domain_distribution(arr, dir_name):
 
 def plot_degree_distribution(arr, dir_name):
     fig,ax = plt.subplots()
-    plt.hist(arr,bins=[-0.5,0.5,1.5,2.5,3.5], fc=purple_c, edgecolor='gray', lw=1, alpha=0.7, density=True, rwidth=0.5)
+    plt.hist(arr,bins=[-0.5,0.5,1.5,2.5,3.5,4.5], fc=purple_c, edgecolor='gray', lw=1, alpha=0.7, density=True, rwidth=0.5)
     plt.xlabel("degree")
     plt.ylabel("P")
     plt.xticks([0,1,2,3,4])
@@ -95,16 +95,15 @@ def plot_mean_degree(arr, dir_name):
 def plot_pnp_domain_distribution(arr,brr, dir_name):
 
     fig,ax=plt.subplots()
-    plt.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
     # patterns = ('-', '+', 'x', '\\', '*', 'o', 'O', '.')
-    plt.hist(arr,bins=range(1,np.max(arr)), fc=blue_c, edgecolor='gray', lw=1, alpha=0.7, density=True,label='p-domains', hatch='\\')
-    plt.hist(brr,bins=range(1,np.max(arr)), fc=red_c, edgecolor='gray', lw=1, alpha=0.7, density=True,label='np-domains', hatch='//')
-    plt.xlabel("domain size")
+    plt.hist(arr,bins=range(1,np.max(arr)), fc=blue_c, edgecolor='gray', lw=1, alpha=0.7, density=True,label='largest p-domain', hatch='\\')
+    plt.hist(brr,bins=range(1,np.max(arr)), fc=red_c, edgecolor='gray', lw=1, alpha=0.7, density=True,label='larget np-domain', hatch='//')
+    plt.xlabel("largest domain")
     plt.ylabel("P")
     plt.locator_params(axis='y', nbins=6)
     plt.legend(loc='best')
     plt.tight_layout()
-    plt.savefig("{}pnp_domain_size_distribution.pdf".format(dir_name))
+    plt.savefig("{}pnp_largest_domain_size_distribution.pdf".format(dir_name))
 
 
 def plot_largest_pnp_domain(arr,brr, dir_name):
@@ -118,6 +117,21 @@ def plot_largest_pnp_domain(arr,brr, dir_name):
     plt.legend(loc='best')
     plt.tight_layout()
     plt.savefig("{}pnp_domain_size_time.pdf".format(dir_name))
+
+
+def plot_bond_type_percent(arr,brr,dir_name):
+    fig,ax = plt.subplots()
+    plt.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
+
+    plt.xlabel("time [MC sweeps]")
+    plt.ylabel("domain size")
+    plt.plot(arr[:,0],arr[:,1],c=blue_c, lw=3,ms=3,marker='o',label='p-bonds')
+    plt.plot(brr[:,0],brr[:,1],c=red_c, lw=3,ms=3,marker='o',label='np-bonds')
+    plt.legend(loc='best')
+    plt.tight_layout()
+    plt.savefig("{}bond_type_time.pdf".format(dir_name))
+
+
 
 if __name__ == "__main__":
 
@@ -173,3 +187,8 @@ if __name__ == "__main__":
     arr = df[['time','largest_p_domain']].values
     brr = df[['time','largest_np_domain']].values
     plot_largest_pnp_domain(arr,brr, dir_name)
+
+    # plot bond type percent (t)
+    arr = df[['time','pbond_percent']].values
+    brr = df[['time','npbond_percent']].values
+    plot_bond_type_percent(arr,brr, dir_name)

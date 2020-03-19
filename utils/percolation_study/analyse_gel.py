@@ -7,6 +7,11 @@ import networkx as nx
 import glob
 import os
 
+# TODO:
+# get all 3p loops, count an calculate fraction
+# Find a way to find "crystal loop communities"
+# find more measures for network topology
+
 def sub_domain_size(connections_j, bond_dict, indicator):
     G_sub=nx.Graph()
     sub_connections_j = [ item[:2] for item in connections_j if bond_dict[tuple(sorted(item[2:]))] == indicator  ]
@@ -63,18 +68,6 @@ if __name__=='__main__':
         os.mkdir(dir_name+results_dir)
 
     # TODO  simplify graph by combining all 3 loops
-
-    # loops stats: n of 3p loops, 4p loops , 5p loops and so on 
-
-    # plot mode:
-    # domain distribution
-    # degree distribution
-    # pb(t)
-    # connectivity(t)
-    # largest domain (t)
-    # average degree (t)
-    # plot graph of centers (color according to p/np bond)
-
     columns = ['run_id',
                'topology',
                'delta','T',
@@ -160,7 +153,8 @@ if __name__=='__main__':
          # Calculate 3-particle loops 
          N_3loops = len(gt.make_cycles(G,3))
          N3_loop_percent = (3*N_3loops)/N_particles
-         ''' 
+         '''
+         gt.find_cliques(G)
          new_results['N3_loop_percent'] = 'not_calculated'
          df = df.append(new_results, ignore_index=True)
 
