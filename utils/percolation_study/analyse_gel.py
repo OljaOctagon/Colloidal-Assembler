@@ -8,7 +8,6 @@ import glob
 import os
 
 # TODO:
-# get all 3p loops, count an calculate fraction
 # Find a way to find "crystal loop communities"
 # find more measures for network topology
 
@@ -58,9 +57,13 @@ if __name__=='__main__':
     [ int(point.split("_")[-1].split(".")[0]) for point in checkpoints ])
 
     pn_file = dir_name+f_name
-
     # network_arr format: network_arr.shape = ( frame_i, bond_rows_frame_i )
     connections = gt.read_bonds(pn_file)
+
+    fe_name="Energy.dat"
+    energy_file = dir_name+fe_name
+    df_energy = pd.read_csv(energy_file, header=None, delim_whitespace=True)
+    df_energy.columns = ['time','energy']
 
     results_dir = 'gel_observables'
     # make frame directory if it doesn't exist 
@@ -86,7 +89,8 @@ if __name__=='__main__':
                'largest_pdomain',
                'largest_np_domain',
                'pbond_percent',
-               'npbond_percent']
+               'npbond_percent',
+               'energy']
 
     df = pd.DataFrame(columns=columns)
 
@@ -102,6 +106,8 @@ if __name__=='__main__':
          new_results['T'] = 0.15
          new_results['time'] = val
          new_results['N_particles'] = 1500
+         new_results['energy'] = df_energy[df_energy.time==val].energy.values[0]
+
 
          # Make a graph for time j: 
          connections_j = connections[j]
@@ -149,40 +155,10 @@ if __name__=='__main__':
          new_results['largest_p_domain'] = largest_p_domain
          new_results['largest_np_domain'] = largest_np_domain
 
-         ''' TODO: find 3p cycles faster 
-         # Calculate 3-particle loops 
-         N_3loops = len(gt.make_cycles(G,3))
-         N3_loop_percent = (3*N_3loops)/N_particles
-         '''
-         gt.find_cliques(G)
-         new_results['N3_loop_percent'] = 'not_calculated'
+         N3_loops = gt.find_cliques(G)
+         N3_loop_percent = (3*N3_loops)/N_particles
+         new_results['N3_loop_percent'] = N3_loop_percent
+
          df = df.append(new_results, ignore_index=True)
 
     df.to_pickle("{}{}/network_data.pickle".format(dir_name, results_dir))
-
-
-'''
-* plot center positions network graph 
-* density variations (assumption equilibrium gel has higher local densities)
-
-* loops:
-* parallel and non parallel members
-* Loops stats: number of 1 partilce, 2 partilce etc loops (minimal loops)
-* Percent of clusters with loops (L) 
-* Number of  loops/per particle (L)
-* Average number of loops (L)
-
-
-
-fig, ax = plt.subplots()
-         plt.bar(deg, cnt, width=0.80, color='b')
-
-         plt.title("Degree Histogram")
-         plt.ylabel("Count")
-         plt.xlabel("Degree")
-         ax.set_xticks([d + 0.4 for d in deg])
-         ax.set_xticklabels(deg)
-
-
-
-'''

@@ -24,7 +24,7 @@ plt.rcParams['figure.titlesize'] = 15
 blue_c ='#9999FF'
 red_c ='#FF9999'
 purple_c='#C17DCB'
-
+green_c='#61DCB7'
 
 def plot_domain_distribution(arr, dir_name):
     fig,ax = plt.subplots()
@@ -131,7 +131,28 @@ def plot_bond_type_percent(arr,brr,dir_name):
     plt.tight_layout()
     plt.savefig("{}bond_type_time.pdf".format(dir_name))
 
+def plot_N3loop_percent(arr,dir_name):
+    fig,ax = plt.subplots()
+    plt.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
 
+    plt.xlabel("time [MC sweeps]")
+    plt.ylabel("$p_{box}$")
+    plt.plot(arr[:,0],arr[:,1],c=green_c,lw=3,ms=3,marker='o', markerfacecolor='k')
+    plt.tight_layout()
+    plt.savefig("{}N3loop_percent_time.pdf".format(dir_name))
+
+
+def plot_energy(arr,dir_name):
+
+    fig,ax = plt.subplots()
+    plt.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
+    ax.set_xscale('log')
+    plt.xlabel("time [MC sweeps]")
+    plt.ylabel("U")
+    plt.plot(arr[:,0],arr[:,1],c=blue_c,lw=2,ms=3,marker='o', markerfacecolor='k')
+    plt.tight_layout()
+    plt.locator_params(axis='y', nbins=4)
+    plt.savefig("{}energy_time.pdf".format(dir_name))
 
 if __name__ == "__main__":
 
@@ -192,3 +213,11 @@ if __name__ == "__main__":
     arr = df[['time','pbond_percent']].values
     brr = df[['time','npbond_percent']].values
     plot_bond_type_percent(arr,brr, dir_name)
+
+    # plot loops 
+    arr = df[['time','N3_loop_percent']].values
+    plot_N3loop_percent(arr,dir_name)
+
+    # plot internal energy
+    arr = df[['time','energy']].values
+    plot_energy(arr,dir_name)
