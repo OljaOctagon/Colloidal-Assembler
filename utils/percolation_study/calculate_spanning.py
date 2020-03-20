@@ -6,6 +6,38 @@ import networkx as nx
 import glob
 import os
 
+# calculate if spanning:
+# use the virtual position
+# get pdist and get patch dist
+# calculate all connections again
+# get largest cluster
+
+# orient_i = np.fromfile("orientations_{}.bin".format(val))
+# orient_i = np.reshape(orient_i, (-1,5))[:,4]
+
+
+''' 
+rotmat_i = rotation_matrix(orient_i[i])
+ax_n = get_orient(ax0, rotmat_i)
+
+edges[0] = get_edge_points(pos_i[i],ax_n,np.array([-1,-1]))
+edges[1] = get_edge_points(pos_i[i],ax_n,np.array([+1,-1]))
+edges[2] = get_edge_points(pos_i[i],ax_n,np.array([+1,+1]))
+edges[3] = get_edge_points(pos_i[i],ax_n,np.array([-1,+1]))
+
+# dma as1 type
+
+# patch type 1 
+particle_patches[0] = edges[0] + 0.2*(edges[3]-edges[0])
+particle_patches[1] = edges[2] + 0.8*(edges[3]-edges[2])
+
+# patch type 2 
+particle_patches[2] = edges[0] + 0.2*(edges[1]-edges[0])
+particle_patches[3] = edges[1] + 0.2*(edges[2]-edges[1])
+'''
+
+
+# NOTE: probalbly deprecated
 def calculate_pbc_images(pos_i,box_l,particles_max_domain):
 
     N_largest = len(particles_max_domain)
@@ -29,13 +61,13 @@ def calculate_pbc_images(pos_i,box_l,particles_max_domain):
 
     return virtual_pos
 
+# NOTE: probalbly deprecated
 def get_pdist(vpos):
     l = len(vpos)
     pdist = np.zeros((l,l,2))
-    print(l)
     for i in range(2):
         p = np.reshape(vpos[:,i], (l,1))
-        p = p - p.transpose()
+        pdist = p - p.transpose()
 
     N_pdist = np.sqrt(
         np.power( pdist[:,:,0], 2)
@@ -45,6 +77,8 @@ def get_pdist(vpos):
 
 
 if __name__ == '__main__':
+
+
     # get all check point values and sort them
     checkpoints= glob.glob("Box*.bin")
     check_point_values = np.sort(
@@ -53,30 +87,85 @@ if __name__ == '__main__':
     pn_file = "patch_network.dat"
     connections = gt.read_bonds("patch_network.dat")
 
+    frac_largest = []
+    virtual_frac_largest = []
+
     for j,val in enumerate(check_point_values[1:]):
         pos_i = np.fromfile("positions_{}.bin".format(val))
         pos_i = np.reshape(pos_i, (-1,3))
         pos_i = pos_i[:,:2]
-
+        orient_i = np.fromfile("orientations_{}.bin".format(val))
+        orient_i = np.reshape(orient_i, (-1,5))[:,4]
         N_particles=len(pos_i)
-
         box_all = np.fromfile("Box_{}.bin".format(val))
         box_l = box_all[3:5]
-        print("box", box_l)
 
         # Make a graph for time j: 
         connections_j = connections[j]
         G=nx.Graph()
         G.add_edges_from(connections_j[:,:2])
         particles_max_domain = gt.get_particles_in_largest_cluster(G)
+        N_largest = len(particles_max_domain)
 
-        virtual_pos = calculate_pbc_images(pos_i,box_l,particles_max_domain)
-        pdist, Ndist = get_pdist(virtual_pos)
-        print("Ndist", Ndist)
-        max_dist = np.max(Ndist)
-        box_diag = np.linalg.norm(3*box_l)
-        print(box_diag)
-        frac_max_dist = max_dist/box_diag
+        frac_largest_i = N_largest/N_particles
+        frac_largest.append(frac_largest_i)
+        virtual_frac_largest_i = 0 
+        if frac_largest_i > 0.5:
+            #number_of_connections = len(connections_j)
+            #virtual_connections = []
+            #N_images = 9
+            patches = np.zeros((N,4,2))
+            for pid in particles_max_domain:
+                rotmat_i = rotation_matrix(orient_i[pid])
+                ax_n = get_orient(ax0, rotmat_i)
 
-        print("spanning length",max_dist)
-        print("fraction of spanning",frac_max_dist)
+                edges[0] = get_edge_points(pos_i[pid],ax_n,np.array([-1,-1]))
+                edges[1] = get_edge_points(pos_i[pid],ax_n,np.array([+1,-1]))
+                edges[2] = get_edge_points(pos_i[pid],ax_n,np.array([+1,+1]))
+                edges[3] = get_edge_points(pos_i[pid],ax_n,np.array([-1,+1]))
+
+                # dma as1 type
+
+                # patch type 1 
+                particle_patches[0] = edges[0] + 0.2*(edges[3]-edges[0])
+                particle_patches[1] = edges[2] + 0.8*(edges[3]-edges[2])
+
+                # patch type 2 
+                particle_patches[2] = edges[0] + 0.2*(edges[1]-edges[0])
+                particle_patches[3] = edges[1] + 0.2*(edges[2]-edges[1])
+
+
+
+
+
+
+
+
+
+
+
+
+''' 
+            # calculate virtual connections of image particles 
+            for connection in connections_j:
+                id1_0 = connection[0]
+                id2_0 = connection[1]
+                if id1_0 in particles_max_domain and id2_0 in particles_max_domain:
+                    for image_j in range(N_images):
+                        id1 = id1_0 + image_j*N_largest
+                        id2 = id2_0 + image_j*N_largest
+                        virtual_connections.append([id1,id2])
+
+            # make a new graph of virtual particles, calculate the largest
+            G_virtual  = nx.Graph()
+            G_virtual.add_edges_from(virtual_connections)
+            virtual_max_domain = gt.get_particles_in_largest_cluster(G_virtual)
+            virtual_frac_largest_i = len(virtual_max_domain)/(N_particles*N_images)
+
+        virtual_frac_largest.append(virtual_frac_largest_i)
+
+    with open("spanning.dat", 'w') as f:
+        f.write("time,fraction_largest, fraction_largest_virtual\n")
+        for j,val in enumerate(check_point_values[1:]):
+            f.write("{},{},{}\n".format(val,frac_largest[j], virtual_frac_largest[j]))
+'''
