@@ -12,33 +12,9 @@ import os
 # calculate all connections again
 # get largest cluster
 
-# orient_i = np.fromfile("orientations_{}.bin".format(val))
-# orient_i = np.reshape(orient_i, (-1,5))[:,4]
-
-
-''' 
-rotmat_i = rotation_matrix(orient_i[i])
-ax_n = get_orient(ax0, rotmat_i)
-
-edges[0] = get_edge_points(pos_i[i],ax_n,np.array([-1,-1]))
-edges[1] = get_edge_points(pos_i[i],ax_n,np.array([+1,-1]))
-edges[2] = get_edge_points(pos_i[i],ax_n,np.array([+1,+1]))
-edges[3] = get_edge_points(pos_i[i],ax_n,np.array([-1,+1]))
-
-# dma as1 type
-
-# patch type 1 
-particle_patches[0] = edges[0] + 0.2*(edges[3]-edges[0])
-particle_patches[1] = edges[2] + 0.8*(edges[3]-edges[2])
-
-# patch type 2 
-particle_patches[2] = edges[0] + 0.2*(edges[1]-edges[0])
-particle_patches[3] = edges[1] + 0.2*(edges[2]-edges[1])
-'''
-
 
 # NOTE: probalbly deprecated
-def calculate_pbc_images(pos_i,box_l,particles_max_domain):
+def calculate_pbc_images(pos_i,box_l,patches_i, particles_max_domain):
 
     N_largest = len(particles_max_domain)
     # all periodic images of largest cluster
@@ -58,6 +34,7 @@ def calculate_pbc_images(pos_i,box_l,particles_max_domain):
     for k,pid in enumerate(particles_max_domain):
         for image_j in range(N_images):
             virtual_pos[k+image_j*N_largest] = pos_i[pid] + sign_array[image_j]*box_l
+
 
     return virtual_pos
 
@@ -87,6 +64,7 @@ if __name__ == '__main__':
     pn_file = "patch_network.dat"
     connections = gt.read_bonds("patch_network.dat")
 
+
     frac_largest = []
     virtual_frac_largest = []
 
@@ -111,10 +89,17 @@ if __name__ == '__main__':
         frac_largest.append(frac_largest_i)
         virtual_frac_largest_i = 0 
         if frac_largest_i > 0.5:
-            #number_of_connections = len(connections_j)
-            #virtual_connections = []
-            #N_images = 9
-            patches = np.zeros((N,4,2))
+
+            patches_i = np.zeros((N,4,2))
+            sin60 = np.sin(np.pi/3.)
+            cos60 = np.cos(np.pi/3.)
+            cutoff = np.sqrt(np.power((1 + cos60),2) + np.power(sin60,2)) + 0.1
+            patch_cutoff = 0.1
+
+            ax0 = np.array([[1,cos60],[0,sin60]])
+            edges = np.zeros((4,2))
+            ax_n = np.zeros((2,2))
+
             for pid in particles_max_domain:
                 rotmat_i = rotation_matrix(orient_i[pid])
                 ax_n = get_orient(ax0, rotmat_i)
@@ -127,15 +112,19 @@ if __name__ == '__main__':
                 # dma as1 type
 
                 # patch type 1 
-                particle_patches[0] = edges[0] + 0.2*(edges[3]-edges[0])
-                particle_patches[1] = edges[2] + 0.8*(edges[3]-edges[2])
+                patches_i[pid,0,:] = edges[0] + 0.2*(edges[3]-edges[0])
+                patches_i[pid,1,:] = edges[2] + 0.8*(edges[3]-edges[2])
 
                 # patch type 2 
-                particle_patches[2] = edges[0] + 0.2*(edges[1]-edges[0])
-                particle_patches[3] = edges[1] + 0.2*(edges[2]-edges[1])
+                patches_i[pid,2,:] = edges[0] + 0.2*(edges[1]-edges[0])
+                patches_i[pid,3,:] = edges[1] + 0.2*(edges[2]-edges[1])
 
 
+           for pid1 in particles_max_domain:
+               for pid2 in particles_max_domain:
 
+
+            
 
 
 
