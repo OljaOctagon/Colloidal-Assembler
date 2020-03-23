@@ -124,8 +124,6 @@ if __name__ == '__main__':
                for pid2 in particles_max_domain:
 
 
-            
-
 
 
 

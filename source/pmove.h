@@ -262,6 +262,9 @@ class pmove : public particles, public box {
     int Calculate_Separating_Axis_GENERAL(particles &Particles, int id, int j,
                                           m_vector *L_axis);
 
+    int Calculate_Separating_Axis_RHOMBI(particles &Particles, int id,
+                                         int j, m_vector *L_axis);
+
     void Update_Periodic_Positions(particles &Particles, box *Box, int id);
     void Reset_Positions(particles &Particles, int id);
     void Set_Positions(particles &Particles, int id);
