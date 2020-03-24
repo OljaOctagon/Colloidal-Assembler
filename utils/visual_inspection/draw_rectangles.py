@@ -111,7 +111,7 @@ if __name__ == '__main__':
     # patch position calculation
     Lx=1.0
     Ly=2.0
-    a=args.ppos
+    a=float(args.ppos)
     b=0.5
     radius=0.2
     particle_patches = get_patches(Lx,Ly,a,b)
