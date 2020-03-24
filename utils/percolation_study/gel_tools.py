@@ -42,3 +42,18 @@ def make_cycles(G,size):
     cluster  = np.array([ loop for loop in loops if len(loop)==size ]).flatten()
 
     return cluster
+
+
+def find_cliques(G):
+    cliques=list(nx.find_cliques(G))
+    length_N3_loops = len([ item for item in cliques if len(item)==3])
+    return length_N3_loops
+
+
+def get_particles_in_largest_cluster(G):
+    domains = list(nx.connected_components(G))
+    domain_lengths = np.array([ len(domain) for domain in domains ])
+    d_id = np.argmax(domain_lengths)
+    particles_max_domain = np.array(list(domains[d_id]))
+    return particles_max_domain
+
