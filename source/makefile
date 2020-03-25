@@ -7,8 +7,8 @@ CFLAGS=-march=native -msse4.1 -flto -O3 -ffast-math #-fsanitize=address
 
 all: McPoly
 
-McPoly:  Three_Particle_Move.o Cluster_Move.o Grand_Canonical.o polyhedra.o cube.o octahedron.o cuboid.o truncated_cube.o rhombohedron.o hexbipyramid.o particles.o pmove.o translate.o rotate_3D.o box.o fileio.o cell_list.o cell.o main.o order_parameter.o cluster.o Vol_move.o alg_struct.o Collision_Test.o tis_window.o parallelepiped.o rotate_2D.o gear.o
-	$(CC) $(CFLAGS) Three_Particle_Move.o Cluster_Move.o Grand_Canonical.o polyhedra.o cube.o octahedron.o particles.o cuboid.o truncated_cube.o rhombohedron.o hexbipyramid.o pmove.o translate.o rotate_3D.o box.o fileio.o cell_list.o cell.o main.o order_parameter.o cluster.o Vol_move.o alg_struct.o Collision_Test.o tis_window.o parallelepiped.o rotate_2D.o gear.o $(LIBS) -o McPoly 
+McPoly:  Three_Particle_Move.o Cluster_Move.o Grand_Canonical.o polyhedra.o cube.o octahedron.o cuboid.o truncated_cube.o rhombohedron.o rectangle.o hexbipyramid.o particles.o pmove.o translate.o rotate_3D.o box.o fileio.o cell_list.o cell.o main.o order_parameter.o cluster.o Vol_move.o alg_struct.o Collision_Test.o tis_window.o parallelepiped.o rotate_2D.o gear.o
+	$(CC) $(CFLAGS) Three_Particle_Move.o Cluster_Move.o Grand_Canonical.o polyhedra.o cube.o octahedron.o particles.o cuboid.o truncated_cube.o rhombohedron.o rectangle.o hexbipyramid.o pmove.o translate.o rotate_3D.o box.o fileio.o cell_list.o cell.o main.o order_parameter.o cluster.o Vol_move.o alg_struct.o Collision_Test.o tis_window.o parallelepiped.o rotate_2D.o gear.o $(LIBS) -o McPoly 
 
 gear.o: gear.cpp
 	$(CC) $(CFLAGS) -c gear.cpp
@@ -78,6 +78,9 @@ truncated_cube.o: truncated_cube.cpp
 
 rhombohedron.o: rhombohedron.cpp
 	$(CC) $(CFLAGS) -c rhombohedron.cpp
+
+rectangle.o: rectangle.cpp
+	$(CC) $(CFLAGS) -c rectangle.cpp
 
 hexbipyramid.o: hexbipyramid.cpp
 	$(CC) $(CFLAGS) -c hexbipyramid.cpp

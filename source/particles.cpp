@@ -84,15 +84,28 @@ particles::particles(int number_of_cells_in, int size, int MAX_coll_p_in,
         }
     }
 
+
     if (particle_type.compare("rhombohedron") == 0) {
 
-        Rhombohedron = new rhombohedron[size];
-        Rhombohedron_old = new rhombohedron[size];
+      Rhombohedron = new rhombohedron[size];
+      Rhombohedron_old = new rhombohedron[size];
+
+      for (int i = 0; i < size; i++) {
+
+        N_Particle[i] = &Rhombohedron[i];
+        N_Particle_old[i] = &Rhombohedron_old[i];
+      }
+    }
+
+    if (particle_type.compare("rectangle") == 0) {
+
+        Rectangle =  new rectangle[size];
+        Rectangle_old = new rectangle[size];
 
         for (int i = 0; i < size; i++) {
 
-            N_Particle[i] = &Rhombohedron[i];
-            N_Particle_old[i] = &Rhombohedron_old[i];
+            N_Particle[i] = &Rectangle[i];
+            N_Particle_old[i] = &Rectangle_old[i];
         }
     }
 

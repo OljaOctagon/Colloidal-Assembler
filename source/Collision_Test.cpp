@@ -91,16 +91,16 @@ int pmove::Calculate_Separating_Axis_RHOMBI(particles &Particles, int id,
 
     for (int k = 0; k < N_indep; k++) {
 
-        L_axis[k].x = Particles.N_Particle[id]->facenormal[k].x;
-        L_axis[k].y = Particles.N_Particle[id]->facenormal[k].y;
-        L_axis[k].z = Particles.N_Particle[id]->facenormal[k].z;
+        L_axis[k].x = Particles.N_Particle[id]->facenormal[k+1].x;
+        L_axis[k].y = Particles.N_Particle[id]->facenormal[k+1].y;
+        L_axis[k].z = Particles.N_Particle[id]->facenormal[k+1].z;
     }
 
     for (int k = N_indep; k < (2 * N_indep); k++) {
 
-        L_axis[k].x = Particles.N_Particle[j]->facenormal[k - N_indep].x;
-        L_axis[k].y = Particles.N_Particle[j]->facenormal[k - N_indep].y;
-        L_axis[k].z = Particles.N_Particle[j]->facenormal[k - N_indep].z;
+        L_axis[k].x = Particles.N_Particle[j]->facenormal[k+1 - N_indep].x;
+        L_axis[k].y = Particles.N_Particle[j]->facenormal[k+1 - N_indep].y;
+        L_axis[k].z = Particles.N_Particle[j]->facenormal[k+1 - N_indep].z;
     }
 
    
@@ -140,13 +140,11 @@ void pmove::Collision_Test(particles &Particles, box *Box, int id,
                 Particles.N_Particle[collision_partner]
                     ->Calculate_Face_Normals();
 
-                N_it = Calculate_Separating_Axis_GENERAL(
-                           Particles, id, collision_partner, L_axis) -
-                       1;
-
-                // N_it = Calculate_Separating_Axis_RHOMBI(
+                //N_it = Calculate_Separating_Axis_GENERAL(
                 //           Particles, id, collision_partner, L_axis) -
-                //   1;
+                //       1;
+
+                N_it = Calculate_Separating_Axis_RHOMBI(Particles, id, collision_partner, L_axis) - 1;
 
 
                 int j;

@@ -25,6 +25,7 @@ using namespace std;
 #include "polyhedra.h"
 #include "rhombohedron.h"
 #include "truncated_cube.h"
+#include "rectangle.h"
 
 //# include "cuboid.h"
 
@@ -107,6 +108,9 @@ class particles : public polyhedra {
     truncated_cube *Truncated_Cube_old;
     rhombohedron *Rhombohedron;
     rhombohedron *Rhombohedron_old;
+    rectangle *Rectangle;
+    rectangle *Rectangle_old; 
+
     hexbipyramid *Hexbipyramid;
     hexbipyramid *Hexbipyramid_old;
 
