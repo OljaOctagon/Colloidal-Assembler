@@ -56,27 +56,29 @@ void pmove::Particle_Insertion(particles &Particles, box *Box, fileio &Fileio,
         rand_s = gsl_rng_uniform(r01);
 
 
-        // particles are suggested uniformly. The different chemical potentials
+        // particles types are sampled uniformly. The different chemical potentials
         // regulatethe proportions.
         if (rand_s < 0.5) {
-            patch_1 = 0;
-            patch_2 = 2;
-            patch_3 = 1;
-            patch_4 = 1;
+            patch_1 = 2;
+            patch_2 = 1;
+            patch_3 = 0;
+            patch_4 = 0;
 
             mu_current = Box->mu_1;
 
         }
 
         if (rand_s >= 0.5) {
-            patch_1 = 2;
-            patch_2 = 0;
+            patch_1 = 1;
+            patch_2 = 3;
             patch_3 = 1;
             patch_4 = 1;
 
             mu_current = Box->mu_2;
 
         }
+
+
         Particles.N_Particle[id]->Set_Lengths(patch_1, patch_2, patch_3,
                                               patch_4);
         Particles.N_Particle_old[id]->Set_Lengths(patch_1, patch_2, patch_3,

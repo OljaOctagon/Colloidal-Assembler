@@ -178,22 +178,25 @@ particles::particles(int number_of_cells_in, int size, int MAX_coll_p_in,
 
         if (binary_on.compare("on") == 0) {
             rand_s = gsl_rng_uniform(randpatch);
-            // binary L's
+
+            // binary, 3 particle types: YGR model
+            // type one is (green, yellow,neutral,neutral) = (2,1,0,0)
+            // type two is (yellow, red, neutral, neutral) = (1,3,0,0)
+
             if (rand_s < phi_binary) {
-                a = 0;
-                b = 2;
-                c = 1;
-                d = 1;
+              a = 2;
+              b = 1;
+              c = 0;
+              d = 0;
             }
 
             if (rand_s >= phi_binary) {
-                a = 2;
-                b = 0;
-                c = 1;
-                d = 1;
+              a = 1;
+              b = 3;
+              c = 0;
+              d = 0;
             }
 
-            N_Particle[id]->Set_Lengths(a, b, c, d);
             N_Particle_old[id]->Set_Lengths(a, b, c, d);
         }
     }
