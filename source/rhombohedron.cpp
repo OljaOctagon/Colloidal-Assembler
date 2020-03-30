@@ -55,11 +55,8 @@ rhombohedron::rhombohedron() {
     // A-B
     patch_energy[0][1] = p3;
     // A-C
-    // OLD A-C
     patch_energy[0][2] = p2;
 
-    // New A-C for loop formers
-    //patch_energy[0][2] = p3;
 
     // B-A
     patch_energy[1][0] = p3;
@@ -78,14 +75,6 @@ rhombohedron::rhombohedron() {
     // C-C
     patch_energy[2][2] = p1;
     // -----------------------
-
-    // for rectangle loop formers
-    // C-A
-    //patch_energy[2][0] = p3;
-    // C-B
-    //patch_energy[2][1] = p3;
-    // C-C
-    //patch_energy[2][2] = p4;
 
     x = new double[edge_N];
     y = new double[edge_N];
@@ -255,8 +244,6 @@ void rhombohedron::Set_Axis() {
 
 void rhombohedron::Set_Lengths() {
 
-    // Rectangles
-    //alpha = (90 * M_PI) / 180.0;
     // Rhombi
     alpha = (60 * M_PI) / 180.0;
     beta = M_PI - alpha;
@@ -278,10 +265,6 @@ void rhombohedron::Set_Lengths() {
     rb.y = h;
     rb.z = 0.0;
 
-    //rc.x = a_x;
-    //rc.y = (a_x/h)*(1-a_x);
-    //rc.z = sqrt(h*h - ( ( (1-a_x)*(1-a_x) )/((h/a_x)*(h/a_x)) ));
-
     rc.x = 0.0;
     rc.y = 0.0;
     rc.z = Lz;
@@ -292,32 +275,6 @@ void rhombohedron::Set_Lengths() {
     diag3_short = sqrt(diag2_short * diag2_short + Lz * Lz);
     diag3_long = sqrt(diag2_long * diag2_long + Lz * Lz);
 
-    // Rectangles:
-    /*
-    Lx = 1.0;
-    Ly = 2.0;
-    Lz = 0.1 * Lx;
-
-    ra.x = Lx;
-    ra.y = 0.0;
-    ra.z = 0.0;
-
-    rb.x = 0;
-    rb.y = Ly;
-    rb.z = 0;
-
-    rc.x = 0.0;
-    rc.y = 0.0;
-    rc.z = Lz;
-
-    diag2_short = sqrt((Lx*Lx + Ly*Ly));
-    diag2_long = diag2_short;
-
-    diag3_short = sqrt(diag2_short*diag2_short + Lz*Lz);
-    diag3_long = diag3_short;
-    */
-
-    // cut_off = diag3_long;
 
     vc.x = ra.x + rb.x + rc.x;
     vc.y = ra.y + rb.y + rc.y;

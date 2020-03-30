@@ -14,6 +14,7 @@
 
 using namespace std;
 
+
 class gear : public polyhedra {
 
   public:
