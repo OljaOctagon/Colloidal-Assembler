@@ -28,16 +28,14 @@ particles::particles() {
 
 particles::particles(int number_of_cells_in, int size, int MAX_coll_p_in,
                      int MAX_fshell_in, string particle_type,
-                     string binary_on_in, double phi_binary_in) {
+                     string binary_on_in, string ternary_on_in)  {
     ALLOCATED = true;
-
-    // std::cout << "particles custom constructor called!!!\n";
 
     randpatch = gsl_rng_alloc(gsl_rng_ranlxd2);
 
     number_of_cells = number_of_cells_in;
     binary_on = binary_on_in;
-    phi_binary = phi_binary_in;
+    ternary_on = ternary_on_in;
 
     Res_Size = 2500;
     size = Res_Size;
@@ -176,6 +174,40 @@ particles::particles(int number_of_cells_in, int size, int MAX_coll_p_in,
 
         // choose left or right-handedness.
 
+        if (ternary_on.compare("on") == 0) {
+          rand_s = gsl_rng_uniform(randpatch);
+
+          // binary, 3 particle types: YGR model
+          // type one is (green, yellow,neutral,neutral) = (2,1,0,0)
+          // type two is (yellow, red, neutral, neutral) = (1,3,0,0)
+          // type two is (neutral, yellow, yellow, neutral) = (0,1,1,0)
+          if (rand_s < 1./3.) {
+            a = 2;
+            b = 1;
+            c = 0;
+            d = 0;
+          }
+
+          if ((rand_s < 2./3.) && (rand_s >= 1./3.)) {
+            a = 1;
+            b = 3;
+            c = 0;
+            d = 0;
+          }
+
+          if (rand_s >=  2./3.) {
+            a = 0;
+            b = 1;
+            c = 1;
+            d = 0;
+          }
+
+
+          N_Particle[id]->Set_Lengths(a, b, c, d);
+          N_Particle_old[id]->Set_Lengths(a, b, c, d);
+        }
+
+
         if (binary_on.compare("on") == 0) {
             rand_s = gsl_rng_uniform(randpatch);
 
@@ -183,20 +215,21 @@ particles::particles(int number_of_cells_in, int size, int MAX_coll_p_in,
             // type one is (green, yellow,neutral,neutral) = (2,1,0,0)
             // type two is (yellow, red, neutral, neutral) = (1,3,0,0)
 
-            if (rand_s < phi_binary) {
+            if (rand_s < 0.5) {
               a = 2;
               b = 1;
               c = 0;
               d = 0;
             }
 
-            if (rand_s >= phi_binary) {
+            if (rand_s >= 0.5) {
               a = 1;
               b = 3;
               c = 0;
               d = 0;
             }
 
+            N_Particle[id]->Set_Lengths(a, b, c, d);
             N_Particle_old[id]->Set_Lengths(a, b, c, d);
         }
     }

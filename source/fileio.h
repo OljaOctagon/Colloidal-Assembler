@@ -76,14 +76,15 @@ class fileio : public particles {
     double P_sigma_in;
     int N_in;
     double mu_in_1;
-    double mu_in_2; 
+    double mu_in_2;
+    double mu_in_3;
     double packing_fraction_in;
     int number_of_cells_in;
     int MAX_coll_p_in;
     int MAX_fshell_p_in;
 
     string binary_on_in;
-    double phi_binary_in;
+    string ternary_on_in;
 
     int read_state;
     int save_state;

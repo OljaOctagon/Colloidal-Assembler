@@ -23,9 +23,9 @@ class box : public polyhedra {
 
     void edges_from_center();
     void distance_from_center();
-    void Startconfig(int N_in, double P_sigma_in, double mu_in_1, double mu_in_2,
+    void Startconfig(int N_in, double P_sigma_in, double mu_in_1, double mu_in_2, double mu_in_3,
                      double packing_fraction_in, double V_p);
-    void Startconfig_former(int N_in, double P_sigma_in, double mu_in_1, double mu_in_2);
+    void Startconfig_former(int N_in, double P_sigma_in, double mu_in_1, double mu_in_2, double mu_in_3);
     void Set_Lengths(double Vp);
     void Calculate_Box_Axis();
 
@@ -47,6 +47,7 @@ class box : public polyhedra {
     int N;
     double mu_1;
     double mu_2;
+    double mu_3;
     double packing_fraction;
     double V;
     double V_p;

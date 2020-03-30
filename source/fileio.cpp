@@ -228,6 +228,7 @@ void fileio::Read_Parameters() {
     P_sigma_in = pt.get<double>("System.Pressure");
     mu_in_1 = pt.get<double>("System.Chemical_Potential_1");
     mu_in_2 = pt.get<double>("System.Chemical_Potential_2");
+    mu_in_3 = pt.get<double>("System.Chemical_Potential_3");
 
     packing_fraction_in = pt.get<double>("System.Packing_Fraction");
     number_of_cells_in = pt.get<int>("System.Number_of_Cells");
@@ -238,7 +239,7 @@ void fileio::Read_Parameters() {
     MAX_coll_p_in = pt.get<int>("Particles.Maximum_Collision_Partners");
     MAX_fshell_p_in = pt.get<int>("Particles.Maximum_First_Shell_Partners");
     binary_on_in = pt.get<string>("Particles.Binary");
-    phi_binary_in = pt.get<double>("Particles.Phi_Binary");
+    ternary_on_in = pt.get<string>("Particles.Ternary");
 
     calc_frequency_in = pt.get<int>("Output.Calculation_Frequency");
     frame_frequency_in = pt.get<int>("Output.Frame_Frequency");

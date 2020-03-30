@@ -57,7 +57,7 @@ void pmove::Particle_Insertion(particles &Particles, box *Box, fileio &Fileio,
 
 
         // particles types are sampled uniformly. The different chemical potentials
-        // regulatethe proportions.
+        // regulate the proportions.
         if (rand_s < 0.5) {
             patch_1 = 2;
             patch_2 = 1;
@@ -71,8 +71,8 @@ void pmove::Particle_Insertion(particles &Particles, box *Box, fileio &Fileio,
         if (rand_s >= 0.5) {
             patch_1 = 1;
             patch_2 = 3;
-            patch_3 = 1;
-            patch_4 = 1;
+            patch_3 = 0;
+            patch_4 = 0;
 
             mu_current = Box->mu_2;
 
@@ -83,6 +83,53 @@ void pmove::Particle_Insertion(particles &Particles, box *Box, fileio &Fileio,
                                               patch_4);
         Particles.N_Particle_old[id]->Set_Lengths(patch_1, patch_2, patch_3,
                                                   patch_4);
+    }
+
+    if (Particles.ternary_on.compare("on") == 0) {
+
+      patch_1 = 0;
+      patch_2 = 0;
+      patch_3 = 0;
+      patch_4 = 0;
+      rand_s = gsl_rng_uniform(r01);
+
+
+      // particles types are sampled uniformly. The different chemical potentials
+      // regulate the proportions.
+      if (rand_s < 1./3.) {
+        patch_1 = 2;
+        patch_2 = 1;
+        patch_3 = 0;
+        patch_4 = 0;
+
+        mu_current = Box->mu_1;
+
+      }
+
+      if ((rand_s >= 1./3.) && (rand_s<2./3.)) {
+        patch_1 = 1;
+        patch_2 = 3;
+        patch_3 = 0;
+        patch_4 = 0;
+
+        mu_current = Box->mu_2;
+
+      }
+
+      if (rand_s >= 2./3.){ 
+        patch_1 = 0;
+        patch_2 = 1;
+        patch_3 = 1;
+        patch_4 = 0;
+
+        mu_current = Box->mu_3;
+
+      }
+
+      Particles.N_Particle[id]->Set_Lengths(patch_1, patch_2, patch_3,
+                                            patch_4);
+      Particles.N_Particle_old[id]->Set_Lengths(patch_1, patch_2, patch_3,
+                                                patch_4);
     }
 
     phi_t = Particles.N_Particle[id]->phi;
@@ -213,12 +260,16 @@ void pmove::Particle_Deletion(particles &Particles, box *Box, fileio &Fileio,
     double p0;
     if (Particles.binary_on.compare("on") == 0) {
         p0 = Particles.N_Particle[id]->patch_type[0];
-
-        if (p0 == 0){
+        //NOTE: dependent on particle type!!!  
+        if (p0 == 2){
             mu_current = Box->mu_1;
         }
-        if (p0 == 2){
+        if (p0 == 1){
             mu_current = Box->mu_2;
+        }
+
+        if (p0 == 0){
+           mu_current = Box->mu_3;
         }
     }
 

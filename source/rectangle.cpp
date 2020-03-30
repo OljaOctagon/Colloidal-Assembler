@@ -41,10 +41,12 @@ rectangle::rectangle() {
 
     delta_energy = pt.get<double>("Rhombus.Energy_Difference");
 
-    p1 = level;
-    p2 = - level;
+    double T_start = 0.1;
+
+    p1 = level * T_start;
+    p2 = - level * T_start;
     p3 = 0.;
-    p4 = level * delta_energy;
+    p4 = level * T_start * delta_energy;
 
     // patch_energy(patchtype, patchtype)
 
@@ -58,7 +60,7 @@ rectangle::rectangle() {
     // Note : stage 3 loop formers have two types of particles
     // type one is (green, yellow,neutral,neutral) = (2,1,0,0)
     // type two is (yellow, red, neutral, neutral) = (1,3,0,0)
-
+    // type three is (neutral, yellow, yellow, neutral) = (0,1,1,0)
 
     // O: Neutral: alsways zeros (p3)
     patch_energy[0][0] = p3;
@@ -86,8 +88,18 @@ rectangle::rectangle() {
 
     // 3: Red :
     // Red-Red: repulsive (p2)
-      patch_energy[3][3] = p2;
+    patch_energy[3][3] = p2;
 
+
+    // symmetry:
+    for ( int t1=0; t1<N_patch_types; t1++){
+      for (int t2=0;t2<N_patch_types; t2++ ){
+        if (t1>t2){
+          patch_energy[t1][t2] = patch_energy[t2][t1];
+        }
+
+      }
+    }
 
     x = new double[edge_N];
     y = new double[edge_N];
@@ -298,7 +310,7 @@ void rectangle::Set_Lengths() {
     cross_p.z = rb.x * rc.y - rb.y * rc.x;
 
     V = fabs(ra.x * cross_p.x + ra.y * cross_p.y + ra.z * cross_p.z);
-    A = Lx*h;
+    A = Lx*Ly;
 
 
     boost::property_tree::ptree pt;
@@ -327,11 +339,9 @@ void rectangle::Set_Lengths() {
     rhombus_type = pt.get<string>("Rhombus.rhombus_type");
 
     // available types:
-    // one_patch, chain, manta_symm, manta_asymm, mouse_symm, mouse_asymm,
-    // double_manta_symm_1, double_manta_symm_2; double_manta_asymm_1,
-    // double_manta_asymm_2, double_mouse_symm_1, double_mouse_symm_2,
-    // double_mouse_asymm_1, double_mouse_asymm_2, checkers_symm_1,
-    // checkers_symm_2, checkers_asymm_1, checkers_asymm_2
+    // 2_patch_2_type_enclosing, 
+
+
 
     patch_x = 0.5;
     d0 = patch_x;
@@ -352,6 +362,7 @@ void rectangle::Set_Lengths() {
 
         // type one is (green, yellow,neutral,neutral) = (2,1,0,0)
         // type two is (yellow, red, neutral, neutral) = (1,3,0,0)
+        // type three is (neutral, yellow, yellow, neutral) = (0,1,1,0)
 
         patch_type[0] = 2;
         patch_type[1] = 1;
@@ -507,13 +518,28 @@ void rectangle::Calculate_Face_Normals() {
 }
 
 double rectangle::Calculate_Projection_to_Separating_Axis(m_vector laxis) {
-
     double Rp;
+    double rmax;
+    double rmin;
+    double scp_oc;
+    double norm_ax;
 
-    Rp = (fabs(ax_1.x * laxis.x + ax_1.y * laxis.y + ax_1.z * laxis.z)* +
-          fabs(ax_2.x * laxis.x + ax_2.y * laxis.y + ax_2.z * laxis.z)* +
-         fabs(ax_3.x * laxis.x + ax_3.y * laxis.y + ax_3.z * laxis.z)*(Ly/2));
+    distance_from_center();
 
+    rmin =  dist_x[0]*laxis.x + dist_y[0]*laxis.y + dist_z[0]*laxis.z;
+    rmax = rmin;
+
+    for (int j=1;j<edge_N;j++){
+            scp_oc = dist_x[j]*laxis.x + dist_y[j]*laxis.y + dist_z[j]*laxis.z;
+            if (scp_oc < rmin) {
+                    rmin = scp_oc;
+            }
+            else if (scp_oc > rmax) {
+                    rmax = scp_oc;
+            }
+    }
+
+    Rp = fabs((rmax-rmin)/2.0);
     return Rp;
 
 }

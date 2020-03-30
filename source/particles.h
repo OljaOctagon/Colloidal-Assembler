@@ -96,8 +96,7 @@ class particles : public polyhedra {
                   << std::flush;
     }
     particles(int number_of_cells_in, int size, int MAX_coll_p_in,
-              int MAX_fshell_in, string particle_type, string binary_on_in,
-              double phi_binary_in);
+              int MAX_fshell_in, string particle_type, string binary_on_in, string ternary_on_in);
     ~particles();
 
     cube *Cube;
@@ -108,11 +107,10 @@ class particles : public polyhedra {
     truncated_cube *Truncated_Cube_old;
     rhombohedron *Rhombohedron;
     rhombohedron *Rhombohedron_old;
-    rectangle *Rectangle;
-    rectangle *Rectangle_old; 
-
     hexbipyramid *Hexbipyramid;
     hexbipyramid *Hexbipyramid_old;
+    rectangle *Rectangle;
+    rectangle *Rectangle_old;
 
     gear *Gear;
     gear *Gear_old;
@@ -133,6 +131,7 @@ class particles : public polyhedra {
 
     double phi_binary;
     string binary_on;
+    string ternary_on;
 
     // double V_p;
     double N_p_float;

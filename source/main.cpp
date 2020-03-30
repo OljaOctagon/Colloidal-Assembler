@@ -35,14 +35,14 @@ int main(int argc, char *argv[]) {
     particles Particles(Fileio.number_of_cells_in, Fileio.N_in,
                         Fileio.MAX_coll_p_in, Fileio.MAX_fshell_p_in,
                         Fileio.particle_type_in, Fileio.binary_on_in,
-                        Fileio.phi_binary_in);
+                        Fileio.ternary_on_in);
 
     // init new run
     if (strcmp(runtype, new_runtype) == 0) {
 
         // initialize box
         Box->Startconfig(Fileio.N_in, Fileio.P_sigma_in,
-            Fileio.mu_in_1, Fileio.mu_in_2,
+                         Fileio.mu_in_1, Fileio.mu_in_2, Fileio.mu_in_3,
                          Fileio.packing_fraction_in,
                          Particles.N_Particle[0]->A);
         start_time = 0;
@@ -60,11 +60,9 @@ int main(int argc, char *argv[]) {
     if (strcmp(runtype, former_runtype) == 0) {
 
         // initialize former box
-        // Box->Startconfig(Fileio.N_in, Fileio.P_sigma_in, Fileio.mu_in,
-        // Fileio.packing_fraction_in, Particles.N_Particle[0]->V);
         Fileio.Read_Box(Box, checkpoint_time);
         Box->Startconfig_former(Fileio.N_in, Fileio.P_sigma_in,
-            Fileio.mu_in_1, Fileio.mu_in_2);
+                                Fileio.mu_in_1, Fileio.mu_in_2, Fileio.mu_in_3);
         Box->edges_from_center();
 
         // random state initialize

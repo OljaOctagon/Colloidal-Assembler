@@ -54,14 +54,15 @@ box::box() {
 }
 
 void box::Startconfig(int N_in, double P_sigma_in,
-    double mu_in_1, double mu_in_2,
-    double packing_fraction_in, double V_p) {
+                      double mu_in_1, double mu_in_2, double mu_in_3,
+                      double packing_fraction_in, double V_p) {
 
     N = N_in;
     packing_fraction = packing_fraction_in;
     P_sigma = P_sigma_in;
     mu_1 = mu_in_1;
     mu_2 = mu_in_2;
+    mu_3 = mu_in_3;
     // V_p = 1.0;
 
     T = 1.0;
@@ -78,13 +79,13 @@ void box::Startconfig(int N_in, double P_sigma_in,
          << "Area per particle :" << V_p << endl;
 
     double alpha;
-    alpha = (60 * M_PI) / 180.0;
+    alpha = (90 * M_PI) / 180.0;
 
-    Lx = sqrt(A /sin(alpha));
-    Ly = sin(alpha) * Lx;
+    //Lx = sqrt(A /sin(alpha));
+    //Ly = sin(alpha) * Lx;
 
-    // Lx = sqrt(V/Lz);
-    // Ly= Lx;
+     Lx = sqrt(V/Lz);
+     Ly= Lx;
 
     // for octahedron
     // double Vb;
@@ -102,11 +103,12 @@ void box::Startconfig(int N_in, double P_sigma_in,
     z_center = Lz / 2.0;
 }
 
-void box::Startconfig_former(int N_in, double P_sigma_in, double mu_in_1, double mu_in_2) {
+void box::Startconfig_former(int N_in, double P_sigma_in, double mu_in_1, double mu_in_2, double mu_in_3) {
 
     P_sigma = P_sigma_in;
     mu_1 = mu_in_1;
     mu_2 = mu_in_2;
+    mu_3 = mu_in_3; 
     // N = N_in;
     // V_p = 1.0;
     T = 1.0;
