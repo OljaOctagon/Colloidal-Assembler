@@ -5,6 +5,7 @@ import matplotlib as mpl
 import os
 import glob
 import networkx as nx
+import argparse
 import seaborn as sns
 import matplotlib.style as style
 style.use('seaborn-poster') 
@@ -56,22 +57,6 @@ def read_bonds(filen):
 
 	return network_list
 
-def get_patches(Lx,Ly,a,b):
-
-	l = np.array([Lx/2,Ly/2])
-
-	edges = np.zeros((4,2))
-	edges[0] = np.array([-1,-1])*l
-	edges[1] = np.array([ 1,-1])*l
-	edges[2] = np.array([ 1, 1])*l
-	edges[3] = np.array([-1, 1])*l
-
-	patches = np.zeros((2,2))
-	patches[0] = edges[0] + a*(edges[3]-edges[0])
-	patches[1] = edges[2] + b*(edges[3]-edges[2])
-
-	return patches
-
 def get_hexcolor(i, cmap):
 	rgb = cmap(i)[:3]
 	return mpl.colors.rgb2hex(rgb)
@@ -94,6 +79,13 @@ def get_domain_colors(N_particles, bond_arr, length_color_dict):
     return domain_colors
 
 if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser(description='Particle drawing methods')
+    parser.add_argument('-ptype', type=str, choices=['dma-as1', 'dmo-s1', 'dmo-s2', 'dmo-as1'])
+    parser.add_argument('-delta', type=float)
+
+
+    args = parser.parse_args()
     # get all check point values and sort them
     checkpoints= glob.glob("Box*.bin")
     check_point_values = np.sort(
@@ -117,15 +109,7 @@ if __name__ == '__main__':
     # network_arr format: network_arr.shape = ( frame_i, bond_rows_frame_i )
     network_arr = read_bonds("patch_network.dat")
     # patch position calculation
-    #Lx=1.0
-    #Ly=2.0
-    #a=0.25
-    #b=0.5
     radius=0.1
-    #particle_patches = get_patches(Lx,Ly,a,b)
-
-    patch_color_dict = {0:'green', 2:'yellow'}
-    type_color_dict = {0:'red', 2:'blue'}
 
     # make frame directory if it doesn't exist
     if not os.path.isdir("./frames"):
@@ -158,6 +142,20 @@ if __name__ == '__main__':
 
         particle_patches = np.zeros((4,2))
 
+        cr = '#FF9999'
+        cb = '#9999FF'
+        patch_color_dict = {'dma-as1':[cr,cr,cb,cb],
+                            'dmo-s1' :[cr,cb,cr,cb],
+                            'dmo-s2' :[cr,cb,cr,cb],
+                            'dmo-as1':[cr,cb,cr,cb]}
+
+        dp=args.delta
+        patch_delta_dict = {'dma-as1':[dp,1-dp,dp,dp],
+                            'dmo-s1' :[1-dp,1-dp,dp,dp],
+                            'dmo-s2' :[1-dp,1-dp,1-dp,1-dp],
+                            'dmo-as1':[dp,1-dp,1-dp,dp]}
+
+
         for i in range(N):
             #rhombus_color=domain_colors[i]
             #rhombus_color = type_color_dict[patch_i[i,0]]
@@ -171,42 +169,27 @@ if __name__ == '__main__':
             edges[2] = get_edge_points(pos_i[i],ax_n,np.array([+1,+1]))
             edges[3] = get_edge_points(pos_i[i],ax_n,np.array([-1,+1]))
 
-            # dma as1 type
-
-            # patch type 1 
-            particle_patches[0] = edges[0] + 0.2*(edges[3]-edges[0])
-            particle_patches[1] = edges[2] + 0.8*(edges[3]-edges[2])
-
-            # patch type 2 
-            particle_patches[2] = edges[0] + 0.2*(edges[1]-edges[0])
-            particle_patches[3] = edges[1] + 0.2*(edges[2]-edges[1])
+            pdelta = patch_delta_dict[args.ptype]
+            particle_patches[0] = edges[0] + pdelta[0]*(edges[3]-edges[0])
+            particle_patches[1] = edges[2] + pdelta[1]*(edges[3]-edges[2])
+            particle_patches[2] = edges[0] + pdelta[2]*(edges[1]-edges[0])
+            particle_patches[3] = edges[1] + pdelta[3]*(edges[2]-edges[1])
 
             rhombi = patches.Polygon(edges, linewidth=0.5, edgecolor='k',facecolor=rhombus_color, alpha=0.7)
-
-            patch_1 = patches.Circle((particle_patches[0,0],particle_patches[0,1]),radius=radius,
-                                     facecolor='#FF9999')
-
-            patch_2 = patches.Circle((particle_patches[1,0],particle_patches[1,1]),radius=radius,
-                                     facecolor='#FF9999')
-
-            patch_3 = patches.Circle((particle_patches[2,0],particle_patches[2,1]),radius=radius,
-                                     facecolor='#9999FF')
-
-            patch_4 = patches.Circle((particle_patches[3,0],particle_patches[3,1]),radius=radius,
-                                     facecolor='#9999FF')
-
             ax.add_patch(rhombi)
-            ax.add_patch(patch_1)
-            ax.add_patch(patch_2)
-            ax.add_patch(patch_3)
-            ax.add_patch(patch_4)
+            pcolor = patch_color_dict[args.ptype]
+
+            for pi in range(4):
+                patch = patches.Circle((particle_patches[pi,0],particle_patches[pi,1]),
+                                        radius=radius,
+                                    facecolor=pcolor[pi])
+                ax.add_patch(patch)
 
         ax.scatter(pos_i[:,0], pos_i[:,1],s=1)
         ax.set_title("Frame {}".format(j))
         plt.xlim((-1,50))
         plt.ylim((-1,60))
         plt.axis("equal")
-        #plt.grid()
         plt.axis('off')
         plt.savefig("./frames/frame_{}.png".format(j), dpi=500)
         plt.close()
