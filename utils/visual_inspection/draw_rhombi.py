@@ -115,7 +115,7 @@ if __name__ == '__main__':
     if not os.path.isdir("./frames"):
         os.mkdir("./frames")
 
-    for j,val in enumerate(check_point_values[1:]):
+    for j,val in enumerate(check_point_values[-1:]):
         pos_i = np.fromfile("positions_{}.bin".format(val))
         pos_i = np.reshape(pos_i, (-1,3))
         pos_i = pos_i[:,:2]
@@ -151,9 +151,9 @@ if __name__ == '__main__':
 
         dp=args.delta
         patch_delta_dict = {'dma-as1':[dp,1-dp,dp,dp],
-                            'dmo-s1' :[1-dp,1-dp,dp,dp],
-                            'dmo-s2' :[1-dp,1-dp,1-dp,1-dp],
-                            'dmo-as1':[dp,1-dp,1-dp,dp]}
+                            'dmo-s1' :[dp,dp,dp,1-dp],
+                            'dmo-s2' :[dp,1-dp,dp,dp],
+                            'dmo-as1':[dp,dp,1-dp,dp]}
 
 
         for i in range(N):
