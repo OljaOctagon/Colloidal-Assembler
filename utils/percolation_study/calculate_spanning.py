@@ -89,7 +89,6 @@ def calculate_pbc_images(pos_i,orient_i,box_l):
 
 if __name__ == '__main__':
 
-
     # get all check point values and sort them
     checkpoints= glob.glob("Box*.bin")
     check_point_values = np.sort(

@@ -37,8 +37,8 @@ def is_distance_smaller(pos_i, id1,id2,cutoff):
 
 if __name__=='__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-d', type=str)
-    parser.add_argument('-f', type=str)
+    parser.add_argument('-d', type=str, default='./')
+    parser.add_argument('-f', type=str, default='patch_network.dat')
     args = parser.parse_args()
 
     N_particles = 1500 
@@ -99,23 +99,11 @@ if __name__=='__main__':
 
                  plt.plot(X[:,0],X[:,1], lw=1, c=purple_c, alpha=1)
 
-                 id_list =[28,1479,1139]
+                 id_list =[1311,1355]
                  if id1 in id_list and id2 in id_list:
-                     plt.plot(X[:,0],X[:,1], lw=1.5, c=red_c, alpha=1)
+                     plt.plot(X[:,0],X[:,1], lw=1, c=red_c, alpha=1)
 
-                 id_list = [1339,1036,1256]
-                 if id1 in id_list and id2 in id_list:
-                     plt.plot(X[:,0],X[:,1], lw=1.5, c=blue_c, alpha=1)
-
-                 id_list = [830,407,137]
-                 if id1 in id_list and id2 in id_list:
-                     plt.plot(X[:,0],X[:,1], lw=1.5, c='k', alpha=1)
-
-
-                 #plt.text(X[0,0],X[0,1], str(id1), c='k',fontsize=2)
-                 #plt.text(X[1,0],X[1,1], str(id2), c='k',fontsize=2)
-
-         ax.scatter(pos_j[:,0], pos_j[:,1], s=1, c='k')
+         ax.scatter(pos_j[:,0], pos_j[:,1], s=0.5, c='k', alpha=0.7)
 
          plt.savefig("{}{}/frame_{}.png".format(dir_name,results_dir,val), dpi=500)
          plt.close()
