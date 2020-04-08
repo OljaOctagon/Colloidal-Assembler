@@ -37,7 +37,7 @@ particles::particles(int number_of_cells_in, int size, int MAX_coll_p_in,
     binary_on = binary_on_in;
     ternary_on = ternary_on_in;
 
-    Res_Size = 1500;
+    Res_Size = 2500;
     size = Res_Size;
 
     max_id = size - 1;

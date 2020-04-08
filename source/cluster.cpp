@@ -4,7 +4,7 @@ cluster::cluster(box *Box) {
 
     int Resize;
 
-    Resize = 1500;
+    Resize = 2500;
 
     op_cluster_info = new particle_cluster_info[Resize];
     Largest_Cluster_List = new int[Resize];
