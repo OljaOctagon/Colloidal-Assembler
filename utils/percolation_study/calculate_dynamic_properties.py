@@ -76,41 +76,39 @@ def structure_factor(x,box_l):
     # test with actual e(-iq (delta r)) calculation
 
 
-    qval = np.arange(2,100,2)*np.pi/box_l[0] 
+    #qval = np.arange(2,1000,2)*np.pi/box_l[0] 
+    qval = np.zeros((198,2))
 
+    qval[:,0] = np.arange(2,200)*np.pi/box_l[0] 
+    qval[:,1] = np.arange(2,200)*np.pi/box_l[1] 
+    
     N_particles,N_time,N_dim = x.shape
-    pdist = np.zeros((N_particles,N_particles,2))
-    times = list(range(N_time))[0::100000]
+
+    m_dim = int((N_particles)*(N_particles-1)/2)
+
+    #pdist = np.zeros((N_particles,N_particles,2))
+    dist = np.zeros((m_dim,2))   
+    times = list(range(N_time))
     s_factor = np.zeros((len(times), len(qval)))
     for ti,tau in enumerate(times): 
         x_tau = x[:,tau,:]
         for i in range(2):
             p = np.reshape(x_tau[:,i], (N_particles,1))
             p = p - p.transpose()
-            pdist[:,:,i] = p - box_l[i]*np.rint(p/box_l[i])
+            p = p - box_l[i]*np.rint(p/box_l[i])
+            dist[:,i] = p[np.triu_indices(N_particles, k=1)]
+        qp = np.dot(qval,dist.transpose())
+        #r = np.linalg.norm(pdist,axis=2)
 
-        r = np.linalg.norm(pdist,axis=2)
+        #r = r[np.triu_indices(N_particles, k = 1)]
+        #r = np.reshape(r,(-1,1))
+        #qr = np.dot(qval,r.transpose())
+        sf = np.exp(-1j*qp) 
+        s_factor[ti] = np.sum(sf,axis=1)
 
-        print("shapes", r.shape, x_tau.shape)
-        r = r[np.triu_indices(N_particles, k = 1)]
-
-        rmax=20
-
-        r = r[r<rmax]
-        print("triu shape", r.shape)
-
-        r = np.reshape(r,(-1,1))
-        qval = np.reshape(qval,(-1,1))
-
-        print("shapes again", r.shape, qval.shape )
-        qr = np.dot(qval,r.transpose())
-        print(tau, qr.shape)
-        sf = 2*(np.sin(qr)/(qr))
-        s_factor[ti] = np.mean(sf,axis=1)
-
-    sq=np.mean(s_factor,axis=0)
+    sq=np.mean(s_factor,axis=0)/N_particles
     sq = np.reshape(sq, (-1,1))
-    qval=np.reshape(qval,(-1,1))
+    qval=np.reshape(np.linalg.norm(qval,axis=1),(-1,1))
     sq = np.concatenate((qval,sq), axis=1)
 
     return sq
@@ -299,7 +297,7 @@ if __name__ == '__main__':
 
     if 'fsqt' in args.methods:
       q_vals = [0.1, 0.36, 1.81,3.26, 4.70, 6.15,7.60,9.04,10.49,16.28]
-      times = list(range(N_time))[1::100]
+      times = list(range(N_time))
       wtimes = np.reshape(np.array(times), (-1,1))
       for q in q_vals:
           print(q)

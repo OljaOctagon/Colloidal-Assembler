@@ -34,7 +34,6 @@ from collections import defaultdict
 from functools import partial
 if __name__=='__main__':
 
-    N_particles = 1500 
     pn_file = "patch_network.dat" 
     # network_arr format: network_arr.shape = ( frame_i, bond_rows_frame_i )
     connections = gt.read_bonds(pn_file)
