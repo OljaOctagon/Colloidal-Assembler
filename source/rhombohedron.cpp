@@ -280,10 +280,7 @@ void rhombohedron::Set_Lengths() {
     vc.y = ra.y + rb.y + rc.y;
     vc.z = ra.z + rb.z + rc.z;
 
-    cut_off = vc.norm();
-
-    cut_off_squared = cut_off * cut_off;
-
+    //cut_off = vc.norm();
     cross_p.x = rb.y * rc.z - rb.z * rc.y;
     cross_p.y = rb.z * rc.x - rb.x * rc.z;
     cross_p.z = rb.x * rc.y - rb.y * rc.x;
@@ -296,6 +293,9 @@ void rhombohedron::Set_Lengths() {
     boost::property_tree::ini_parser::read_ini("para.ini", pt);
 
     patch_size = pt.get<double>("Rhombus.patch_size");
+
+    cut_off = diag2_long + 2* patch_size;
+    cut_off_squared = cut_off * cut_off;
 
     r_patch[0] = patch_size;
     r_patch[1] = patch_size;

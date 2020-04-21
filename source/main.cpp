@@ -49,9 +49,9 @@ int main(int argc, char *argv[]) {
         Box->edges_from_center();
         // initialize lattice
         Particles.Startconfig(Box);
-        // Particles.Make_Cell_List(Box);
-        // Particles.Set_Cell_List(Box);
-        // Particles.Make_Cell_Neighbour_List();
+        Particles.Make_Cell_List(Box);
+        Particles.Set_Cell_List(Box);
+        Particles.Make_Cell_Neighbour_List();
 
         gsl_rng_set(r01, 0xf143);
         gsl_rng_set(r, 0x01a23);
@@ -85,9 +85,9 @@ int main(int argc, char *argv[]) {
         Fileio.Read_Patches(Box, Particles, checkpoint_time);
         Particles.Set_former_Config(Box);
 
-        // Particles.Make_Cell_List(Box);
-        // Particles.Set_Cell_List(Box);
-        // Particles.Make_Cell_Neighbour_List();
+        Particles.Make_Cell_List(Box);
+        Particles.Set_Cell_List(Box);
+        Particles.Make_Cell_Neighbour_List();
     }
 
     int time;
@@ -121,9 +121,15 @@ int main(int argc, char *argv[]) {
     cout << "Chemical potential mu_2......." << Box->mu_2 << endl;
 
     for (int id = 0; id < Box->N; id++) {
-        Particles.Collision_List[id].Calculate_OP(
-            Box, id, Particles.N_Particle, Particles.N_Particle[0]->cut_off,
-            Particles.MAX_coll_p);
+      //Particles.Collision_List[id].Calculate_OP(
+      //      Box, id, Particles.N_Particle, Particles.N_Particle[0]->cut_off,
+      //      Particles.MAX_coll_p);
+
+      Particles.Collision_List[id].Calculate(Box, id, Particles.Id_Cell_List,
+                                             Particles.Cell_List, Particles.Cell,
+                                             Particles.N_Particle,Particles.N_Particle[0]->cut_off,
+                                             Particles.MAX_coll_p);
+
         Move.Collision_Test(Particles, Box, id, Particles.Collision_List);
         Total_Halo_Energy += Move.Halo_Energy;
     }
@@ -144,7 +150,6 @@ int main(int argc, char *argv[]) {
         MC_cycle_time = Move.mt_sum;
 
         for (int cycle_time = 0; cycle_time < MC_cycle_time; cycle_time++) {
-
             Move.Iterate(Particles, Box, Fileio, time);
         }
 

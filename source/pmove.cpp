@@ -178,8 +178,8 @@ pmove::pmove(int size, int edge_length, double delta_tmax, double delta_rmax,
     }
 
     mt_sum = mt_w[0] + mt_w[1] + mt_w[2] + mt_w[3] + mt_w[4];
-    // cout<<"mt_sum: "<<mt_sum<<endl;
-    // cout<<"size: "<<size<<endl;
+    cout<<"mt_sum: "<<mt_sum<<endl;
+    cout<<"size: "<<size<<endl;
 
     P_mt[0] = double(mt_w[0]) / double(mt_sum);
     P_mt[1] = double(mt_w[1]) / double(mt_sum);

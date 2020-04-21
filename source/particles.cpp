@@ -37,7 +37,7 @@ particles::particles(int number_of_cells_in, int size, int MAX_coll_p_in,
     binary_on = binary_on_in;
     ternary_on = ternary_on_in;
 
-    Res_Size = 2500;
+    Res_Size = 1500;
     size = Res_Size;
 
     max_id = size - 1;
@@ -237,11 +237,52 @@ particles::particles(int number_of_cells_in, int size, int MAX_coll_p_in,
 
 void particles::Startconfig(box *Box) {
 
-    // 3D///
-    // N_p = rint(pow(double(Box->N),1./3.));
-    // N_p_float = double(N_p);
-    // 2D///
-    N_p = rint(pow(double(Box->N), 1. / 2.));
+  //  2D
+    N_p = rint(pow(double(Box->N),1./2.));
+    N_p_float = double(N_p);
+
+    l_diff = (Box->Lx - N_p_float) / N_p_float;
+    Box->N = int(Box->N);
+
+    Cell[0].A = Box->A / double(number_of_cells);
+    Cell[0].V = Cell[0].A*0.1;
+    Cell[0].Lx = Box->Lx /  sqrt(number_of_cells); 
+    Cell[0].Ly = Box->Ly / sqrt(number_of_cells);
+    Cell[0].Lz = 0.1;
+
+    Cell_old[0].A = Cell[0].A;
+    Cell_old[0].V = Cell[0].V;
+    Cell_old[0].Lx = Cell[0].Lx;
+    Cell_old[0].Ly = Cell[0].Ly;
+    Cell_old[0].Lz = Cell[0].Lz;
+
+    for (int c_id = 1; c_id < number_of_cells; c_id++) {
+
+        Cell[c_id].A = Cell[0].A; 
+        Cell[c_id].V = Cell[0].V;
+        Cell[c_id].Lx = Cell[0].Lx;
+        Cell[c_id].Ly = Cell[0].Ly;
+        Cell[c_id].Lz = Cell[0].Lz;
+
+        Cell_old[c_id].V = Cell[0].V;
+        Cell_old[c_id].Lx = Cell[0].Lx;
+        Cell_old[c_id].Ly = Cell[0].Ly;
+        Cell_old[c_id].Lz = Cell[0].Lz;
+
+        Cell[c_id].left_count = 0;
+        Cell[c_id].right_count = 0;
+
+        Cell[c_id].front_count = 0;
+        Cell[c_id].back_count = 0;
+
+        Cell[c_id].top_count = 0;
+        Cell[c_id].bottom_count = 0;
+    }
+
+    MAX_cell_members = 5 * int(ceil(Cell[0].V) / double(N_Particle[0]->V));
+
+    /*  3D
+    N_p = rint(pow(double(Box->N),1./3.));
     N_p_float = double(N_p);
 
     l_diff = (Box->Lx - N_p_float) / N_p_float;
@@ -281,6 +322,9 @@ void particles::Startconfig(box *Box) {
     }
 
     MAX_cell_members = 5 * int(ceil(Cell[0].V) / double(N_Particle[0]->V));
+  */
+
+
 
     int size;
 
@@ -314,14 +358,6 @@ void particles::Startconfig(box *Box) {
 
         N_Particle[id]->Set_Start_Lattice_Position(id, Box->Lx, Box->Ly,
                                                    Box->Lz, Box->N);
-
-        /*
-        N_Particle[id]->x_center = 0.5 +  l_diff/2.0 + double(id %N_p +
-        l_diff*(id % N_p)); N_Particle[id]->y_center = 0.5 +  l_diff/2.0 +
-        double((id/N_p)%N_p + l_diff*((id/N_p)%N_p)); N_Particle[id]->z_center
-        = 0.5 +  l_diff/2.0 + double(id/int(pow((double)N_p,2)) +
-        l_diff*(id/int((double)pow(N_p,2))));
-    */
 
         N_Particle_old[id]->x_center = N_Particle[id]->x_center;
         N_Particle_old[id]->y_center = N_Particle[id]->y_center;
@@ -365,9 +401,9 @@ void particles::Startconfig(box *Box) {
         N_Particle[id]->phi_old = N_Particle[id]->phi;
     }
 
-    // Make_Cell_List(Box, Cell, N_Particle);
-    // Set_Cell_List(Box, Cell, Cell_old, N_Particle);
-    // Make_Cell_Neighbour_List(Cell);
+    //Make_Cell_List(Box, Cell, N_Particle);
+    //Set_Cell_List(Box, Cell, Cell_old, N_Particle);
+    //Make_Cell_Neighbour_List(Cell);
 
     // for Resorvoir
 
@@ -420,29 +456,6 @@ void particles::Set_former_Config(box *Box) {
         Rot_mat_INIT[6] = 0;
         Rot_mat_INIT[7] = 0;
         Rot_mat_INIT[8] = 1;
-
-        /*
-         Rot_mat_INIT[0] = 1.0 - 2.0*N_Particle[id]->q.y*N_Particle[id]->q.y
-         - 2.0*N_Particle[id]->q.z*N_Particle[id]->q.z; Rot_mat_INIT[1]
-         = 2.0*N_Particle[id]->q.x*N_Particle[id]->q.y
-         - 2.0*N_Particle[id]->q.w*N_Particle[id]->q.z; Rot_mat_INIT[2]
-         = 2.0*N_Particle[id]->q.x*N_Particle[id]->q.z
-         + 2.0*N_Particle[id]->q.w*N_Particle[id]->q.y;
-
-         Rot_mat_INIT[3] = 2.0*N_Particle[id]->q.x*N_Particle[id]->q.y
-         + 2.0*N_Particle[id]->q.w*N_Particle[id]->q.z; Rot_mat_INIT[4] = 1.0
-         - 2.0*N_Particle[id]->q.x*N_Particle[id]->q.x
-         - 2.0*N_Particle[id]->q.z*N_Particle[id]->q.z; Rot_mat_INIT[5]
-         = 2.0*N_Particle[id]->q.y*N_Particle[id]->q.z
-         - 2.0*N_Particle[id]->q.w*N_Particle[id]->q.x;
-
-         Rot_mat_INIT[6] = 2.0*N_Particle[id]->q.x*N_Particle[id]->q.z
-         - 2.0*N_Particle[id]->q.w*N_Particle[id]->q.y; Rot_mat_INIT[7]
-         = 2.0*N_Particle[id]->q.y*N_Particle[id]->q.z
-         + 2.0*N_Particle[id]->q.w*N_Particle[id]->q.x; Rot_mat_INIT[8] = 1.0
-         - 2.0*N_Particle[id]->q.x*N_Particle[id]->q.x
-         - 2.0*N_Particle[id]->q.y*N_Particle[id]->q.y;
-        */
 
         N_Particle[id]->edges_from_center();
         N_Particle[id]->distance_from_center();

@@ -81,9 +81,9 @@ def get_domain_colors(N_particles, bond_arr, length_color_dict):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Particle drawing methods')
-    parser.add_argument('-ptype', type=str, choices=['dma-as1', 'dmo-s1', 'dmo-s2', 'dmo-as1'])
+    parser.add_argument('-ptype', type=str, choices=['feq-as2', 'dma-as1', 'dmo-s1', 'dmo-s2', 'dmo-as1'])
     parser.add_argument('-delta', type=float)
-
+    parser.add_argument('-radius', type=float)
 
     args = parser.parse_args()
     # get all check point values and sort them
@@ -98,7 +98,7 @@ if __name__ == '__main__':
     #  ....
     # --------------------------
 
-    pn_file = "patch_network.dat"
+    #pn_file = "patch_network.dat"
 
 	# colormap for cluster size
     cmap = plt.cm.get_cmap('cividis', 6)
@@ -107,15 +107,15 @@ if __name__ == '__main__':
     length_color_dict = dict(zip(np.arange(6),hex_color))
 
     # network_arr format: network_arr.shape = ( frame_i, bond_rows_frame_i )
-    network_arr = read_bonds("patch_network.dat")
+    #network_arr = read_bonds("patch_network.dat")
     # patch position calculation
-    radius=0.1
+    radius=args.radius
 
     # make frame directory if it doesn't exist
     if not os.path.isdir("./frames"):
         os.mkdir("./frames")
 
-    for j,val in enumerate(check_point_values[-1:]):
+    for j,val in enumerate(check_point_values[-10:]):
         pos_i = np.fromfile("positions_{}.bin".format(val))
         pos_i = np.reshape(pos_i, (-1,3))
         pos_i = pos_i[:,:2]
@@ -129,9 +129,8 @@ if __name__ == '__main__':
         patch_i = patch_i[:N]
         fig,ax = plt.subplots()
         ax.set_aspect('equal', 'box')
-        print(N, network_arr[j].shape)
         # domain_colors.shape = (N,) ( colors per particle )
-        domain_colors = get_domain_colors(N, network_arr[j], length_color_dict)
+        #domain_colors = get_domain_colors(N, network_arr[j], length_color_dict)
 
         sin60 = np.sin(np.pi/3.)
         cos60 = np.cos(np.pi/3.)
@@ -147,13 +146,15 @@ if __name__ == '__main__':
         patch_color_dict = {'dma-as1':[cr,cr,cb,cb],
                             'dmo-s1' :[cr,cb,cr,cb],
                             'dmo-s2' :[cr,cb,cr,cb],
-                            'dmo-as1':[cr,cb,cr,cb]}
+                            'dmo-as1':[cr,cb,cr,cb],
+                            'feq-as2':[cr,cr,cr,cr]}
 
         dp=args.delta
         patch_delta_dict = {'dma-as1':[dp,1-dp,dp,dp],
                             'dmo-s1' :[dp,dp,dp,1-dp],
                             'dmo-s2' :[dp,1-dp,dp,dp],
-                            'dmo-as1':[dp,dp,1-dp,dp]}
+                            'dmo-as1':[dp,dp,1-dp,dp],
+                            'feq-as2':[dp,1-dp,1-dp,1-dp]}
 
 
         for i in range(N):
@@ -187,8 +188,8 @@ if __name__ == '__main__':
 
         ax.scatter(pos_i[:,0], pos_i[:,1],s=1)
         ax.set_title("Frame {}".format(j))
-        plt.xlim((-1,50))
-        plt.ylim((-1,60))
+        plt.xlim((-1,30))
+        plt.ylim((-1,40))
         plt.axis("equal")
         plt.axis('off')
         plt.savefig("./frames/frame_{}.png".format(j), dpi=500)

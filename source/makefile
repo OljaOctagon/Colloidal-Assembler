@@ -1,9 +1,7 @@
 #!/bin/make -f
-
-#CC=clang++
 CC=g++
 LIBS=-lgsl -lgslcblas 
-CFLAGS=-march=native -msse4.1 -flto -O3 -ffast-math #-fsanitize=address
+CFLAGS=-O3 -g
 
 all: McPoly
 
