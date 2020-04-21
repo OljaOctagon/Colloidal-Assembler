@@ -22,8 +22,8 @@ void pmove::Translate(particles &Particles, box *Box, fileio &Fileio, int id,
     exit_status = 0;
     col_count = 0;
 
-    Collision_Test(Particles, Box, id, Particles.Collision_List);
-    dU_old = dU_old + Halo_Energy;
+    //Collision_Test(Particles, Box, id, Particles.Collision_List);
+    //dU_old = dU_old + Halo_Energy;
     // cout<<" Old Halo_Energy "<<Halo_Energy<<endl;
     // cout<<"dU_old"<<dU_old<<endl;
 
@@ -82,7 +82,7 @@ void pmove::Translate(particles &Particles, box *Box, fileio &Fileio, int id,
     Particles.N_Particle[id]->Calculate_Axis();
     Particles.N_Particle[id]->Calculate_Patch_Position();
 
-    Particles.Update_Cell_List(id, Box);
+    Particles.Update_Cell_List(id, Box); 
 
     Particles.Collision_List[id].Calculate(Box, id, Particles.Id_Cell_List,
                                             Particles.Cell_List, Particles.Cell,
@@ -109,7 +109,6 @@ void pmove::Translate(particles &Particles, box *Box, fileio &Fileio, int id,
         Particles.id_num);
     }
 
-    ////cout<<"x_center "<<Particles.N_Particle[id]->x_center<<"  "<<id<<endl;
 
     if (exit_status == 0) {
 
@@ -117,9 +116,7 @@ void pmove::Translate(particles &Particles, box *Box, fileio &Fileio, int id,
 
         dU_new = Calculate_Pair_Potential(id, Particles, Box,
                                           Particles.Collision_List);
-        dU_new = dU_new + Halo_Energy;
-        // cout<<" New Halo_Energy "<<Halo_Energy<<endl;
-        // cout<<"dU_new "<<dU_new<<endl;
+        //dU_new = dU_new + Halo_Energy;
 
         delta_U = dU_new - dU_old;
 
@@ -150,6 +147,9 @@ void pmove::Translate(particles &Particles, box *Box, fileio &Fileio, int id,
 
             Particles.N_Particle[id]->Calculate_Axis();
             Particles.N_Particle[id]->Calculate_Patch_Position();
+
+            Particles.Reset_Cell_List(Box, id, Particles.c_id, Particles.n_id,
+                                      Particles.id_num);
 
             // Reset_Pair_Potential(Total_Energy, id, Particles, Box);
             // Reset_Pair_Potential(Particles, Box);

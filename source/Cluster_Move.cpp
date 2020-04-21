@@ -62,9 +62,15 @@ void pmove::Pseudocluster_Recursion(int id_j, int cn, int fl,
         is_element[id_j] = true;
     }
 
-    Particles.Collision_List[id_j].Calculate_OP(
-        Box, id_j, Particles.N_Particle, Particles.N_Particle[0]->cut_off,
-        Particles.MAX_coll_p);
+
+    Particles.Collision_List[id_j].Calculate(Box, id_j, Particles.Id_Cell_List,
+                                           Particles.Cell_List, Particles.Cell,
+                                           Particles.N_Particle,Particles.N_Particle[0]->cut_off,
+                                           Particles.MAX_coll_p);
+
+    //Particles.Collision_List[id_j].Calculate_OP(
+    //    Box, id_j, Particles.N_Particle, Particles.N_Particle[0]->cut_off,
+    //    Particles.MAX_coll_p);
 
     for (int cp = 0; cp < Particles.Collision_List[id_j].Nm; cp++) {
 
@@ -79,7 +85,7 @@ void pmove::Pseudocluster_Recursion(int id_j, int cn, int fl,
 
             b_factor = 1 - exp(beta_f * (e_pair));
             b_factor = GSL_MAX(0, b_factor);
-            ////cout<<"b_factor"<<b_factor<<endl;
+
             XI = gsl_rng_uniform(r01);
 
             if (XI < b_factor) {
@@ -183,6 +189,7 @@ void pmove::Rot_Cluster_Move(particles &Particles, box *Box, fileio &Fileio,
         Update_Periodic_Positions(Particles, Box, j);
         Particles.N_Particle[j]->Calculate_Axis();
         Particles.N_Particle[j]->Calculate_Patch_Position();
+        Particles.Update_Cell_List(j, Box);
     }
 
     int k = 0;
@@ -198,9 +205,16 @@ void pmove::Rot_Cluster_Move(particles &Particles, box *Box, fileio &Fileio,
     }
 
     do {
-        Particles.Collision_List[List[k]].Calculate_OP(
-            Box, List[k], Particles.N_Particle,
-            Particles.N_Particle[0]->cut_off, Particles.MAX_coll_p);
+        Particles.Collision_List[List[k]].Calculate(Box, List[k], Particles.Id_Cell_List,
+                                               Particles.Cell_List, Particles.Cell,
+                                               Particles.N_Particle,Particles.N_Particle[0]->cut_off,
+                                               Particles.MAX_coll_p);
+
+
+        // Particles.Collision_List[List[k]].Calculate_OP(
+        //    Box, List[k], Particles.N_Particle,
+        //    Particles.N_Particle[0]->cut_off, Particles.MAX_coll_p);
+
         // Collision Test
         Collision_Test(Particles, Box, List[k], Particles.Collision_List);
         k++;
@@ -217,6 +231,9 @@ void pmove::Rot_Cluster_Move(particles &Particles, box *Box, fileio &Fileio,
             Reset_Positions(Particles, j);
             Particles.N_Particle[j]->Calculate_Axis();
             Particles.N_Particle[j]->Calculate_Patch_Position();
+            Particles.Reset_Cell_List(Box, j, Particles.c_id, Particles.n_id,
+                                      Particles.id_num);
+
             // Set_Positions(Particles, j);
         }
     }
@@ -239,6 +256,9 @@ void pmove::Rot_Cluster_Move(particles &Particles, box *Box, fileio &Fileio,
                 Reset_Positions(Particles, j);
                 Particles.N_Particle[j]->Calculate_Axis();
                 Particles.N_Particle[j]->Calculate_Patch_Position();
+                Particles.Reset_Cell_List(Box, j, Particles.c_id, Particles.n_id,
+                                          Particles.id_num);
+
             }
 
             Particles.Total_Energy = Total_Energy_old;
@@ -275,6 +295,147 @@ void pmove::Rot_Cluster_Move(particles &Particles, box *Box, fileio &Fileio,
 
     Reset_Pseudo_Cluster(Box);
 }
+
+
+
+void pmove::Trans_Cluster_Move(particles &Particles, box *Box, fileio &Fileio,
+                               int mc_time) {
+
+    N_List = 0;
+    N_Bonds = 0;
+    N_failed_links = 0;
+    double Total_Energy_old;
+    double delta_U;
+
+    // choose particle id
+
+    id = gsl_rng_uniform_int(r, Box->N);
+
+    Reset_Pseudo_Cluster(Box);
+
+    // calculate translation
+
+    rand_x = gsl_ran_gaussian(r01, sigma_trans);
+    rand_y = gsl_ran_gaussian(r01, sigma_trans);
+    rand_z = gsl_ran_gaussian(r01, sigma_trans);
+
+    trans_vec.x = rand_x;
+    trans_vec.y = rand_y;
+
+    if (is_2D == 1) {
+        trans_vec.z = 0.0;
+    }
+
+    else {
+        trans_vec.z = rand_z;
+    }
+
+    int links, failed_links;
+    links = 0;
+    failed_links = 0;
+
+    Pseudocluster_Recursion(id, links, failed_links, Particles, Box);
+
+    // Collision Test
+
+    for (int k = 0; k < N_List; k++) {
+
+        Trans_Update_Positions(Particles, List[k], trans_vec);
+        Particles.Check_Periodic_CM(List[k], Box);
+        Update_Periodic_Positions(Particles, Box, List[k]);
+        Particles.N_Particle[List[k]]->Calculate_Axis();
+        Particles.N_Particle[List[k]]->Calculate_Patch_Position();
+        Particles.Update_Cell_List(List[k], Box);
+
+    }
+
+    int k = 0;
+
+    exit_status = 0;
+    col_count = 0;
+
+    int Max_Length;
+    Max_Length = rint(1. / gsl_rng_uniform(r01));
+
+    if (N_List > Max_Length) {
+
+        exit_status = 1;
+    }
+
+    do {
+        Particles.Collision_List[List[k]].Calculate(Box, List[k],
+                                                    Particles.Id_Cell_List,
+                                                    Particles.Cell_List, Particles.Cell,
+                                                    Particles.N_Particle,
+                                                    Particles.N_Particle[0]->cut_off,
+                                                    Particles.MAX_coll_p);
+
+        //Particles.Collision_List[List[k]].Calculate_OP(
+        //    Box, List[k], Particles.N_Particle,
+        //    Particles.N_Particle[0]->cut_off, Particles.MAX_coll_p);
+
+        // Collision Test
+        Collision_Test(Particles, Box, List[k], Particles.Collision_List);
+        k++;
+
+    } while ((exit_status == 0) && (k < N_List));
+
+    if (exit_status > 0) {
+
+        for (int k = 0; k < N_List; k++) {
+            Reset_Positions(Particles, List[k]);
+            Particles.N_Particle[List[k]]->Calculate_Axis();
+            Particles.N_Particle[List[k]]->Calculate_Patch_Position();
+            Particles.Reset_Cell_List(Box, List[k], Particles.c_id, Particles.n_id,
+                                      Particles.id_num);
+
+        }
+    }
+
+    if (exit_status == 0) {
+
+        Total_Energy_old = Particles.Total_Energy;
+        Calculate_Pair_Potential(Particles, Box);
+        delta_U = Total_Energy - Total_Energy_old;
+
+        b_factor = GSL_MIN(1, exp((beta_f - beta) * delta_U));
+        XI = gsl_rng_uniform(r01);
+
+        if (b_factor < XI) {
+
+            for (int k = 0; k < N_List; k++) {
+                int j;
+                j = List[k];
+                Reset_Positions(Particles, j);
+                Particles.N_Particle[j]->Calculate_Axis();
+                Particles.N_Particle[j]->Calculate_Patch_Position();
+                Particles.Reset_Cell_List(Box, j, Particles.c_id, Particles.n_id,
+                                          Particles.id_num);
+
+            }
+
+            Particles.Total_Energy = Total_Energy_old;
+            Total_Energy = Total_Energy_old;
+        }
+
+        if (b_factor >= XI) {
+            for (int k = 0; k < N_List; k++) {
+                int j;
+                j = List[k];
+                Set_Positions(Particles, j);
+            }
+
+            Particles.Total_Energy = Total_Energy;
+        }
+    }
+
+    Reset_Pseudo_Cluster(Box);
+}
+
+//// Dynamic linking scheme: complicated and broken
+
+
+/*
 
 void pmove::Trans_Pseudocluster_Recursion(int id_j, int cn, int fl,
                                           particles &Particles, box *Box) {
@@ -333,6 +494,7 @@ void pmove::Trans_Pseudocluster_Recursion(int id_j, int cn, int fl,
             Particles.Collision_List[j].Calculate_OP(
                 Box, j, Particles.N_Particle, Particles.N_Particle[0]->cut_off,
                 Particles.MAX_coll_p);
+
             for (int cp = 0; cp < Particles.Collision_List[j].Nm; cp++) {
                 Particles.Collision_List_old[j].Elements[cp] =
                     Particles.Collision_List[j].Elements[cp];
@@ -439,122 +601,4 @@ void pmove::Trans_Pseudocluster_Recursion(int id_j, int cn, int fl,
         }
     }
 }
-
-
-void pmove::Trans_Cluster_Move(particles &Particles, box *Box, fileio &Fileio,
-                               int mc_time) {
-
-    N_List = 0;
-    N_Bonds = 0;
-    N_failed_links = 0;
-    double Total_Energy_old;
-    double delta_U;
-
-    // choose particle id
-
-    id = gsl_rng_uniform_int(r, Box->N);
-
-    Reset_Pseudo_Cluster(Box);
-
-    // calculate translation
-
-    rand_x = gsl_ran_gaussian(r01, sigma_trans);
-    rand_y = gsl_ran_gaussian(r01, sigma_trans);
-    rand_z = gsl_ran_gaussian(r01, sigma_trans);
-
-    trans_vec.x = rand_x;
-    trans_vec.y = rand_y;
-
-    if (is_2D == 1) {
-        trans_vec.z = 0.0;
-    }
-
-    else {
-        trans_vec.z = rand_z;
-    }
-
-    int links, failed_links;
-    links = 0;
-    failed_links = 0;
-
-    Pseudocluster_Recursion(id, links, failed_links, Particles, Box);
-
-    // Collision Test
-
-    for (int k = 0; k < N_List; k++) {
-
-        Trans_Update_Positions(Particles, List[k], trans_vec);
-        Particles.Check_Periodic_CM(List[k], Box);
-        Update_Periodic_Positions(Particles, Box, List[k]);
-        Particles.N_Particle[List[k]]->Calculate_Axis();
-        Particles.N_Particle[List[k]]->Calculate_Patch_Position();
-    }
-
-    int k = 0;
-
-    exit_status = 0;
-    col_count = 0;
-
-    int Max_Length;
-    Max_Length = rint(1. / gsl_rng_uniform(r01));
-
-    if (N_List > Max_Length) {
-
-        exit_status = 1;
-    }
-
-    do {
-        Particles.Collision_List[List[k]].Calculate_OP(
-            Box, List[k], Particles.N_Particle,
-            Particles.N_Particle[0]->cut_off, Particles.MAX_coll_p);
-        // Collision Test
-        Collision_Test(Particles, Box, List[k], Particles.Collision_List);
-        k++;
-
-    } while ((exit_status == 0) && (k < N_List));
-
-    if (exit_status > 0) {
-
-        for (int k = 0; k < N_List; k++) {
-            Reset_Positions(Particles, List[k]);
-            Particles.N_Particle[List[k]]->Calculate_Axis();
-            Particles.N_Particle[List[k]]->Calculate_Patch_Position();
-        }
-    }
-
-    if (exit_status == 0) {
-
-        Total_Energy_old = Particles.Total_Energy;
-        Calculate_Pair_Potential(Particles, Box);
-        delta_U = Total_Energy - Total_Energy_old;
-
-        b_factor = GSL_MIN(1, exp((beta_f - beta) * delta_U));
-        XI = gsl_rng_uniform(r01);
-
-        if (b_factor < XI) {
-
-            for (int k = 0; k < N_List; k++) {
-                int j;
-                j = List[k];
-                Reset_Positions(Particles, j);
-                Particles.N_Particle[j]->Calculate_Axis();
-                Particles.N_Particle[j]->Calculate_Patch_Position();
-            }
-
-            Particles.Total_Energy = Total_Energy_old;
-            Total_Energy = Total_Energy_old;
-        }
-
-        if (b_factor >= XI) {
-            for (int k = 0; k < N_List; k++) {
-                int j;
-                j = List[k];
-                Set_Positions(Particles, j);
-            }
-
-            Particles.Total_Energy = Total_Energy;
-        }
-    }
-
-    Reset_Pseudo_Cluster(Box);
-}
+*/
