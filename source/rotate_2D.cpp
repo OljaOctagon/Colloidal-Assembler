@@ -52,19 +52,20 @@ void pmove::Rotate2D(particles &Particles, box *Box, fileio &Fileio, int id,
     dU_old = 0;
     dU_new = 0;
 
-    Particles.Collision_List[id].Calculate_OP(Box, id, Particles.N_Particle,
-                                              Particles.N_Particle[0]->cut_off,
-                                              Particles.MAX_coll_p);
+    //Particles.Collision_List[id].Calculate_OP(Box, id, Particles.N_Particle,
+    //                                          Particles.N_Particle[0]->cut_off,
+    //                                          Particles.MAX_coll_p);
 
+    Particles.Collision_List[id].Calculate(Box, id, Particles.Id_Cell_List,
+                                           Particles.Cell_List, Particles.Cell, Particles.N_Particle,
+                                           Particles.N_Particle[0]->cut_off, Particles.MAX_coll_p);
     exit_status = 0;
     col_count = 0;
 
-    Collision_Test(Particles, Box, id, Particles.Collision_List);
+    //Collision_Test(Particles, Box, id, Particles.Collision_List);
     dU_old =
         Calculate_Pair_Potential(id, Particles, Box, Particles.Collision_List);
-    dU_old = dU_old + Halo_Energy;
-    // cout<<"Halo_Energy "<<Halo_Energy<<endl;
-    // cout<<"dU_old "<<dU_old<<endl;
+    //dU_old = dU_old + Halo_Energy;
 
     Particles.N_Particle[id]->phi_old = Particles.N_Particle[id]->phi;
 
@@ -108,13 +109,15 @@ void pmove::Rotate2D(particles &Particles, box *Box, fileio &Fileio, int id,
     // Particles.Update_Cell_List(id, Box);
 
     // Calculate Collision Partners
-    // Particles.Collision_List[id].Calculate(Box, id, Particles.Id_Cell_List,
-    // Particles.Cell_List, Particles.Cell, Particles.N_Particle,
-    // Particles.N_Particle[0]->cut_off, Particles.MAX_coll_p);
+
+    //Particles.Collision_List[id].Calculate(Box, id, Particles.Id_Cell_List,
+    //Particles.Cell_List, Particles.Cell, Particles.N_Particle,
+    //Particles.N_Particle[0]->cut_off, Particles.MAX_coll_p);
+
     // whitout cell-lists!!!
-    Particles.Collision_List[id].Calculate_OP(Box, id, Particles.N_Particle,
-                                              Particles.N_Particle[0]->cut_off,
-                                              Particles.MAX_coll_p);
+    //Particles.Collision_List[id].Calculate_OP(Box, id, Particles.N_Particle,
+    //                                          Particles.N_Particle[0]->cut_off,
+    //                                          Particles.MAX_coll_p);
 
     exit_status = 0;
     col_count = 0;
