@@ -80,8 +80,7 @@ void pmove::Rotate(particles &Particles, box *Box, fileio &Fileio, int id,
 
         Particles.N_Particle[id]->Calculate_Axis();
 
-        Particles.Reset_Cell_List(Box, id, Particles.c_id, Particles.n_id,
-                                  Particles.id_num);
+        Particles.Reset_Cell_List(Box, id, Particles.id_num);
     }
 
     if (exit_status == 0) {

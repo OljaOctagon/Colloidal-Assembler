@@ -448,7 +448,7 @@ void pmove::Iterate(particles &Particles, box *Box, fileio &Fileio,
 
     if (value == 0) {
 
-        // cout<<"translate"<<endl;
+        cout<<"translate"<<endl;
         // cluster_counter=gsl_rng_uniform_int(r,cluster_size);
         // id= Cluster_List[cluster_counter];
 
@@ -460,7 +460,7 @@ void pmove::Iterate(particles &Particles, box *Box, fileio &Fileio,
 
         // cluster_counter=gsl_rng_uniform_int(r,cluster_size);
         // id= Cluster_List[cluster_counter];
-        // cout<<"rotate"<<endl;
+        cout<<"rotate"<<endl;
 
         id = gsl_rng_uniform_int(r, Box->N);
 
@@ -505,12 +505,13 @@ void pmove::Iterate(particles &Particles, box *Box, fileio &Fileio,
         rhalf = gsl_rng_uniform(r01);
 
         if (rhalf < 0.5) {
-            Trans_Cluster_Move(Particles, Box, Fileio, mc_time);
+          //cout <<"Cluster trans move"<<endl;
+          //Trans_Cluster_Move(Particles, Box, Fileio, mc_time);
         }
 
         if (rhalf > 0.5) {
-
-            Rot_Cluster_Move(Particles, Box, Fileio, mc_time);
+          cout<<"Cluster rot move"<<endl;
+          Rot_Cluster_Move(Particles, Box, Fileio, mc_time);
         }
 
         // if (rhalf>2./3.){

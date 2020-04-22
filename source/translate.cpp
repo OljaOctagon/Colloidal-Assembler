@@ -8,6 +8,7 @@ void pmove::Translate(particles &Particles, box *Box, fileio &Fileio, int id,
 
     dU_old = 0;
     dU_new = 0;
+    cout<<"trans Collision for du Old"<<endl;
 
     Particles.Collision_List[id].Calculate(Box, id, Particles.Id_Cell_List,
                                            Particles.Cell_List, Particles.Cell,
@@ -15,7 +16,10 @@ void pmove::Translate(particles &Particles, box *Box, fileio &Fileio, int id,
                                            Particles.MAX_coll_p);
     //Particles.Collision_List[id].Calculate_OP(Box, id, Particles.N_Particle,
     //                                          Particles.N_Particle[0]->cut_off,
-    //                                          Particles.MAX_coll_p);
+    //Particles.MAX_coll_p);
+
+    cout<<"trans calc du Old"<<endl;
+
     dU_old =
         Calculate_Pair_Potential(id, Particles, Box, Particles.Collision_List);
 
@@ -45,6 +49,7 @@ void pmove::Translate(particles &Particles, box *Box, fileio &Fileio, int id,
     ////cout<<"x_center "<<Particles.N_Particle[id]->x_center<<"  "<<id<<endl;
 
     // Update position
+    cout<<"trans update"<<endl;
 
     Trans_Update_Positions(Particles, id, trans_vec);
 
@@ -82,8 +87,10 @@ void pmove::Translate(particles &Particles, box *Box, fileio &Fileio, int id,
     Particles.N_Particle[id]->Calculate_Axis();
     Particles.N_Particle[id]->Calculate_Patch_Position();
 
+    cout<<" trans Cell list update"<<endl; 
     Particles.Update_Cell_List(id, Box); 
 
+    cout<<"trans collision list "<<endl;
     Particles.Collision_List[id].Calculate(Box, id, Particles.Id_Cell_List,
                                             Particles.Cell_List, Particles.Cell,
                                             Particles.N_Particle,Particles.N_Particle[0]->cut_off,
@@ -99,19 +106,19 @@ void pmove::Translate(particles &Particles, box *Box, fileio &Fileio, int id,
     Collision_Test(Particles, Box, id, Particles.Collision_List);
 
     if (exit_status >= 1) {
-
+        cout<<"trans reset "<<endl;
         Reset_Positions(Particles, id);
 
         Particles.N_Particle[id]->Calculate_Axis();
         Particles.N_Particle[id]->Calculate_Patch_Position();
 
-        Particles.Reset_Cell_List(Box, id, Particles.c_id, Particles.n_id,
-        Particles.id_num);
+        Particles.Reset_Cell_List(Box, id, Particles.id_num);
     }
 
 
     if (exit_status == 0) {
 
+        
         // Set_Pair_Potential(Particles, Box);
 
         dU_new = Calculate_Pair_Potential(id, Particles, Box,
@@ -141,6 +148,7 @@ void pmove::Translate(particles &Particles, box *Box, fileio &Fileio, int id,
 
         if (XI > b_factor) {
 
+            cout<<"trans set  "<<endl;
             //////cout<<"Rejected!"<<endl;
 
             Reset_Positions(Particles, id);
@@ -148,8 +156,7 @@ void pmove::Translate(particles &Particles, box *Box, fileio &Fileio, int id,
             Particles.N_Particle[id]->Calculate_Axis();
             Particles.N_Particle[id]->Calculate_Patch_Position();
 
-            Particles.Reset_Cell_List(Box, id, Particles.c_id, Particles.n_id,
-                                      Particles.id_num);
+            Particles.Reset_Cell_List(Box, id, Particles.id_num);
 
             // Reset_Pair_Potential(Total_Energy, id, Particles, Box);
             // Reset_Pair_Potential(Particles, Box);
@@ -161,7 +168,7 @@ void pmove::Translate(particles &Particles, box *Box, fileio &Fileio, int id,
         if (XI <= b_factor) {
 
             //////cout<<"Accepted!"<<endl;
-
+            cout<<"trans reset  "<<endl;
             Set_Positions(Particles, id);
             // Set_Pair_Potential(Total_Energy, id, Particles, Box);
             // Set_Pair_Potential(Particles, Box);

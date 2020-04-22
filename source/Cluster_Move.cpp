@@ -13,6 +13,8 @@ double pmove::Calculate_Potential(int a, int b, particles &Particles,
     epsilon_ij = 0;
     patch_energy_ab = 0;
 
+    // TODO: transform to do-while looop as particles can be bonded only once.
+    // save info abut is bonded state 
     for (int pid1 = 0; pid1 < Particles.N_Particle[a]->N_patches; pid1++) {
 
         for (int pid2 = 0; pid2 < Particles.N_Particle[b]->N_patches; pid2++) {
@@ -102,9 +104,9 @@ void pmove::Pseudocluster_Recursion(int id_j, int cn, int fl,
 void pmove::Rot_Cluster_Move(particles &Particles, box *Box, fileio &Fileio,
                              int mc_time) {
 
-    double Total_Energy_old;
+    //double Total_Energy_old;
     double delta_U;
-
+   
     N_List = 0;
     N_Bonds = 0;
     r_id = -1;
@@ -181,6 +183,20 @@ void pmove::Rot_Cluster_Move(particles &Particles, box *Box, fileio &Fileio,
     center_mass.y = (Box->Ly / (2 * M_PI)) * (theta_av_y);
     center_mass.z = Box->Lz / 2.0;
 
+
+    // Calculate old energy difference 
+    double dU_old;
+    dU_old = 0;
+
+    for (int k = 0; k < N_List; k++){
+      int j;
+      j = List[k];
+      dU_old += Calculate_Pair_Potential(j, Particles, Box,
+                                        Particles.Collision_List);
+
+    }
+
+
     for (int k = 0; k < N_List; k++) {
         int j;
         j = List[k];
@@ -231,19 +247,36 @@ void pmove::Rot_Cluster_Move(particles &Particles, box *Box, fileio &Fileio,
             Reset_Positions(Particles, j);
             Particles.N_Particle[j]->Calculate_Axis();
             Particles.N_Particle[j]->Calculate_Patch_Position();
-            Particles.Reset_Cell_List(Box, j, Particles.c_id, Particles.n_id,
-                                      Particles.id_num);
-
             // Set_Positions(Particles, j);
         }
+        Particles.Reset_Cell_List(Box);
+        Particles.Set_Cell_List(Box);
+
     }
 
     if (exit_status == 0) {
 
 
-        Total_Energy_old = Particles.Total_Energy;
-        Calculate_Pair_Potential(Particles, Box);
-        delta_U = Total_Energy - Total_Energy_old;
+        //Total_Energy_old = Particles.Total_Energy;
+        double dU_new;
+        dU_new = 0;
+
+        for (int k = 0; k < N_List; k++){
+            int j;
+            j = List[k];
+            dU_new += Calculate_Pair_Potential(j, Particles, Box,
+                                   Particles.Collision_List);
+
+        }
+
+        // TODO make less expensive! one by one calculation
+        //Calculate_Pair_Potential(Particles, Box);
+        //delta_U = Total_Energy - Total_Energy_old;
+
+        //double delta_U_test;
+        delta_U  = dU_new - dU_old; 
+
+        //cout<<"rot    "<<delta_U<<"   "<<delta_U_test<<endl;  
 
         b_factor = GSL_MIN(1, exp((beta_f - beta) * delta_U));
         XI = gsl_rng_uniform(r01);
@@ -256,13 +289,10 @@ void pmove::Rot_Cluster_Move(particles &Particles, box *Box, fileio &Fileio,
                 Reset_Positions(Particles, j);
                 Particles.N_Particle[j]->Calculate_Axis();
                 Particles.N_Particle[j]->Calculate_Patch_Position();
-                Particles.Reset_Cell_List(Box, j, Particles.c_id, Particles.n_id,
-                                          Particles.id_num);
 
             }
-
-            Particles.Total_Energy = Total_Energy_old;
-            Total_Energy = Total_Energy_old;
+            Particles.Reset_Cell_List(Box);
+            Particles.Set_Cell_List(Box);
         }
 
 
@@ -289,7 +319,8 @@ void pmove::Rot_Cluster_Move(particles &Particles, box *Box, fileio &Fileio,
                 Set_Positions(Particles, j);
             }
 
-            Particles.Total_Energy = Total_Energy;
+            Particles.Total_Energy = Particles.Total_Energy - dU_old + dU_new;
+
         }
     }
 
@@ -300,11 +331,10 @@ void pmove::Rot_Cluster_Move(particles &Particles, box *Box, fileio &Fileio,
 
 void pmove::Trans_Cluster_Move(particles &Particles, box *Box, fileio &Fileio,
                                int mc_time) {
-
     N_List = 0;
     N_Bonds = 0;
     N_failed_links = 0;
-    double Total_Energy_old;
+    //double Total_Energy_old;
     double delta_U;
 
     // choose particle id
@@ -336,7 +366,18 @@ void pmove::Trans_Cluster_Move(particles &Particles, box *Box, fileio &Fileio,
 
     Pseudocluster_Recursion(id, links, failed_links, Particles, Box);
 
-    // Collision Test
+    // Calculate old energy difference 
+    double dU_old;
+    dU_old = 0;
+
+    for (int k = 0; k < N_List; k++){
+      int j;
+      j = List[k];
+      dU_old += Calculate_Pair_Potential(j, Particles, Box,
+                                         Particles.Collision_List);
+
+    }
+    // Update positions  
 
     for (int k = 0; k < N_List; k++) {
 
@@ -386,17 +427,36 @@ void pmove::Trans_Cluster_Move(particles &Particles, box *Box, fileio &Fileio,
             Reset_Positions(Particles, List[k]);
             Particles.N_Particle[List[k]]->Calculate_Axis();
             Particles.N_Particle[List[k]]->Calculate_Patch_Position();
-            Particles.Reset_Cell_List(Box, List[k], Particles.c_id, Particles.n_id,
-                                      Particles.id_num);
 
         }
+
+        Particles.Reset_Cell_List(Box);
+        Particles.Set_Cell_List(Box);
+
     }
 
     if (exit_status == 0) {
 
-        Total_Energy_old = Particles.Total_Energy;
-        Calculate_Pair_Potential(Particles, Box);
-        delta_U = Total_Energy - Total_Energy_old;
+        double dU_new;
+        dU_new = 0;
+
+        for (int k = 0; k < N_List; k++){
+          int j;
+          j = List[k];
+          dU_new += Calculate_Pair_Potential(j, Particles, Box,
+                                            Particles.Collision_List);
+
+        }
+
+        //double delta_U_test;
+        delta_U = dU_new - dU_old; 
+
+        // Total_Energy_old = Particles.Total_Energy;
+        // TODO: make faster!
+        //Calculate_Pair_Potential(Particles, Box);
+        //delta_U = Total_Energy - Total_Energy_old;
+
+        //cout<<"trans    "<<delta_U<<"   "<<delta_U_test<<endl;  
 
         b_factor = GSL_MIN(1, exp((beta_f - beta) * delta_U));
         XI = gsl_rng_uniform(r01);
@@ -409,13 +469,14 @@ void pmove::Trans_Cluster_Move(particles &Particles, box *Box, fileio &Fileio,
                 Reset_Positions(Particles, j);
                 Particles.N_Particle[j]->Calculate_Axis();
                 Particles.N_Particle[j]->Calculate_Patch_Position();
-                Particles.Reset_Cell_List(Box, j, Particles.c_id, Particles.n_id,
-                                          Particles.id_num);
 
             }
+            Particles.Reset_Cell_List(Box);
+            Particles.Set_Cell_List(Box);
 
-            Particles.Total_Energy = Total_Energy_old;
-            Total_Energy = Total_Energy_old;
+            Particles.Total_Energy = Particles.Total_Energy - dU_old + dU_new;
+            //Particles.Total_Energy = Total_Energy_old;
+            //Total_Energy = Total_Energy_old;
         }
 
         if (b_factor >= XI) {
@@ -425,7 +486,8 @@ void pmove::Trans_Cluster_Move(particles &Particles, box *Box, fileio &Fileio,
                 Set_Positions(Particles, j);
             }
 
-            Particles.Total_Energy = Total_Energy;
+
+            //Particles.Total_Energy = Total_Energy;
         }
     }
 

@@ -205,7 +205,7 @@ class particles : public polyhedra {
 
     void Set_Cell_List(box *Box);
     void Reset_Cell_List(box *Box);
-    void Reset_Cell_List(box *Box, int id, int &c_id, int &n_id, int &id_num);
+    void Reset_Cell_List(box *Box, int id, int &id_num);
 
     void Startconfig_SPHERE(box *Box);
 
