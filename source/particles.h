@@ -197,15 +197,24 @@ class particles : public polyhedra {
 
     void Make_Cell_List(box *Box);
     void Update_Cell_List(int id, box *Box);
+    void Update_Cell_List(int *List, int N_List, box *Box);
+
+
     void Check_Cell(int id, int cell_id, box *Box);
     void Make_Cell_Neighbour_List();
+
 
     // void Calculate_Collision_Partners(int id, box* Box);
     // void Calculate_Axis(int id);
 
     void Set_Cell_List(box *Box);
+    void Set_Cell_list(int *List, int N_List, box *Box);
+    void Set_Cell_List(box *Box, int id);
+
+
     void Reset_Cell_List(box *Box);
-    void Reset_Cell_List(box *Box, int id, int &id_num);
+    void Reset_Cell_List(box *Box, int id);
+    void Reset_Cell_list(int *List, int N_List, box *Box);
 
     void Startconfig_SPHERE(box *Box);
 

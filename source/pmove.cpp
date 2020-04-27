@@ -448,25 +448,25 @@ void pmove::Iterate(particles &Particles, box *Box, fileio &Fileio,
 
     if (value == 0) {
 
-        cout<<"translate"<<endl;
+      //cout<<"translate"<<endl;
         // cluster_counter=gsl_rng_uniform_int(r,cluster_size);
         // id= Cluster_List[cluster_counter];
 
         id = gsl_rng_uniform_int(r, Box->N);
-        Translate(Particles, Box, Fileio, id, mc_time);
+        //Translate(Particles, Box, Fileio, id, mc_time);
     }
 
     if (value == 1) {
 
         // cluster_counter=gsl_rng_uniform_int(r,cluster_size);
         // id= Cluster_List[cluster_counter];
-        cout<<"rotate"<<endl;
+        //cout<<"rotate"<<endl;
 
         id = gsl_rng_uniform_int(r, Box->N);
 
         if (is_2D == 1) {
 
-            Rotate2D(Particles, Box, Fileio, id, mc_time);
+          //Rotate2D(Particles, Box, Fileio, id, mc_time);
         }
 
         else {
@@ -505,13 +505,13 @@ void pmove::Iterate(particles &Particles, box *Box, fileio &Fileio,
         rhalf = gsl_rng_uniform(r01);
 
         if (rhalf < 0.5) {
-          //cout <<"Cluster trans move"<<endl;
-          //Trans_Cluster_Move(Particles, Box, Fileio, mc_time);
+          cout <<"Cluster trans move"<<endl;
+          Trans_Cluster_Move(Particles, Box, Fileio, mc_time);
         }
 
         if (rhalf > 0.5) {
-          cout<<"Cluster rot move"<<endl;
-          Rot_Cluster_Move(Particles, Box, Fileio, mc_time);
+          //cout<<"Cluster rot move"<<endl;
+          //Rot_Cluster_Move(Particles, Box, Fileio, mc_time);
         }
 
         // if (rhalf>2./3.){

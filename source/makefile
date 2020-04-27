@@ -1,7 +1,7 @@
 #!/bin/make -f
 CC=g++
 LIBS=-lgsl -lgslcblas 
-CFLAGS=-O3 -g
+CFLAGS=-O3 -g -std=c++11
 
 all: McPoly
 
