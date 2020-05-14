@@ -104,9 +104,10 @@ void pmove::Pseudocluster_Recursion(int id_j, int cn, int fl,
 void pmove::Rot_Cluster_Move(particles &Particles, box *Box, fileio &Fileio,
                              int mc_time) {
 
+
+  //cout<<"Rot cluster move "<<endl; 
     //double Total_Energy_old;
     double delta_U;
-   
     N_List = 0;
     N_Bonds = 0;
     r_id = -1;
@@ -126,7 +127,7 @@ void pmove::Rot_Cluster_Move(particles &Particles, box *Box, fileio &Fileio,
 
     // rand_phi = gsl_ran_gaussian(r01, kappa);
     rand_phi = gsl_rng_uniform(r01);
-
+   
     phi_t = kappa * (rand_phi - 0.5);
 
     Rot_mat[0] = cos(phi_t);
@@ -156,7 +157,7 @@ void pmove::Rot_Cluster_Move(particles &Particles, box *Box, fileio &Fileio,
     xp2 = 0;
     yp1 = 0;
     yp2 = 0;
-
+    //cout<<" update center of mass rotation"<<endl; 
     for (int k = 0; k < N_List; k++) {
         int j;
         j = List[k];
@@ -183,7 +184,7 @@ void pmove::Rot_Cluster_Move(particles &Particles, box *Box, fileio &Fileio,
     center_mass.y = (Box->Ly / (2 * M_PI)) * (theta_av_y);
     center_mass.z = Box->Lz / 2.0;
 
-
+    //cout<<"Calculate Pair potential"<<endl;
     // Calculate old energy difference 
     double dU_old;
     dU_old = 0;
@@ -200,13 +201,17 @@ void pmove::Rot_Cluster_Move(particles &Particles, box *Box, fileio &Fileio,
     for (int k = 0; k < N_List; k++) {
         int j;
         j = List[k];
+        //cout<<"list k"<<j<<endl;
+        //cout<<"pos y  before rot map "<<Particles.N_Particle[j]->y_center<<endl;
         Rot_Move_Map(Particles, j, Box, center_mass, Rot_mat);
+        //cout<<"pos y after rot map  "<<Particles.N_Particle[j]->y_center<<endl;
         Particles.Check_Periodic_CM(j, Box);
         Update_Periodic_Positions(Particles, Box, j);
+        //cout<<"after pbc "<<Particles.N_Particle[j]->y_center<<endl;
         Particles.N_Particle[j]->Calculate_Axis();
         Particles.N_Particle[j]->Calculate_Patch_Position();
     }
-
+    //cout<<"Update cell list"<<endl;
     Particles.Update_Cell_List(List, N_List,Box);
 
 
@@ -222,6 +227,7 @@ void pmove::Rot_Cluster_Move(particles &Particles, box *Box, fileio &Fileio,
         exit_status = 1;
     }
 
+    //cout<<"Calculate collision list"<<endl;
     do {
         Particles.Collision_List[List[k]].Calculate(Box, List[k], Particles.Id_Cell_List,
                                                Particles.Cell_List, Particles.Cell,
@@ -241,7 +247,7 @@ void pmove::Rot_Cluster_Move(particles &Particles, box *Box, fileio &Fileio,
 
 
     if (exit_status > 0) {
-
+      //cout<<"Reset positions"<<endl;
         // Reset all positions!
         for (int k = 0; k < N_List; k++) {
             int j;
@@ -251,13 +257,13 @@ void pmove::Rot_Cluster_Move(particles &Particles, box *Box, fileio &Fileio,
             Particles.N_Particle[j]->Calculate_Patch_Position();
             // Set_Positions(Particles, j);
         }
-        Particles.Reset_Cell_list(List, N_List, Box);
+        Particles.Reset_Cell_List(List, N_List, Box);
 
     }
 
     if (exit_status == 0) {
 
-
+      //cout<<"Calculate new energy"<<endl; 
         //Total_Energy_old = Particles.Total_Energy;
         double dU_new;
         dU_new = 0;
@@ -283,7 +289,7 @@ void pmove::Rot_Cluster_Move(particles &Particles, box *Box, fileio &Fileio,
         XI = gsl_rng_uniform(r01);
 
         if (b_factor < XI) {
-
+          //cout<<"Reset"<<endl;
             for (int k = 0; k < N_List; k++) {
                 int j;
                 j = List[k];
@@ -292,12 +298,12 @@ void pmove::Rot_Cluster_Move(particles &Particles, box *Box, fileio &Fileio,
                 Particles.N_Particle[j]->Calculate_Patch_Position();
 
             }
-            Particles.Reset_Cell_list(List, N_List, Box);
+            Particles.Reset_Cell_List(List, N_List, Box);
         }
 
 
         if (b_factor >= XI) {
-
+          // cout<<"Accept"<<endl;
 
             for (int k = 0; k < N_List; k++) {
                 int j;
@@ -320,13 +326,53 @@ void pmove::Rot_Cluster_Move(particles &Particles, box *Box, fileio &Fileio,
             }
 
             Particles.Total_Energy = Particles.Total_Energy - dU_old + dU_new;
-            Particles.Set_Cell_list(List, N_List,Box);
+            //cout<<"Set cell"<<endl;
+            Particles.Set_Cell_List(List, N_List,Box);
 
 
         }
     }
+    /*
+    for (int s = 0; s<N_List;s++){
+
+      int id = List[s];
+      int cell_id;
+      int cell_id_old; 
+      cell_id = Particles.Id_Cell_List[id];
+      cell_id_old = Particles.c_id;
+      int number_p;
+      number_p = Particles.Cell_List[cell_id][0];
+      int number_p_old;
+      number_p_old = Particles.Cell_List[cell_id_old][0];
+
+      int m = 0; 
+      for(int k =1;k<Particles.MAX_cell_members;k++){
+        if (Particles.Cell_List[cell_id][k] != -100) {
+          m++;
+        }
+      }
+
+      int n = 0;
+        for(int k =1;k<Particles.MAX_cell_members;k++){
+             if (Particles.Cell_List[cell_id_old][k] != -100) {
+                  n++;
+               }
+        }
+
+      if (m!=number_p){
+                       cout<<"ROT CLUSTER "<<id<<" supp number of particles "<<number_p<<"actual number of particles "<<m<<endl;
+      }
+
+      if (n!=number_p_old){
+                           cout<<"ROT CLUSTER old "<<id<<" supp number of particles "<<number_p_old<<"actual number of particles "<<n<<endl;
+      }
+
+   }
+    */
 
     Reset_Pseudo_Cluster(Box);
+
+
 }
 
 
@@ -369,7 +415,7 @@ void pmove::Trans_Cluster_Move(particles &Particles, box *Box, fileio &Fileio,
     Pseudocluster_Recursion(id, links, failed_links, Particles, Box);
 
     // Calculate old energy difference 
-    //cout<<"calc DU"<<endl; 
+    //cout<<"Cluster trans "<<endl; 
     double dU_old;
     dU_old = 0;
 
@@ -384,7 +430,7 @@ void pmove::Trans_Cluster_Move(particles &Particles, box *Box, fileio &Fileio,
 
     //cout<<"calc positions"<<endl; 
     for (int k = 0; k < N_List; k++) {
-
+      // cout<<"list k"<<List[k]<<endl;
         Trans_Update_Positions(Particles, List[k], trans_vec);
         Particles.Check_Periodic_CM(List[k], Box);
         Update_Periodic_Positions(Particles, Box, List[k]);
@@ -428,17 +474,18 @@ void pmove::Trans_Cluster_Move(particles &Particles, box *Box, fileio &Fileio,
         k++;
 
     } while ((exit_status == 0) && (k < N_List));
-    //cout<<"Reset"<<endl;
     if (exit_status > 0) {
 
+      //cout<<"Reset"<<endl;
         for (int k = 0; k < N_List; k++) {
             Reset_Positions(Particles, List[k]);
             Particles.N_Particle[List[k]]->Calculate_Axis();
             Particles.N_Particle[List[k]]->Calculate_Patch_Position();
 
         }
-        Particles.Reset_Cell_list(List, N_List, Box);
-
+        // cout<<"before reset"<<endl;
+        Particles.Reset_Cell_List(List, N_List, Box);
+        //cout<<"after reset"<<endl;
 
 
     }
@@ -470,7 +517,7 @@ void pmove::Trans_Cluster_Move(particles &Particles, box *Box, fileio &Fileio,
         XI = gsl_rng_uniform(r01);
 
         if (b_factor < XI) {
-          //cout<<"Reset"<<endl;
+          //cout<<"Cluster Reset"<<endl;
             for (int k = 0; k < N_List; k++) {
                 int j;
                 j = List[k];
@@ -479,12 +526,15 @@ void pmove::Trans_Cluster_Move(particles &Particles, box *Box, fileio &Fileio,
                 Particles.N_Particle[j]->Calculate_Patch_Position();
 
             }
-            Particles.Reset_Cell_list(List, N_List, Box);
+            //cout<<"before reset"<<endl;
+            Particles.Reset_Cell_List(List, N_List, Box);
+            //cout<<"before reset"<<endl;
+
             //Particles.Total_Energy = Particles.Total_Energy - dU_old + dU_new;
             //Particles.Total_Energy = Total_Energy_old;
             //Total_Energy = Total_Energy_old;
         }
-        //cout<<"Set"<<endl;
+        //cout<<"Cluster Set"<<endl;
         if (b_factor >= XI) {
             for (int k = 0; k < N_List; k++) {
                 int j;
@@ -492,12 +542,53 @@ void pmove::Trans_Cluster_Move(particles &Particles, box *Box, fileio &Fileio,
                 Set_Positions(Particles, j);
             }
             Particles.Total_Energy = Particles.Total_Energy - dU_old + dU_new;
-            Particles.Set_Cell_list(List, N_List,Box);
+            Particles.Set_Cell_List(List, N_List,Box);
 
             //Particles.Total_Energy = Total_Energy;
         }
     }
 
+    /*
+    for (int s = 0; s<N_List;s++){
+
+      int id = List[s];
+      int cell_id;
+      int cell_id_old; 
+
+      cell_id = Particles.Id_Cell_List[id];
+      cell_id_old = Particles.c_id;
+      
+      int number_p;
+      number_p = Particles.Cell_List[cell_id][0];
+      int number_p_old;
+      number_p_old = Particles.Cell_List[cell_id_old][0];
+
+      int m = 0; 
+      for(int k =1;k<Particles.MAX_cell_members;k++){
+        if (Particles.Cell_List[cell_id][k] != -100) {
+          m++;
+        }
+      }
+
+      int n = 0;
+      for(int k =1;k<Particles.MAX_cell_members;k++){
+        if (Particles.Cell_List[cell_id_old][k] != -100) {
+          n++;
+        }
+      }
+
+      if (m!=number_p){
+        cout<<"TRANS CLUSTER "<<id<<" supp number of particles "<<number_p<<" actual number of particles "<<m<<endl;
+      }
+
+      if (n!=number_p_old){
+        cout<<"TRANS CLUSTER old "<<id<<" supp number of particles "<<number_p_old<<" actual number of particles "<<n<<endl;
+      }
+
+
+
+    }
+    */
     Reset_Pseudo_Cluster(Box);
 }
 

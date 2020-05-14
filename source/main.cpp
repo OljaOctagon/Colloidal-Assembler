@@ -46,6 +46,16 @@ int main(int argc, char *argv[]) {
                          Fileio.packing_fraction_in,
                          Particles.N_Particle[0]->A);
         start_time = 0;
+
+
+        int R1, R2;
+
+        R1 = atoi(argv[4]);
+        R2 = atoi(argv[5]);
+
+        gsl_rng_set(r01, R1);
+        gsl_rng_set(r, R2);
+
         Box->edges_from_center();
         // initialize lattice
         Particles.Startconfig(Box);

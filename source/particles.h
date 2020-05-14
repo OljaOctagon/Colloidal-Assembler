@@ -208,13 +208,13 @@ class particles : public polyhedra {
     // void Calculate_Axis(int id);
 
     void Set_Cell_List(box *Box);
-    void Set_Cell_list(int *List, int N_List, box *Box);
+    void Set_Cell_List(int *List, int N_List, box *Box);
     void Set_Cell_List(box *Box, int id);
 
 
     void Reset_Cell_List(box *Box);
     void Reset_Cell_List(box *Box, int id);
-    void Reset_Cell_list(int *List, int N_List, box *Box);
+    void Reset_Cell_List(int *List, int N_List, box *Box);
 
     void Startconfig_SPHERE(box *Box);
 

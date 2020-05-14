@@ -163,7 +163,7 @@ void pmove::Rotate2D(particles &Particles, box *Box, fileio &Fileio, int id,
             Particles.N_Particle[id]->phi_old = Particles.N_Particle[id]->phi;
             Set_Positions(Particles, id);
 
-            Particles.Total_Energy = Particles.Total_Energy + delta_U;
+            Particles.Total_Energy = Particles.Total_Energy - dU_old + dU_new;
 
             N_rotate_moves = N_rotate_moves + 1;
         }

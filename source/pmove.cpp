@@ -340,11 +340,11 @@ void pmove::Rot_Move_Map(particles &Particles, int id1, box *Box,
     particle_dist_z = Particles.N_Particle[id1]->z_center - center_mass.z;
 
     particle_dist_x =
-        particle_dist_x + Box->Lx * rint(particle_dist_x / Box->Lx);
+        particle_dist_x - Box->Lx * rint(particle_dist_x / Box->Lx);
     particle_dist_y =
-        particle_dist_y + Box->Ly * rint(particle_dist_y / Box->Ly);
+        particle_dist_y - Box->Ly * rint(particle_dist_y / Box->Ly);
     particle_dist_z =
-        particle_dist_z + Box->Lz * rint(particle_dist_z / Box->Lz);
+        particle_dist_z - Box->Lz * rint(particle_dist_z / Box->Lz);
 
     map_dist_center.x = particle_dist_x;
     map_dist_center.y = particle_dist_y;
@@ -453,20 +453,20 @@ void pmove::Iterate(particles &Particles, box *Box, fileio &Fileio,
         // id= Cluster_List[cluster_counter];
 
         id = gsl_rng_uniform_int(r, Box->N);
-        //Translate(Particles, Box, Fileio, id, mc_time);
+        Translate(Particles, Box, Fileio, id, mc_time);
     }
 
     if (value == 1) {
 
         // cluster_counter=gsl_rng_uniform_int(r,cluster_size);
         // id= Cluster_List[cluster_counter];
-        //cout<<"rotate"<<endl;
+          //cout<<"rotate"<<endl;
 
         id = gsl_rng_uniform_int(r, Box->N);
 
         if (is_2D == 1) {
 
-          //Rotate2D(Particles, Box, Fileio, id, mc_time);
+          Rotate2D(Particles, Box, Fileio, id, mc_time);
         }
 
         else {
@@ -505,15 +505,15 @@ void pmove::Iterate(particles &Particles, box *Box, fileio &Fileio,
         rhalf = gsl_rng_uniform(r01);
 
         if (rhalf < 0.5) {
-          cout <<"Cluster trans move"<<endl;
+          //cout <<"Cluster trans move"<<endl;
           Trans_Cluster_Move(Particles, Box, Fileio, mc_time);
         }
 
         if (rhalf > 0.5) {
           //cout<<"Cluster rot move"<<endl;
-          //Rot_Cluster_Move(Particles, Box, Fileio, mc_time);
+          Rot_Cluster_Move(Particles, Box, Fileio, mc_time);
         }
-
+        
         // if (rhalf>2./3.){
         // Three_Particle_Move(Particles, Box, Fileio, mc_time);
         //}

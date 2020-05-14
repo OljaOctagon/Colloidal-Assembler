@@ -55,7 +55,7 @@ void pmove::Translate(particles &Particles, box *Box, fileio &Fileio, int id,
 
     // is center of mass outside of the box?
 
-    ////cout<<"x_center "<<Particles.N_Particle[id]->x_center<<"  "<<id<<endl;
+    //cout<<"x_center "<<Particles.N_Particle[id]->x_center<<"  "<<id<<endl;
 
     Particles.Check_Periodic_CM(id, Box);
 
@@ -151,7 +151,7 @@ void pmove::Translate(particles &Particles, box *Box, fileio &Fileio, int id,
         if (XI > b_factor) {
 
           ///cout<<"trans set  "<<endl;
-            //////cout<<"Rejected!"<<endl;
+          //cout<<"Rejected!"<<endl;
 
             Reset_Positions(Particles, id);
 
@@ -169,7 +169,7 @@ void pmove::Translate(particles &Particles, box *Box, fileio &Fileio, int id,
 
         if (XI <= b_factor) {
 
-            //////cout<<"Accepted!"<<endl;
+          //cout<<"Accepted!"<<endl;
             //cout<<"trans reset  "<<endl;
             Set_Positions(Particles, id);
             // Set_Pair_Potential(Total_Energy, id, Particles, Box);
@@ -186,5 +186,52 @@ void pmove::Translate(particles &Particles, box *Box, fileio &Fileio, int id,
         }
     }
 
-    ////cout<<"x_center "<<Particles.N_Particle[id]->x_center<<"  "<<id<<endl;
+    /*
+      int cell_id;
+      int cell_id_old; 
+      cell_id = Particles.Id_Cell_List[id];
+      cell_id_old = Particles.c_id; 
+      int number_p;
+      number_p = Particles.Cell_List[cell_id][0];
+      int number_p_old;
+      number_p_old = Particles.Cell_List[cell_id_old][0];
+
+      int m = 0; 
+      for(int k =1;k<Particles.MAX_cell_members;k++){
+        if (Particles.Cell_List[cell_id][k] != -100) {
+          m++;
+        }
+      }
+
+      int n = 0;
+        for(int k =1;k<Particles.MAX_cell_members;k++){
+           if (Particles.Cell_List[cell_id_old][k] != -100) {
+                n++;
+        }
+        }
+
+      if (m!=number_p){
+          cout<<"TRANS new: id "<<id<<" cell id "<<cell_id<<" "<<" supp number of particles "<< number_p<<" actual number of particles "<<m<<endl;
+          for(int k =0;k<Particles.MAX_cell_members;k++){
+              if (Particles.Cell_List[cell_id][k] != -100) {
+                cout<<"cell member "<<k<<"  "<<Particles.Cell_List[cell_id][k]<<endl;
+
+              }   
+            }
+          cout<<"OLD one "<<endl; 
+          for(int k =0;k<Particles.MAX_cell_members;k++){
+            if (Particles.Cell_List[cell_id_old][k] != -100) {
+              cout<<"cell member "<<k<<"  "<<Particles.Cell_List[cell_id_old][k]<<endl;
+            }
+          }
+
+
+      }
+
+      if (n!=number_p_old){
+                       cout<<"TRANS old  "<<id<<" supp number of particles "<<number_p_old<<" actual number of particles "<<n<<endl;
+      }
+
+    */
+    //cout<<"x_center "<<Particles.N_Particle[id]->x_center<<"  "<<id<<endl;
 }

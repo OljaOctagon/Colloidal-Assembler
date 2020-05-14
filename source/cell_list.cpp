@@ -14,7 +14,7 @@ void particles::Check_Cell(int id, int cell_id, box *Box) {
     Cell[cell_id].front_count = 0;
     Cell[cell_id].back_count = 0;
 
-    N_Particle[cell_id]->cell_out = 0;
+    N_Particle[id]->cell_out = 0;
 
     Cell[cell_id].edges_from_center();
 
@@ -130,9 +130,6 @@ void particles::Update_Cell_List(int id, box *Box) {
 
     c_id = Id_Cell_List[id];
 
-    Id_Cell_List_old[id] = c_id;
-
-    //cout<<"cid update cell "<<c_id<<endl;
     // Test if particle is outside its cell
     //Check_Periodic_CM(id, Box);
     Check_Cell(id, c_id, Box);
@@ -146,52 +143,34 @@ void particles::Update_Cell_List(int id, box *Box) {
         Cell_ny =
             floor((N_Particle[id]->y_center - Box->y[0]) / double(Cell[0].Ly));
 
+        //cout<<"cid update cell "<<c_id<<endl;
+        // set new cell list 
         n_id = Cell_nx + Cell_ny * N_c;
+
+        if(n_id == c_id){
+          cout<<"ERROR "<<c_id<<" "<<n_id<<endl;
+          exit(1);
+        }
+
         //cout<<"nid update cell "<<n_id<<endl;
-        // store old cell-lists
-        for (int j = 0; j < MAX_cell_members; j++) {
-            Cell_List_old[c_id][j] = Cell_List[c_id][j];
-        }
-        //cout<<"Max cell members"<<endl;
-        for (int j = 0; j < MAX_cell_members; j++) {
-          //cout<<"Cell List nid j "<<Cell_List[n_id][j]<<endl; 
-            Cell_List_old[n_id][j] = Cell_List[n_id][j];
-        }
+        Cell_List[n_id][0] =  Cell_List[n_id][0] + 1; 
+        cell_counter = Cell_List[n_id][0];
+        Cell_List[n_id][cell_counter] = id;
+        Id_Cell_List[id] = n_id;
 
-        // where is id in Cell List
-        scout = 0;
-        id_num = 1;
-
-        do {
-
-            if (Cell_List[c_id][id_num] == id) {
-                scout = 1;
-            }
-
-            id_num = id_num + 1;
-
-        } while (scout == 0);
-
-        id_num = id_num - 1;
-        //cout<<"change cell counter update cell "<<endl; 
-        // change cell counter to +/-
-        Cell_List[c_id][0] = Cell_List[c_id][0] - 1;
-        Cell_List[n_id][0] = Cell_List[n_id][0] + 1;
-
-        cell_counter = Cell_List[c_id][0];
-        Cell_List[c_id][cell_counter + 1] = -100;
 
         // kick id out of Cell_List[c_id]
-        for (int i = id_num; i <= Cell_List[c_id][0]; i++) {
-            Cell_List[c_id][i] = Cell_List_old[c_id][i + 1];
+        int m=1;
+        for (int i = 1; i <= Cell_List[c_id][0]; i++) {
+          if (Cell_List[c_id][i]!=id){
+            Cell_List[c_id][m] = Cell_List[c_id][i];
+            m++;
+          }
         }
-
-        // add id at end of new Cell_List
-        cell_counter = Cell_List[n_id][0];
-
-        Cell_List[n_id][cell_counter] = id;
-
-        Id_Cell_List[id] = n_id;
+        // set last cell element to -100; substract 1 from counter
+        cell_counter = Cell_List[c_id][0];
+        Cell_List[c_id][cell_counter] = -100;
+        Cell_List[c_id][0]  = Cell_List[c_id][0] - 1;  
     }
 }
 // for cluster moves 
@@ -223,6 +202,14 @@ void particles::Update_Cell_List(int *List, int N_List, box *Box){
             floor((N_Particle[id_j]->y_center - Box->y[0]) / double(Cell[0].Ly));
 
             new_cell_id = Cell_nx + Cell_ny * N_c;
+            //cout<<"new cell id "<<new_cell_id<<" "<<Cell_nx<<" "<<Cell_ny<<" "<<N_c<<endl;
+            //cout<<"y_center, box_y0, cell.ly "<<N_Particle[id_j]->y_center<<"   "<<Box->y[0]<<"  "<<Cell[0].Ly<<"  "<<Box->Ly<<endl;
+            //cout<<"x_center, box_x0, cell.lx "<<N_Particle[id_j]->x_center<<"   "<<Box->x[0]<<"  "<<Cell[0].Lx<<"  "<<Box->Lx<<endl;
+
+
+            // set cell list id to new cell 
+            Id_Cell_List[id_j] = new_cell_id; 
+
             map_new_cell_id[id_j] = new_cell_id;
             //cout<<"new cell id "<<new_cell_id<<endl;
             //cout<<"CELL OUT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! "<<cell_id<<"  "<<id_j<<endl;
@@ -232,12 +219,15 @@ void particles::Update_Cell_List(int *List, int N_List, box *Box){
 
     // Iterate over the map
     //cout<<"Iterate over map"<<endl;
-    int m; 
+    int m;
+    int n_elements;
+    //int cell_id;
     for (const auto &element : map_cell_to_ids) {
 
+      //cout<<"hello"<<endl;
         // Accessing key
-        int cell_id = element.first;
-        int n_elements = Cell_List[cell_id][0];
+        cell_id = element.first;
+        n_elements = Cell_List[cell_id][0];
         m=1;
 
         // reorder the active list elements and
@@ -247,22 +237,31 @@ void particles::Update_Cell_List(int *List, int N_List, box *Box){
             int id_j = Cell_List[cell_id][k];
             //cout<<"element k "<<id_j<<endl;
             if(element.second.find(id_j) == element.second.end()){
-              //cout<<"cell id, m "<<id_j<<m<<endl;
+              //cout<<"cell id, m "<<id_j<<"   "<<m<<endl;
                 Cell_List[cell_id][m] = Cell_List[cell_id][k];
                 m++;
             }
              // reduce number of particles in cell list cell_id by one:
              else{
-                 Cell_List[cell_id][0]-= 1;
+                 Cell_List[cell_id][0] = Cell_List[cell_id][0] - 1;
               }
          }
-        //cout<<"reset overheads,m "<<m<<endl;
+        //cout<<"reset overheads,m "<<m<<"  "<<n_elements<<endl;
         // resset the overhead elements
-        for (int k=m; m<n_elements;k++){
+        for (int k=m; k<=n_elements;k++){
+          //cout<<"k, cell_id  "<<k<<" "<<cell_id<<"  "<<n_elements<<endl;
           Cell_List[cell_id][k] = -100;
         }
-    } 
+        /*
+        cout<<"CLUSTER OLD CELL ID LIST UPDATE: "<<cell_id<<endl;
+        for (int k= 0; k<MAX_cell_members;k++){
+          if (Cell_List[cell_id][k] != -100){
+            cout<<"cell member "<<k<<" "<<Cell_List[cell_id][k]<<endl;
+          }
+        }
 
+        */
+    }
     //cout<<"add id at end of new cell list and cell counter +1"<<endl;
     // Add id to at end of new cell list and cell list counter+1
     for (const auto  &element : map_new_cell_id) {
@@ -271,9 +270,20 @@ void particles::Update_Cell_List(int *List, int N_List, box *Box){
        //cout<<"idj "<<id_j<<"  cell_id  "<<cell_id<<endl;
        int n_elements = Cell_List[cell_id][0];
        Cell_List[cell_id][n_elements+1] = id_j;
-       Cell_List[cell_id][0] += 1; 
+       Cell_List[cell_id][0] = Cell_List[cell_id][0] + 1;
+
+       /*
+       cout<<"CLUSTER NEW CELL ID LIST UPDATE: "<<cell_id<<" id "<<id_j<<endl;
+       for (int k= 0; k<MAX_cell_members;k++){
+         if (Cell_List[cell_id][k] != -100){
+           cout<<"cell member "<<k<<" "<<Cell_List[cell_id][k]<<endl;
+         }
+       }
+       */
+
     }
 
+    //cout<<"end"<<endl; 
 }
 
 void particles::Set_Cell_List(box *Box) {
@@ -324,7 +334,7 @@ void particles::Reset_Cell_List(box *Box) {
 }
 
 // for cluster moves 
-void particles::Set_Cell_list(int *List, int N_List, box *Box) {
+void particles::Set_Cell_List(int *List, int N_List, box *Box) {
 
     int cell_id;
     int new_cell_id;
@@ -341,10 +351,13 @@ void particles::Set_Cell_list(int *List, int N_List, box *Box) {
           set_changed_cells.insert(new_cell_id);
           set_changed_cells.insert(old_cell_id);
 
+          if(old_cell_id == new_cell_id){
+            cout<<"ERROR old is new"<<id_j<<" "<<new_cell_id<<" "<<old_cell_id<<endl;
+          }
+
           Id_Cell_List_old[id_j] = Id_Cell_List[id_j];
         }
     }
-
     for (const int &cell_id : set_changed_cells ){
 
         int max_number = GSL_MAX( Cell_List[cell_id][0],
@@ -356,7 +369,7 @@ void particles::Set_Cell_list(int *List, int N_List, box *Box) {
     }
 }
 
-void particles::Reset_Cell_list(int *List, int N_List, box *Box) {
+void particles::Reset_Cell_List(int *List, int N_List, box *Box) {
 
     int cell_id;
     int new_cell_id;
@@ -368,12 +381,15 @@ void particles::Reset_Cell_list(int *List, int N_List, box *Box) {
       id_j = List[k];
       new_cell_id = Id_Cell_List[id_j];
       old_cell_id = Id_Cell_List_old[id_j];
-
+      // cout<<"RESET ID? "<<id_j<<endl; 
       if (N_Particle[id_j]->cell_out >= 1) {
         set_changed_cells.insert(new_cell_id);
         set_changed_cells.insert(old_cell_id);
 
-        Id_Cell_List_old[id_j] = Id_Cell_List[id_j];
+        //cout<<"new cell id "<<new_cell_id<<endl;
+        //cout<<"old cell id"<<old_cell_id<<endl;
+
+        Id_Cell_List[id_j] = Id_Cell_List_old[id_j];
       }
     }
 
@@ -385,6 +401,15 @@ void particles::Reset_Cell_list(int *List, int N_List, box *Box) {
       for(int k=0;k<=max_number;k++){
         Cell_List[cell_id][k] = Cell_List_old[cell_id][k];
       }
+      /*
+      cout<<"RESET CLUSTER NEW CELL ID LIST UPDATE: "<<cell_id<<endl;
+      for (int k= 0; k<MAX_cell_members;k++){
+        if (Cell_List[cell_id][k] != -100){
+          cout<<"cell member "<<k<<" "<<Cell_List[cell_id][k]<<endl;
+        }
+      } 
+      */
+
    }
 }
 
@@ -411,7 +436,7 @@ void particles::Reset_Cell_List(box *Box, int id) {
         Id_Cell_List[id] = Id_Cell_List_old[id];
 
         // Reset the old cell
-        int max_number = GSL_MAX(cell_counter,cell_counter_old);
+        int max_number = GSL_MAX(cell_counter_new,cell_counter_old);
 
         for (int i = 0; i <=max_number; i++) {
             Cell_List[c_id][i] = Cell_List_old[c_id][i];
@@ -568,13 +593,22 @@ void collision_list::Calculate(box *Box, int id, int *Id_Cell_List,
     for (int n_x = 0; n_x < 3; n_x++) {
         for (int n_y = 0; n_y < 3; n_y++) {
 
-          //cout<<"cell n "<<n_x<<","<<n_y<<" : "<<Cell[n_id].Neighbour[n_x][n_y][n_z]<<endl;
           p_id = Cell[n_id].Neighbour[n_x][n_y][n_z];
-          //cout<<"number of collision partners"<<Cell_List[p_id][0]<<endl;
             for (int j = 1; j <= Cell_List[p_id][0]; j++) {
-
                 cell_j = Cell_List[p_id][j];
-                //cout<<"cell_j"<<cell_j<<endl;
+                //cout<<"cell_j "<<cell_j<<endl;
+                if (cell_j == -100){
+                  cout<<"id "<<id<<endl;
+                  cout<<"n_id "<<n_id<<endl;
+                  cout<<"coll_j "<<cell_j<<endl;
+                  cout<<"p_id "<<p_id<<endl;
+                  cout<<"j "<<j<<endl; 
+                  cout<<"cell n "<<n_x<<","<<n_y<<" : "<<Cell[n_id].Neighbour[n_x][n_y][n_z]<<endl;
+                  cout<<"number of collision partners "<<Cell_List[p_id][0]<<endl;
+                  exit(1);
+                }
+
+                
                 // for(int cell_j=0; cell_j<Box->N;cell_j++){
 
                 particle_dist_x = N_Particle[id]->x_center -
