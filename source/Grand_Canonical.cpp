@@ -10,18 +10,6 @@ void pmove::Particle_Insertion(particles &Particles, box *Box, fileio &Fileio,
     dU_old = 0;
     dU_new = 0;
 
-    /*
-    Particles.Collision_List[id].Calculate_OP(Box, id, Particles.N_Particle,
-    Particles.N_Particle[0]->cut_off, Particles.MAX_coll_p); dU_old =
-    Calculate_Pair_Potential(id, Particles, Box, Particles.Collision_List);
-
-    exit_status = 0;
-    col_count = 0;
-
-    Collision_Test( Particles, Box, id, Particles.Collision_List);
-    dU_old = dU_old + Halo_Energy;
-    */
-
     double x_trial, y_trial, z_trial;
 
     rand_x = gsl_rng_uniform(r01);
@@ -154,9 +142,22 @@ void pmove::Particle_Insertion(particles &Particles, box *Box, fileio &Fileio,
     Particles.N_Particle[id]->Calculate_Axis();
     Particles.N_Particle[id]->Calculate_Patch_Position();
 
-    Particles.Collision_List[id].Calculate_OP(Box, id, Particles.N_Particle,
-                                              Particles.N_Particle[0]->cut_off,
-                                              Particles.MAX_coll_p);
+
+    // add to Cell List
+    ////////////////////////////////////////////////////////////////////////
+    Particles.Insert_to_Cell_List(id,Box);
+    ////////////////////////////////////////////////////////////////////////
+
+    Particles.Collision_List[id].Calculate(Box, id, Particles.Id_Cell_List,
+                                           Particles.Cell_List, Particles.Cell,
+                                           Particles.N_Particle,
+                                           Particles.N_Particle[0]->cut_off,
+                                           Particles.MAX_coll_p);
+
+
+    // Particles.Collision_List[id].Calculate_OP(Box, id, Particles.N_Particle,
+    //                                          Particles.N_Particle[0]->cut_off,
+    //                                          Particles.MAX_coll_p);
 
     exit_status = 0;
     col_count = 0;
@@ -169,6 +170,10 @@ void pmove::Particle_Insertion(particles &Particles, box *Box, fileio &Fileio,
         Reset_Positions(Particles, id);
         Particles.N_Particle[id]->Calculate_Axis();
         Particles.N_Particle[id]->Calculate_Patch_Position();
+
+        //////////////////////////////////////////////////////////////////
+        Particles.Reset_Insertion_Cell_List(id,Box);
+        /////////////////////////////////////////////////////////////////
     }
 
     if (exit_status == 0) {
@@ -209,6 +214,9 @@ void pmove::Particle_Insertion(particles &Particles, box *Box, fileio &Fileio,
             Reset_Positions(Particles, id);
             Particles.N_Particle[id]->Calculate_Axis();
             Particles.N_Particle[id]->Calculate_Patch_Position();
+            //////////////////////////////////////////////////////////////////
+            Particles.Reset_Insertion_Cell_List(id,Box);
+            //////////////////////////////////////////////////////////////////
         }
 
         if (b_factor >= XI) {
@@ -217,6 +225,9 @@ void pmove::Particle_Insertion(particles &Particles, box *Box, fileio &Fileio,
             Particles.Total_Energy = Particles.Total_Energy + delta_U;
             Box->packing_fraction =
                 (Particles.N_Particle[0]->A * double(Box->N)) / Box->A;
+            //////////////////////////////////////////////////////////////////
+            Particles.Set_Insertion_Cell_List(id,Box);
+            //////////////////////////////////////////////////////////////////
         }
     }
 }
@@ -237,9 +248,16 @@ void pmove::Particle_Deletion(particles &Particles, box *Box, fileio &Fileio,
 
     mu_current = Box->mu_1;
 
-    Particles.Collision_List[id].Calculate_OP(Box, id, Particles.N_Particle,
-                                              Particles.N_Particle[0]->cut_off,
-                                              Particles.MAX_coll_p);
+    Particles.Collision_List[id].Calculate(Box, id, Particles.Id_Cell_List,
+                                           Particles.Cell_List, Particles.Cell,
+                                           Particles.N_Particle,
+                                           Particles.N_Particle[0]->cut_off,
+                                           Particles.MAX_coll_p);
+
+
+    //Particles.Collision_List[id].Calculate_OP(Box, id, Particles.N_Particle,
+    //                                          Particles.N_Particle[0]->cut_off,
+    //                                          Particles.MAX_coll_p);
     dU_old =
         Calculate_Pair_Potential(id, Particles, Box, Particles.Collision_List);
 
@@ -344,6 +362,7 @@ void pmove::Particle_Deletion(particles &Particles, box *Box, fileio &Fileio,
         Particles.N_Particle[Box->N - 1]->phi = 0;
 
         Set_Positions(Particles, Box->N - 1);
+        Particles.Delete_from_Cell_List(id, Box);
 
         Box->N = Box->N - 1;
 

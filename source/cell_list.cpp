@@ -478,6 +478,93 @@ void particles::Reset_Cell_List(box *Box, int id) {
  }
 
 
+void particles::Add_to_Cell_List(int id,box *Box){
+
+  // which cell is the new particle in 
+  Cell_nx =
+      floor((N_Particle[id]->x_center - Box->x[0]) / double(Cell[0].Lx));
+   Cell_ny =
+      floor((N_Particle[id]->y_center - Box->y[0]) / double(Cell[0].Ly));
+
+  n_id = Cell_nx + Cell_ny * N_c;
+
+  // add particle to new cell list at the end and counter +1 
+  Cell_List[n_id][0] =  Cell_List[n_id][0] + 1;
+  cell_counter = Cell_List[n_id][0];
+  Cell_List[n_id][cell_counter] = id;
+
+  // set cell id for particle
+  Id_Cell_List[id] = n_id;
+
+
+}
+
+void particles::Reset_Insertion_Cell_List(int id, box *Box){
+
+  // Reset Particles Id_Cell_List 
+  n_id =  Id_Cell_List[id]; 
+  Id_Cell_List[id] = -100; 
+
+
+  // Reset new cell list to N-1
+  cell_counter = Cell_List[n_id][0];
+  Cell_List[n_id][cell_counter] = -100;
+
+  // Reset to old number of cell members for n_id
+  Cell_List[n_id][0] = Cell_List_old[n_id][0];
+
+
+}
+
+void particles::Set_Insertion_Cell_List(int id, box *Box){
+  n_id = Id_Cell_List[id];
+
+  // Set member of particles in cell for n_id
+  Cell_List_old[n_id][0] = Cell_List[n_id][0];
+
+  // Set id in new cell 
+  int max_counter = Cell_List[n_id][0];
+  Cell_List_old[n_id][max_counter] = Cell_List[n_id][max_counter];
+
+  // Set cell info for particle id
+  Id_Cell_List_old[id] = Id_Cell_List[id];
+
+}
+
+void particles::Delete_from_Cell_List(int id, box *Box){
+
+  // reshuffle Id_Cell list and set last element to -100
+  for (int k = id+ 1, k<Box->N; k++){
+    Id_Cell_List[k-1] = Id_Cell_List[k];
+    Id_Cell_List_old[k-1] = Id_Cell_List[k];
+  }
+  Id_Cell_List[Box->N - 1] = -100;
+
+  // re-calculate cell lists 
+  for (int c_id = 0; c_id < number_of_cells; c_id++) {
+
+    //Reset cell lists 
+    for (int j = 1; j < MAX_cell_members; j++) {
+      Cell_List[c_id][j] = -100;
+    }
+
+    Cell_List[c_id][0] = 0;
+    cell_counter = 0;
+
+    for (int k = 0; id < Box->N-1; id++) {
+
+      if (Id_Cell_List[k] == c_id) {
+        Cell_List[c_id][cell_counter + 1] = k;
+        cell_counter = cell_counter + 1;
+      }
+    }
+    Cell_List[c_id][0] = cell_counter;
+  }
+
+}
+
+
+
 list_elements::list_elements() {}
 
 list_elements::~list_elements() {}

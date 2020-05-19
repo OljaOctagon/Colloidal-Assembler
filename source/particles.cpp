@@ -356,6 +356,10 @@ void particles::Startconfig(box *Box) {
 
     for (int id = 0; id < Box->N; id++) {
 
+
+        Id_Cell_List[id] = -100; 
+        Id_Cell_List_old[id] = -100; 
+
         N_Particle[id]->Set_Start_Lattice_Position(id, Box->Lx, Box->Ly,
                                                    Box->Lz, Box->N);
 
@@ -408,6 +412,9 @@ void particles::Startconfig(box *Box) {
     // for Resorvoir
 
     for (int id = Box->N; id < Res_Size; id++) {
+
+        Id_Cell_List[id] = -100; 
+        Id_Cell_List_old[id] = -100; 
 
         N_Particle[id]->x_center = -10.0;
         N_Particle[id]->y_center = -10.0;

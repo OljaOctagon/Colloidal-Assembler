@@ -216,6 +216,12 @@ class particles : public polyhedra {
     void Reset_Cell_List(box *Box, int id);
     void Reset_Cell_List(int *List, int N_List, box *Box);
 
+    void Insert_to_Cell_List(int id,box *Box);
+    void Reset_Insertion_Cell_List(int id, box *Box);
+    void Set_Insertion_Cell_List(int id, box *Box);
+
+    void Delete_from_Cell_List(int id, box *Box);
+
     void Startconfig_SPHERE(box *Box);
 
     bool ALLOCATED;
