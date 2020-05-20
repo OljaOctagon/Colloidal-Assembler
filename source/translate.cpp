@@ -39,7 +39,7 @@ void pmove::Translate(particles &Particles, box *Box, fileio &Fileio, int id,
     trans_vec.y = rand_y;
 
     if (is_2D == 1) {
-        trans_vec.z = 0.0;
+      trans_vec.z = 0.0;
     }
 
     else {

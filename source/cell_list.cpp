@@ -478,7 +478,7 @@ void particles::Reset_Cell_List(box *Box, int id) {
  }
 
 
-void particles::Add_to_Cell_List(int id,box *Box){
+void particles::Insert_to_Cell_List(int id,box *Box){
 
   // which cell is the new particle in 
   Cell_nx =
@@ -534,7 +534,7 @@ void particles::Set_Insertion_Cell_List(int id, box *Box){
 void particles::Delete_from_Cell_List(int id, box *Box){
 
   // reshuffle Id_Cell list and set last element to -100
-  for (int k = id+ 1, k<Box->N; k++){
+  for (int k = id+1; k< Box->N; k++){
     Id_Cell_List[k-1] = Id_Cell_List[k];
     Id_Cell_List_old[k-1] = Id_Cell_List[k];
   }
