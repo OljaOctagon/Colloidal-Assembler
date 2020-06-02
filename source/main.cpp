@@ -62,9 +62,6 @@ int main(int argc, char *argv[]) {
         Particles.Make_Cell_List(Box);
         Particles.Set_Cell_List(Box);
         Particles.Make_Cell_Neighbour_List();
-
-        gsl_rng_set(r01, 0xf143);
-        gsl_rng_set(r, 0x01a23);
     }
 
     if (strcmp(runtype, former_runtype) == 0) {

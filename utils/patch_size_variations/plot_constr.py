@@ -2,21 +2,41 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib
+import seaborn as sns
+import matplotlib as mpl
+import matplotlib.style as style
 
-matplotlib.use('pgf')
-matplotlib.rcParams.update({
-        "pgf.texsystem": "pdflatex",
-        'font.family'  : 'serif',
-        'text.usetex'  : True,
-        'pgf.rcfonts'  :False,
-        })
+#matplotlib.use('pgf')
+#matplotlib.rcParams.update({
+#        "pgf.texsystem": "pdflatex",
+#        'font.family'  : 'serif',
+#        'text.usetex'  : True,
+#        'pgf.rcfonts'  :False,
+#        })
+
+style.use('seaborn-ticks') 
+mpl.rcParams['font.family'] = "sans-serif"
+#sns.set_context('poster')
+plt.rcParams['axes.axisbelow'] = True
+
+plt.rcParams['font.serif'] = 'Ubuntu'
+plt.rcParams['font.monospace'] = 'Ubuntu Mono'
+plt.rcParams['font.size'] = 15
+plt.rcParams['axes.labelsize'] = 20
+plt.rcParams['axes.labelweight'] = 'bold'
+plt.rcParams['xtick.labelsize'] = 15
+plt.rcParams['ytick.labelsize'] = 15
+plt.rcParams['legend.fontsize'] = 15
+plt.rcParams['figure.titlesize'] = 15 
+
+blue_c ='#9999FF'
+red_c ='#FF9999'
+purple_c='#C17DCB'
+green_c='#61DCB7'
 
 savepath = "../plots/"
 
 df = pd.read_pickle("../analysis_data/constr_mp.pkl")
-#df = pd.read_pickle("rconst.pkl")
-
-#df.to_numpy()
 
 f = ['#state',
 	'#cp',
@@ -39,14 +59,10 @@ f = ['#state',
 	'np_domain_sizes'
 	] 
 
-print(df)
-
 psi_mu_d_r = df.groupby(['mu', 'delta', 'r_patch'])['psi'].mean().to_numpy()
 psi_std =  df.groupby(['mu', 'delta', 'r_patch'])['psi'].std().to_numpy()
 deltas = df.delta.unique()
 mus = df.mu.unique()
-print(mus)
-print(deltas)
 g_mu_d_r = df.groupby(['mu', 'delta', 'r_patch'])['g'].apply(np.mean).to_numpy()
 
 fcounter=0
@@ -75,25 +91,22 @@ for i in range(len(g_mu_d_r)):
 plt.xlabel("r")
 plt.ylabel("g(r)")
 plt.legend()
-plt.savefig(savepath+"constr_g.pgf")
+plt.savefig(savepath+"constr_g.pdf")
 plt.clf()
-
-
-
-
 
 for mu in range(len(mus)):
 	plt.errorbar(deltas,psi_mu_d_r[mu*len(deltas):(mu+1)*len(deltas)],
-			  yerr=psi_std[mu*len(deltas):(mu+1)*len(deltas)],label = f'$\mu$ = {mus[mu]}', linewidth=.5, capsize=1, capthick=0.5)
+                 yerr=psi_std[mu*len(deltas):(mu+1)*len(deltas)],
+                 label = f'$\mu$ = {mus[mu]}',
+                 linewidth=.5, capsize=1,
+                 capthick=0.5)
+
 plt.legend()
 plt.ylim(-1,1)
 plt.xlabel("$\Delta$")
 plt.ylabel("$\Psi_{\mathrm{rand}}$")
-plt.savefig(savepath+"constr_psis.pgf")
+plt.savefig(savepath+"constr_psis.pdf")
 plt.clf()
-
-
-
 
 anomaly = df[(df.mu == 0.2) & (df.delta == 0.35)]['psi'].mean()
 
