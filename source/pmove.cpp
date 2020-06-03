@@ -447,22 +447,17 @@ void pmove::Iterate(particles &Particles, box *Box, fileio &Fileio,
     gsl_ran_discrete_free(mt);
 
     if (value == 0) {
-
-      //cout<<"translate"<<endl;
-        // cluster_counter=gsl_rng_uniform_int(r,cluster_size);
-        // id= Cluster_List[cluster_counter];
-
-        id = gsl_rng_uniform_int(r, Box->N);
-        Translate(Particles, Box, Fileio, id, mc_time);
+        
+      //id = gsl_rng_uniform_int(r, Box->N);
+      id = 1; 
+      Translate(Particles, Box, Fileio, id, mc_time);
     }
 
     if (value == 1) {
 
-        // cluster_counter=gsl_rng_uniform_int(r,cluster_size);
-        // id= Cluster_List[cluster_counter];
-          //cout<<"rotate"<<endl;
 
-        id = gsl_rng_uniform_int(r, Box->N);
+      //id = gsl_rng_uniform_int(r, Box->N);
+      id = 1; 
 
         if (is_2D == 1) {
 
