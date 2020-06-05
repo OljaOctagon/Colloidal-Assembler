@@ -1,5 +1,13 @@
-
+import argparse  
 import numpy as np 
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-delta", type=float)
+
+p = parser.parse_args()
+
+delta=p.delta
 
 Lx=1.0
 alpha=np.pi/3.
@@ -12,20 +20,25 @@ A=np.zeros((2,3))
 #shift=np.array([5.47723,4.74342,0.05])
 shift = np.array([2,2,0.05])
 
-A[0] = np.array([d*(np.sqrt(3)/2.),d*0.5,0]) + shift
+
+var_delta = 1-2*delta
+#shift_sign = np.sign(var_delta)
+#var_delta = np.abs(var_delta) 
+
+delta_arr = np.array([0,var_delta,0])
+A[0] = np.array([d*(np.sqrt(3)/2.),d*0.5,0]) + shift + delta_arr 
 A[1] = np.array([0,0,0]) + shift
 
-A.tofile("positions_0.bin")
+A.tofile("positions_1.bin")
 
 # orientations
 Phi=np.zeros((2,5))
 #p=np.pi
 p1=np.pi/6.
-p2 = np.pi/6. + np.pi
-
+p2 = np.pi/6. 
 Phi[0] = np.array([0,0,0,0,1*p1])
 Phi[1] = np.array([0,0,0,0,1*p2])
 
 
-Phi.tofile("orientations_0.bin")
+Phi.tofile("orientations_1.bin")
 
