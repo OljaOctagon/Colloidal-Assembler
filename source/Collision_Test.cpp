@@ -330,29 +330,6 @@ void pmove::Calculate_Pair_Potential(particles &Particles, box *Box) {
                                 ->patch_cutoff_squared[pid1] &&
                         id1 != id2) {
 
-                     /////////////////////////////////////
-                      ofstream fout("patch_state.dat", ios::out | ios::app);
-                      double particle_dist_x;
-                      double particle_dist_y; 
-                      double dphi;
-
-                      particle_dist_x = Particles.N_Particle[id1]->x_patch[pid1] -
-                        Particles.N_Particle[id2]->x_patch[pid2];
-                      particle_dist_y = Particles.N_Particle[id1]->y_patch[pid1] -
-                        Particles.N_Particle[id2]->y_patch[pid2];
-
-                      particle_dist_x =
-                        particle_dist_x - Box->Lx * rint(particle_dist_x / Box->Lx);
-                      particle_dist_y =
-                        particle_dist_y - Box->Ly * rint(particle_dist_y / Box->Ly);
-
-                      dphi = Particles.N_Particle[id1]->phi - Particles.N_Particle[id2]->phi; 
-
-                      fout <<particle_dist_x<<" "<<particle_dist_y<<" "<<dphi<<endl;
-                      fout.close();
-
-                      //////////////////////////////////////////////
-
                       l = Particles.N_Particle[id1]->patch_type[pid1];
                       m = Particles.N_Particle[id2]->patch_type[pid2];
 
@@ -404,6 +381,30 @@ double pmove::Calculate_Pair_Potential(int id1, particles &Particles, box *Box,
                         Particles.N_Particle[id1]
                             ->patch_cutoff_squared[pid1] &&
                     id1 != id2) {
+
+                      /////////////////////////////////////
+                      ofstream fout("patch_state.dat", ios::out | ios::app);
+                      double particle_dist_x;
+                      double particle_dist_y; 
+                      double dphi;
+
+                      particle_dist_x = Particles.N_Particle[id1]->x_patch[pid1] -
+                        Particles.N_Particle[id2]->x_patch[pid2];
+                      particle_dist_y = Particles.N_Particle[id1]->y_patch[pid1] -
+                        Particles.N_Particle[id2]->y_patch[pid2];
+
+                      particle_dist_x =
+                        particle_dist_x - Box->Lx * rint(particle_dist_x / Box->Lx);
+                      particle_dist_y =
+                        particle_dist_y - Box->Ly * rint(particle_dist_y / Box->Ly);
+
+                      dphi = Particles.N_Particle[id1]->phi - Particles.N_Particle[id2]->phi; 
+
+                      fout <<particle_dist_x<<" "<<particle_dist_y<<" "<<dphi<<endl;
+                      fout.close();
+
+                      //////////////////////////////////////////////
+
 
                     l = Particles.N_Particle[id1]->patch_type[pid1];
                     m = Particles.N_Particle[id2]->patch_type[pid2];
