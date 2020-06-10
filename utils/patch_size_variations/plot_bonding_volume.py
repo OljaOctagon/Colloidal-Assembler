@@ -30,17 +30,19 @@ green_c='#61DCB7'
 
 sns.set_palette(sns.cubehelix_palette(16, start=0.5, rot=-0.75))
 
-df = df.read_csv("p_bonding_vol.dat",delim_whitespace=True, names=['delta','radius', 'volume', 'max_angle', 'min_angle'])
+df = pd.read_csv("p_bonding_vol.dat",delim_whitespace=True, names=['delta','radius', 'volume', 'max_angle', 'min_angle'])
 
-fig,ax = plt.subplots(figsize=(10,10))
+fig,ax = plt.subplots(figsize=(8,8))
+r_uniques = df.radius.unique()
 deltas=np.sort(df.delta.values)
-radii=np.sort(df.radius.values)
+radii=np.sort(r_uniques)
+print(radii)
 for radius in radii:
     arr= df[df.radius == radius][['delta','volume']].values
-    plt.plot(arr[:,0],arr[:,1], lw=2,marker='o', ms=7, label="radius = {}".format(radius))
+    plt.plot(arr[:,0],arr[:,1], lw=2,marker='o', ms=7, label="r = {}".format(radius))
 
-plt.legend(bbox_to_anchor=(0, -0.05), ncol=3)
-ax.set_xlabel("radius")
-ax.set_ylabel("V_{b}")
-
-plt.show()
+plt.legend(bbox_to_anchor=(0.5, 0.3), ncol=2)
+ax.set_xlabel("r")
+ax.set_ylabel("$V_{b}(r)$")
+plt.tight_layout()
+plt.savefig("p_bonding_volume_varr.pdf")
