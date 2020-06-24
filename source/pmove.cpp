@@ -489,11 +489,11 @@ void pmove::Iterate(particles &Particles, box *Box, fileio &Fileio,
         rhalf = gsl_rng_uniform(r01);
 
         if (rhalf > 0.5) {
-            Particle_Insertion(Particles, Box, Fileio, mc_time);
+          Particle_Insertion(Particles, Box, Fileio, mc_time);
         }
 
         else {
-            Particle_Deletion(Particles, Box, Fileio, mc_time);
+          //Particle_Deletion(Particles, Box, Fileio, mc_time);
         }
 
         // cout<<"end grand can"<<endl;

@@ -411,7 +411,7 @@ void particles::Startconfig(box *Box) {
 
     // for Resorvoir
 
-    for (int id = Box->N; id < Res_Size; id++) {
+    for (int id = Box->N; id < size; id++) {
 
         Id_Cell_List[id] = -100; 
         Id_Cell_List_old[id] = -100; 

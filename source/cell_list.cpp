@@ -486,12 +486,25 @@ void particles::Insert_to_Cell_List(int id,box *Box){
    Cell_ny =
       floor((N_Particle[id]->y_center - Box->y[0]) / double(Cell[0].Ly));
 
-  n_id = Cell_nx + Cell_ny * N_c;
+   cout<<"x "<<N_Particle[id]->x_center<<endl;
+   cout<<"y "<<N_Particle[id]->y_center<<endl;
 
-  // add particle to new cell list at the end and counter +1 
+  n_id = Cell_nx + Cell_ny * N_c;
+  cout<<"nid: "<<n_id<<endl;
+
+  // add particle to new cell list at the end and counter +1
+  cout<<"Cell_List "<<n_id<<" N: "<<Cell_List[n_id][0]<<endl;
+
   Cell_List[n_id][0] =  Cell_List[n_id][0] + 1;
   cell_counter = Cell_List[n_id][0];
+
+  cout<<"cell counter "<<cell_counter<<endl; 
   Cell_List[n_id][cell_counter] = id;
+
+  if(n_id > 143){
+    cout<<"CELL LIST OUT OF BOUNDS"<<endl;
+    exit(1);
+  }
 
   // set cell id for particle
   Id_Cell_List[id] = n_id;
@@ -539,6 +552,7 @@ void particles::Delete_from_Cell_List(int id, box *Box){
     Id_Cell_List_old[k-1] = Id_Cell_List[k];
   }
   Id_Cell_List[Box->N - 1] = -100;
+  Id_Cell_List_old[Box->N -1] = -100; 
 
   // re-calculate cell lists 
   for (int c_id = 0; c_id < number_of_cells; c_id++) {
@@ -551,7 +565,7 @@ void particles::Delete_from_Cell_List(int id, box *Box){
     Cell_List[c_id][0] = 0;
     cell_counter = 0;
 
-    for (int k = 0; id < Box->N-1; id++) {
+    for (int k = 0; k < Box->N-1; k++) {
 
       if (Id_Cell_List[k] == c_id) {
         Cell_List[c_id][cell_counter + 1] = k;
@@ -559,6 +573,12 @@ void particles::Delete_from_Cell_List(int id, box *Box){
       }
     }
     Cell_List[c_id][0] = cell_counter;
+  }
+
+  for (int c_id = 0; c_id<number_of_cells;c_id++){
+    for (int j = 0; j < MAX_cell_members; j++) {
+      Cell_List_old[c_id][j] = Cell_List[c_id][j];
+  }
   }
 
 }
@@ -692,10 +712,14 @@ void collision_list::Calculate(box *Box, int id, int *Id_Cell_List,
                   cout<<"j "<<j<<endl; 
                   cout<<"cell n "<<n_x<<","<<n_y<<" : "<<Cell[n_id].Neighbour[n_x][n_y][n_z]<<endl;
                   cout<<"number of collision partners "<<Cell_List[p_id][0]<<endl;
+
+                  for (int k=0;k<300;k++){
+                    cout<<k<<" "<<Cell_List[p_id][k]<<endl; 
+                  }
+
                   exit(1);
                 }
 
-                
                 // for(int cell_j=0; cell_j<Box->N;cell_j++){
 
                 particle_dist_x = N_Particle[id]->x_center -

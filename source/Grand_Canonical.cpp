@@ -3,6 +3,7 @@
 void pmove::Particle_Insertion(particles &Particles, box *Box, fileio &Fileio,
                                int mc_time) {
 
+    cout<<"Insertion move "<<endl;
     id = Box->N;
     double phi_t;
     double dU_old, dU_new;
@@ -144,11 +145,13 @@ void pmove::Particle_Insertion(particles &Particles, box *Box, fileio &Fileio,
 
 
     // add to Cell List
+    cout<<"Insert to Cell"<<endl;
     ////////////////////////////////////////////////////////////////////////
     Particles.Insert_to_Cell_List(id,Box);
     ////////////////////////////////////////////////////////////////////////
+    cout<<"End Insert to Cell"<<endl;
 
-    Particles.Collision_List[id].Calculate(Box, id, Particles.Id_Cell_List,
+     Particles.Collision_List[id].Calculate(Box, id, Particles.Id_Cell_List,
                                            Particles.Cell_List, Particles.Cell,
                                            Particles.N_Particle,
                                            Particles.N_Particle[0]->cut_off,
@@ -171,9 +174,12 @@ void pmove::Particle_Insertion(particles &Particles, box *Box, fileio &Fileio,
         Particles.N_Particle[id]->Calculate_Axis();
         Particles.N_Particle[id]->Calculate_Patch_Position();
 
+        cout<<"Reset insert  Cell"<<endl;
         //////////////////////////////////////////////////////////////////
         Particles.Reset_Insertion_Cell_List(id,Box);
         /////////////////////////////////////////////////////////////////
+        cout<<"End Reset insert  Cell"<<endl;
+
     }
 
     if (exit_status == 0) {
@@ -214,9 +220,14 @@ void pmove::Particle_Insertion(particles &Particles, box *Box, fileio &Fileio,
             Reset_Positions(Particles, id);
             Particles.N_Particle[id]->Calculate_Axis();
             Particles.N_Particle[id]->Calculate_Patch_Position();
+
+            cout<<"Energy Reset insert  Cell"<<endl;
             //////////////////////////////////////////////////////////////////
             Particles.Reset_Insertion_Cell_List(id,Box);
             //////////////////////////////////////////////////////////////////
+            cout<<"End Energy Reset insert  Cell"<<endl;
+
+
         }
 
         if (b_factor >= XI) {
@@ -225,9 +236,12 @@ void pmove::Particle_Insertion(particles &Particles, box *Box, fileio &Fileio,
             Particles.Total_Energy = Particles.Total_Energy + delta_U;
             Box->packing_fraction =
                 (Particles.N_Particle[0]->A * double(Box->N)) / Box->A;
+
+            cout<<"Set insert  Cell"<<endl;
             //////////////////////////////////////////////////////////////////
             Particles.Set_Insertion_Cell_List(id,Box);
             //////////////////////////////////////////////////////////////////
+            cout<<"End set insert  Cell"<<endl;
         }
     }
 }
@@ -236,7 +250,7 @@ void pmove::Particle_Deletion(particles &Particles, box *Box, fileio &Fileio,
                               int mc_time) {
 
     id = gsl_rng_uniform_int(r, Box->N);
-
+    cout<<"Deletion move"<<endl;
     // Calculate old pair Potential
 
     double phi_t;
