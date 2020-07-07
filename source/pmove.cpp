@@ -29,6 +29,11 @@ pmove::pmove(int size, int edge_length, double delta_tmax, double delta_rmax,
     q_r = new double[size];
     q_f = new double[size];
 
+    patch_dist_x = new double[100000];
+    patch_dist_y = new double[100000];
+    patch_dphi = new double[100000];
+
+
     pseudo_cluster_info = new int *[size];
     for (int j = 0; j < size; j++) {
         pseudo_cluster_info[j] = new int[size];
@@ -513,6 +518,11 @@ void pmove::Iterate(particles &Particles, box *Box, fileio &Fileio,
         // Three_Particle_Move(Particles, Box, Fileio, mc_time);
         //}
     }
+
+    patch_dist_x[mc_time % 100000] = patch_dist_x_ti;
+    patch_dist_y[mc_time % 100000] = patch_dist_y_ti;
+    patch_dphi[mc_time % 100000 ] = patch_dphi_ti;
+
 }
 
 void pmove::Calculate_Acceptances(int mc_time) {

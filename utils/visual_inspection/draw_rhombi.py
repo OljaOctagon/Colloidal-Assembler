@@ -87,7 +87,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     # get all check point values and sort them
-    checkpoints= glob.glob("Box*.bin")
+    checkpoints= glob.glob("positions*.bin")
     check_point_values = np.sort(
     [ int(point.split("_")[-1].split(".")[0]) for point in checkpoints ])
     # import the bonds file:
@@ -114,23 +114,20 @@ if __name__ == '__main__':
     # make frame directory if it doesn't exist
     if not os.path.isdir("./frames"):
         os.mkdir("./frames")
-
-    for j,val in enumerate(check_point_values[-10:]):
+    print(check_point_values)
+    for j,val in enumerate(check_point_values):
         pos_i = np.fromfile("positions_{}.bin".format(val))
         pos_i = np.reshape(pos_i, (-1,3))
         pos_i = pos_i[:,:2]
         orient_i = np.fromfile("orientations_{}.bin".format(val))
         orient_i = np.reshape(orient_i, (-1,5))[:,4]
-
-        fb = open("patch_energy_{}.bin".format(val), "rb")
-        patch_i = np.fromfile(fb, dtype=np.int32)
-        patch_i = np.reshape(patch_i, (-1,4))[:,:2]
         N=len(pos_i)
-        patch_i = patch_i[:N]
+        
         fig,ax = plt.subplots()
         ax.set_aspect('equal', 'box')
-        # domain_colors.shape = (N,) ( colors per particle )
+        #domain_colors.shape = (N,) ( colors per particle )
         #domain_colors = get_domain_colors(N, network_arr[j], length_color_dict)
+
 
         sin60 = np.sin(np.pi/3.)
         cos60 = np.cos(np.pi/3.)
@@ -144,6 +141,7 @@ if __name__ == '__main__':
         cr = '#FF9999'
         cb = '#9999FF'
         patch_color_dict = {'dma-as1':[cr,cr,cb,cb],
+                            'dma-as2':[cr,cr,cb,cb],
                             'dmo-s1' :[cr,cb,cr,cb],
                             'dmo-s2' :[cr,cb,cr,cb],
                             'dmo-as1':[cr,cb,cr,cb],
@@ -151,6 +149,7 @@ if __name__ == '__main__':
 
         dp=args.delta
         patch_delta_dict = {'dma-as1':[dp,1-dp,dp,dp],
+                            'dma-as2':[dp,1-dp,1-dp,1-dp],
                             'dmo-s1' :[dp,dp,dp,1-dp],
                             'dmo-s2' :[dp,1-dp,dp,dp],
                             'dmo-as1':[dp,dp,1-dp,dp],

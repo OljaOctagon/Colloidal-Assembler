@@ -364,6 +364,7 @@ void fileio::Write_Energy(box *Box, particles &Particles, int mc_time) {
     pos_out1 << mc_time << "  " << Particles.Total_Energy << endl;
 
     pos_out1.close();
+
 }
 
 void fileio::Read_Positions(box *Box, particles &Particles, int mc_time) {

@@ -205,6 +205,19 @@ int main(int argc, char *argv[]) {
             Fileio.Write_Energy(Box, Particles, time);
             Fileio.Write_Local_Order_Parameters(time, Particles, Box,
                                                 Order_Parameter, Cluster);
+
+
+            /////////////////////////////////////
+            ofstream fout("patch_state.dat", ios::out | ios::app);
+
+            for (int time = 0; time<100000;time++){
+              fout <<Move.patch_dist_x[time]<<" "<<Move.patch_dist_y[time]<<" "<<Move.patch_dphi[time]<<endl;
+            }
+
+            fout.close();
+            /////////////////////////////////////
+
+
         }
 
         if ((time % checkpoint_frequency == 0) || (time == start_time + 1)) {

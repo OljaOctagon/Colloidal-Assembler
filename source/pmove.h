@@ -192,6 +192,15 @@ class pmove : public particles, public box {
     double **Patch_Energies_old;
     int potential_exit_status;
 
+    double patch_dist_x_ti;
+    double patch_dist_y_ti;
+    double patch_dphi_ti;
+
+    double *patch_dist_x;
+    double *patch_dist_y;
+    double *patch_dphi;
+
+
     // Cluster move
 
     int N_List;

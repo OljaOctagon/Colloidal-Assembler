@@ -347,7 +347,7 @@ void pmove::Calculate_Pair_Potential(particles &Particles, box *Box) {
 }
 
 double pmove::Calculate_Pair_Potential(int id1, particles &Particles, box *Box,
-                                       collision_list *Collision_List) {
+                                       collision_list *Collision_List)  {
 
     double delta_U;
     double patch_distance_squared;
@@ -382,8 +382,6 @@ double pmove::Calculate_Pair_Potential(int id1, particles &Particles, box *Box,
                             ->patch_cutoff_squared[pid1] &&
                     id1 != id2) {
 
-                      /////////////////////////////////////
-                      ofstream fout("patch_state.dat", ios::out | ios::app);
                       double particle_dist_x;
                       double particle_dist_y; 
                       double dphi;
@@ -393,17 +391,12 @@ double pmove::Calculate_Pair_Potential(int id1, particles &Particles, box *Box,
                       particle_dist_y = Particles.N_Particle[id1]->y_patch[pid1] -
                         Particles.N_Particle[id2]->y_patch[pid2];
 
-                      particle_dist_x =
+                      patch_dist_x_ti =
                         particle_dist_x - Box->Lx * rint(particle_dist_x / Box->Lx);
-                      particle_dist_y =
+                      patch_dist_y_ti =
                         particle_dist_y - Box->Ly * rint(particle_dist_y / Box->Ly);
 
-                      dphi = Particles.N_Particle[id1]->phi - Particles.N_Particle[id2]->phi; 
-
-                      fout <<particle_dist_x<<" "<<particle_dist_y<<" "<<dphi<<endl;
-                      fout.close();
-
-                      //////////////////////////////////////////////
+                      patch_dphi_ti = Particles.N_Particle[id1]->phi - Particles.N_Particle[id2]->phi; 
 
 
                     l = Particles.N_Particle[id1]->patch_type[pid1];
