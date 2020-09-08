@@ -111,11 +111,24 @@ if __name__ == '__main__':
     # patch position calculation
     radius=args.radius
 
+    arr_color=[]
+    arr_color.append([])
+    with open("color_op.dat") as f:
+        for line in f:
+            if len(line.split(" ")) == 1 and int(line)<4:
+                arr_color[-1].append(int(line))
+            else:
+                arr_color.append([])
+
+    print("checks:", len(arr_color), len(check_point_values))
+
     # make frame directory if it doesn't exist
     if not os.path.isdir("./frames"):
         os.mkdir("./frames")
 
-    for j,val in enumerate(check_point_values[-10:]):
+    orientation_color_dict = {1: '#C17DCB', 2:"#f2ec64", 3: "#11b7e7", 0:"#ccb9d0"}
+
+    for j,val in enumerate(check_point_values[-1:]):
         pos_i = np.fromfile("positions_{}.bin".format(val))
         pos_i = np.reshape(pos_i, (-1,3))
         pos_i = pos_i[:,:2]
@@ -160,7 +173,8 @@ if __name__ == '__main__':
         for i in range(N):
             #rhombus_color=domain_colors[i]
             #rhombus_color = type_color_dict[patch_i[i,0]]
-            rhombus_color = '#C17DCB'
+            #rhombus_color = '#C17DCB'
+            orientation_color_dict[color_arr[-1][i]]
 
             rotmat_i = rotation_matrix(orient_i[i])
             ax_n = get_orient(ax0, rotmat_i)
