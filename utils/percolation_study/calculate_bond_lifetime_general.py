@@ -126,10 +126,14 @@ if __name__=='__main__':
     fig,ax = plt.subplots()
     plt.xlabel("bond life-time")
     plt.ylabel("P")
+    plt.xlim((0,100)) 
 
-    plt.hist(lifetimes, facecolor=purple_c, edgecolor='gray', bins=Ltime, lw=1, alpha=0.7, density=True, hatch='//')
+    plt.hist(lifetimes,
+            facecolor=purple_c,
+            edgecolor='gray', bins=(np.linspace(0,Ltime,Ltime+1)+0.1),
+            lw=1, alpha=0.7, 
+            density=True, hatch='//')
     #plt.legend(loc='best')
     plt.tight_layout()
-
     plt.savefig("bond_lifetime.pdf")
     plt.show() 
