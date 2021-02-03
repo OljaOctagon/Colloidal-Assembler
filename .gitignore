@@ -3,4 +3,6 @@ test/*dat
 test/*xyz
 tests/*
 .DS_Store
+source/McPoly
+sourece/*.o
 high_energies/*
