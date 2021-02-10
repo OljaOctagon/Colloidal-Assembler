@@ -8,6 +8,7 @@ import os
 import matplotlib.pyplot as plt 
 import seaborn as sns
 import matplotlib as mpl
+import scipy.optimize
 import matplotlib.style as style
 style.use('seaborn-ticks') 
 mpl.rcParams['font.family'] = "sans-serif"
@@ -122,18 +123,47 @@ if __name__=='__main__':
             print("champ:", i,j)
         lifetimes.extend(consecutive_one(bond_sequences[i,j]))
 
+    lifetimes = np.array(lifetimes)
+    thresh=100
+    lval = len(lifetimes[lifetimes>thresh])/len(lifetimes)
+
+    max_lifetime = np.max(lifetimes)
+
     print("plot data")
     fig,ax = plt.subplots()
     plt.xlabel("bond life-time")
     plt.ylabel("P")
     plt.xlim((0,100)) 
 
-    plt.hist(lifetimes,
-            facecolor=purple_c,
-            edgecolor='gray', bins=(np.linspace(0,Ltime,Ltime+1)+0.1),
-            lw=1, alpha=0.7, 
-            density=True, hatch='//')
-    #plt.legend(loc='best')
+    n,bins,patches = plt.hist(lifetimes,
+            edgecolor='k', bins=(np.linspace(0,Ltime,Ltime+1)+0.1),
+            lw=2, alpha=1, 
+            density=True)
+
+    fig, ax  = plt.subplots()
+    plt.yscale("log")
+    x = bins[1:]
+
+    # fit exponential
+    def monoExp(x,l,t,):
+        return l * np.exp(-t * x) 
+
+    p0 = (1, 1) # start with values near those we expect
+    params, cv = scipy.optimize.curve_fit(monoExp, x, n, p0)
+    l,t = params
+
+    plt.plot(x,n,c=purple_c,linestyle='dotted',label='data')
+    plt.plot(x,monoExp(x,l,t), c=blue_c, linestyle='--', label='biexp. fit')
+    plt.legend(loc='best')
     plt.tight_layout()
-    plt.savefig("bond_lifetime.pdf")
-    plt.show() 
+    plt.ylim(0.00001,1)
+    plt.savefig("bond_lifetime_fit.pdf")
+
+    def cumulative_monoExp(xs,l,t):
+             return 1 - l*np.exp(-t*xs)  
+
+    percentil = 1 - cumulative_monoExp(thresh,l,t)
+
+    data = np.array([l,t,max_lifetime,lval-percentil])
+    np.savetxt("observables_bond_lifetime.dat", data, delimiter=',', newline='\n')
+    np.savetxt("bond_lifetime.dat",n, newline='\n') 
