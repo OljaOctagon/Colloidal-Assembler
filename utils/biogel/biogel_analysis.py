@@ -10,7 +10,7 @@ import gel_tools as gt
 import argparse
 import random
 import pickle
-
+import re
 
 style.use('seaborn-ticks')
 mpl.rcParams['font.family'] = "sans-serif"
@@ -145,7 +145,7 @@ def calculate_crosslinker_network_observables(arr, Ltime, file_id, nbonds, npart
         new_results['node_connectivity'] = nx.node_connectivity(G)
 
         df_crosslinker = df_crosslinker.append(new_results, ignore_index=True)
-
+        
     return df_crosslinker
 
 def calculate_polymer_network_observables(arr, Ltime, file_id, df_polymer):
@@ -197,6 +197,7 @@ def calculate_bond_lifetime(arr, nbonds, nparticles,Ltime, file_id, df_bl_histog
     arr_id = np.array([
         [time, dict_to_number[(pid1, lid1)],
          dict_to_number[(pid2, lid2)]] for [time, pid1, lid1, pid2, lid2] in arr[:, :5]])
+
 
     connections = [arr_id[arr_id[:, 0] == time][:, 1:] for time in range(1, Ltime + 1)]
     # initialize bond sequences, keys: bond pairs, values: time series bonded states.
@@ -343,7 +344,7 @@ def calculate_bond_lifetime(arr, nbonds, nparticles,Ltime, file_id, df_bl_histog
 
     new_results = pd.DataFrame(nval, columns=['p_life_time'])
     new_results['id'] = np.repeat(file_id, len(nval))
-    new_results['time'] = np.linspace(1,2500,2500)
+    new_results['time'] = np.linspace(1,Ltime,Ltime)
 
     df_bl_histogram = df_bl_histogram.append(new_results, ignore_index=True)
 
@@ -353,8 +354,6 @@ if __name__ == '__main__':
 
     files_list = glob.glob("*/pdf1/*link.dat")
     df_params = pd.read_csv("parameters.txt", delim_whitespace=True,dtype=str)
-    print(df_params.head(5))
-    nparticles = 340
     Ltime = 2500
 
     parser = argparse.ArgumentParser()
@@ -379,11 +378,19 @@ if __name__ == '__main__':
     df_bl_histogram = pd.DataFrame(columns=columns)
 
     for file_i in files_list:
-        print("read gel")
         file_id = file_i.split('/')[0]
-        print(file_id)
+        print("read gel of file ", file_id)
         arr = pd.read_csv(file_i, delim_whitespace=True).values
         nbonds = int(df_params[df_params.ID == file_id].N.values[0])
+        rho = float(df_params[df_params.ID == file_id].rho.values[0])
+        #nmonomers_max=51000
+        #nmonomers = nmonomers_max*rho
+        #nparticles = nmonomers/nbonds
+        ## read Parameter.dat in pdf1, line 102, 104 
+        arr_pi = np.loadtxt("{}/pdf1/Parameter.dat".format(file_id),delimiter='\t',dtype=str)
+        nparticles = int(re.findall('\d+', arr_pi[101])[0])
+
+        print(nparticles, nbonds, rho)
 
         print("prepare data")
         # throw away links between crosslinkers on same polymer
