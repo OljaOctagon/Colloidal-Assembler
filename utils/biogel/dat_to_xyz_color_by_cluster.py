@@ -3,19 +3,23 @@ import pandas as pd
 import os 
 from glob import glob 
 import argparse
+import networkx as nx
 
-nbonds=30
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-lf', type='str', help='linker file destination')
-parser.add_argument('-nbonds', type='str', help='number of monomers per polymer')
+parser.add_argument('-lf', type=str, help='linker file destination')
+parser.add_argument('-nbonds', type=int, help='number of monomers per polymer')
 args = parser.parse_args()
-
 
 poly_files = glob("PolymerPos*.dat")
 
-save_dir = "xyz-files"
-os.mkdir(save_dir)
+save_dir = "xyz-files-cluster-size"
+
+if os.path.exists(save_dir):
+    pass 
+else:
+    os.mkdir(save_dir)
+
 
 for file in poly_files:
     df = pd.read_csv(file, 
@@ -30,20 +34,24 @@ for file in poly_files:
     
     Ntimes = np.sort(df.time.unique())
     
-    arr = pd.read_csv(linker_file, delim_whitespace=True).values
-    arr = arr[arr[:, 1] != arr[:, 3]]
-    
     for time in Ntimes:
         if time==1000:
 
-            arr_i = arr[arr[:, 0] == time_i]
+            arr = pd.read_csv(args.lf, delim_whitespace=True).values
+            arr = arr[arr[:, 1] != arr[:, 3]]
+
+            print("time 1000")
+            arr_i = arr[arr[:, 0] == time]
             connections = np.column_stack((arr_i[:, 1], arr_i[:, 3]))
+
+            print("graph")
             G = nx.Graph()
             G.add_edges_from(connections)
 
             domains = list(nx.connected_components(G))
             domain_lengths = np.array([ len(domain) for domain in domains ])
             
+            print("domain element")
             pid_dict = {}
             for domain in domains:
                 len_domain = len(domain)
@@ -54,21 +62,20 @@ for file in poly_files:
             df_pid = pd.DataFrame(pid_dict.items(),columns=['pid','len_pid'])
 
 
-            dh = df[df.time == time]
-            ds = dg[dg.time == time]
-            m_id =int(np.linspace(0,len(dh),len(dh))
-            dh['pid'] = np.floor(m_id/nbonds)
+            df_pos = df[df.time == time]
+            df_linker = dg[dg.time == time]
+            m_id =int(np.linspace(0,len(df_pos),len(df_pos)))
+            df_pos['pid'] = np.floor(m_id/args.nbonds)
 
-            df_enriched = dh.merge(df_pid, on='pid')
-            monomer_type = 'M'+str(df_enriched['len_pid'].values)
+            df_enriched = pd.merge(df_pid, on='pid')
+            monomer_type = 'M'+ df_enriched['len_pid'].as_type('str').values
             
-            arr = ((ds.pid-1)*nbonds + (ds.lid-1)).values
+            arr = ((df_linker.pid-1)*args.nbonds + (df_linker.lid-1)).values
             monomer_type[arr] = 'C'
             df_enriched['type'] = monomer_type 
 
-
             brr = df_enriched[['type', 'x','y','z']].values
-            with open("{}/biogel_{}.xyz".format(save_dir, time),'w') as f:
+            with open("{}/biogel_cluster_color_{}.xyz".format(save_dir, time),'w') as f:
                 for [mtype, x,y,z,] in brr:
                     f.write("{}   {}   {}   {}\n".format(mtype,x,y,z))
 
