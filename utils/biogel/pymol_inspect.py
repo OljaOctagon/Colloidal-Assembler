@@ -12,10 +12,15 @@ for f in lst:
     cmd.load(f,"e0")
 
 cmd.show_as("spheres")
-cmd.alter('elem M', "vdw=0.5")
 cmd.alter('elem C', "vdw=0.7")
 cmd.alter('elem C', "color=30")
+
+
+
 cmd.alter('elem M', "color=11")
+cmd.alter('elem M', "vdw=0.5")
+
+
 cmd.bg_color("white")
 cmd.set("orthoscopic")
 cmd.rebuild()

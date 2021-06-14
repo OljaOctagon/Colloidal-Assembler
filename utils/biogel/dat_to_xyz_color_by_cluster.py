@@ -20,7 +20,7 @@ if os.path.exists(save_dir):
 else:
     os.mkdir(save_dir)
 
-
+print ("enter loop")
 for file in poly_files:
     df = pd.read_csv(file, 
             delim_whitespace=True, names=['time','x','y','z'])
@@ -55,24 +55,30 @@ for file in poly_files:
             pid_dict = {}
             for domain in domains:
                 len_domain = len(domain)
-                for elem in domains:
+                for elem in domain:
                     pid_dict[elem] = len_domain
 
             
             df_pid = pd.DataFrame(pid_dict.items(),columns=['pid','len_pid'])
-
+            print(df_pid.pid.min(), df_pid.pid.max())
 
             df_pos = df[df.time == time]
-            df_linker = dg[dg.time == time]
-            m_id =int(np.linspace(0,len(df_pos),len(df_pos)))
-            df_pos['pid'] = np.floor(m_id/args.nbonds)
+            print(len(df_pos),"len")
 
-            df_enriched = pd.merge(df_pid, on='pid')
-            monomer_type = 'M'+ df_enriched['len_pid'].as_type('str').values
+            df_linker = dg[dg.time == time]
+            m_id =np.linspace(0,len(df_pos),len(df_pos))
+            df_pos['pid'] = np.floor(m_id/float(args.nbonds))+1 
+            print("len", len(df_pos))
+
+            df_enriched = df_pos.merge(df_pid, on='pid',how='left').fillna(0)
+
+            print("len enrich", len(df_enriched))
+            monomer_type = 'M'+ df_enriched['len_pid'].astype('int').astype('str').values
             
             arr = ((df_linker.pid-1)*args.nbonds + (df_linker.lid-1)).values
             monomer_type[arr] = 'C'
             df_enriched['type'] = monomer_type 
+
 
             brr = df_enriched[['type', 'x','y','z']].values
             with open("{}/biogel_cluster_color_{}.xyz".format(save_dir, time),'w') as f:
