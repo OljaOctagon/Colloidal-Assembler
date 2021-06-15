@@ -5,13 +5,14 @@ import seaborn as sns
 from natsort import natsorted
 directory="/Users/ada/Documents/git_repos/phd/rhombi/utils/biogel"
 name='visual_inspection/high_flexibility'
-id='00360'
+id='00364'
 
 bfile = "{}/{}/{}/biogel_cluster_color_1000.0.xyz".format(directory, name,id)
 cmd.load(bfile,"e0")
 
 df = pd.read_csv(bfile, names=['mtype','x','y','z'], delim_whitespace=True)
 unique_val = df.mtype.unique()
+id='00360'
 cmd.show_as("spheres")
 cmd.alter('all', "vdw=0.4")
 cmd.alter('elem C', "color=8")

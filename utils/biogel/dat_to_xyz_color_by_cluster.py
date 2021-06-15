@@ -41,7 +41,7 @@ for file in poly_files:
             arr = arr[arr[:, 1] != arr[:, 3]]
 
             print("time 1000")
-            arr_i = arr[arr[:, 0] == time]
+            arr_i = arr[arr[:, 0] == 2*time+5000]
             connections = np.column_stack((arr_i[:, 1], arr_i[:, 3]))
 
             print("graph")
