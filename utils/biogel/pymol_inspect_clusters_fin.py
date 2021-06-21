@@ -7,7 +7,7 @@ directory="/Users/ada/Documents/git_repos/phd/rhombi/utils/biogel"
 name='visual_inspection/high_flexibility'
 id='00364'
 
-bfile = "{}/{}/{}/biogel_cluster_color_1000.0.xyz".format(directory, name,id)
+bfile = "{}/{}/{}/biogel_cluster_color_1000.xyz".format(directory, name,id)
 cmd.load(bfile,"e0")
 
 df = pd.read_csv(bfile, names=['mtype','x','y','z'], delim_whitespace=True)
