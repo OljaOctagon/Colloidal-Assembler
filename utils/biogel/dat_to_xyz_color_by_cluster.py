@@ -71,7 +71,7 @@ print("len enrich", len(df_enriched))
 monomer_type = 'M'+ df_enriched['len_pid'].astype('int').astype('str').values
 
 arr = ((df_linker.pid-1)*args.nbonds + (df_linker.lid-1)).values
-monomer_type[arr] = 'C'
+monomer_type[arr] = 'C'+monomer_type[arr]
 df_enriched['type'] = monomer_type 
 
 
