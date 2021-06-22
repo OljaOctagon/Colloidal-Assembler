@@ -19,7 +19,6 @@ df = pd.read_csv(bfile, names=['mtype','x','y','z'], delim_whitespace=True)
 unique_val = df.mtype.unique()
 cmd.show_as("spheres")
 cmd.alter('all', "vdw=0.4")
-cmd.alter('elem C', "color=8")
 
 num_shades = len(unique_val)
 
@@ -35,6 +34,10 @@ for i,mi in enumerate(unique_val):
 
     cmd.alter('elem '+str(mi), "color="+str(cindex))
     cmd.alter('elem '+str(mi), "vdw=0.5")
+
+    cmd.alter('elem C'+str(mi), "color = 8")
+    cmd.alter('elem C'+str(mi), "vdw=0.5")
+
 
 cmd.bg_color("white")
 cmd.set("orthoscopic")
