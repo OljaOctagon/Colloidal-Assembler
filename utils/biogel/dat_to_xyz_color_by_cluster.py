@@ -9,6 +9,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-lf', type=str, help='linker file destination')
 parser.add_argument('-nbonds', type=int, help='number of monomers per polymer')
 parser.add_argument("-time", type=int, help='time stamp')
+parser.add_argument('-pb', type=str)
 args = parser.parse_args()
 
 time_offset =  args.time + 5000 
@@ -73,6 +74,13 @@ monomer_type = 'M'+ df_enriched['len_pid'].astype('int').astype('str').values
 arr = ((df_linker.pid-1)*args.nbonds + (df_linker.lid-1)).values
 monomer_type[arr] = 'C'+monomer_type[arr]
 df_enriched['type'] = monomer_type 
+
+# periodic boundaries 
+if args.pb=="on":
+    Lb=30
+    df_enriched['x'] = df_enriched['x'] - Lb*np.rint(df_enriched['x']/Lb)
+    df_enriched['y'] = df_enriched['y'] - Lb*np.rint(df_enriched['y']/Lb)
+    df_enriched['z'] = df_enriched['z'] - Lb*np.rint(df_enriched['z']/Lb)
 
 
 brr = df_enriched[['type', 'x','y','z']].values
