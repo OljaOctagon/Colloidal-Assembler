@@ -4,8 +4,13 @@ import pandas as pd
 import seaborn as sns
 from natsort import natsorted
 directory="/Users/ada/Documents/git_repos/phd/rhombi/utils/biogel"
-name='visual_inspection/high_flexibility'
-id='00360'
+#name='visual_inspection/high_flexibility'
+#id='00360'
+
+name='visual_inspection/std_conditions'
+id='00111'
+
+
 
 bfile = "{}/{}/{}/biogel_cluster_color_1000.xyz".format(directory, name,id)
 cmd.load(bfile,"e0")
