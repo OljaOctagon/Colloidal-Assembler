@@ -5,7 +5,7 @@ import argparse
 import networkx as nx
 from glob import glob
 
-def get_domains(arr):
+def get_domains(arr_i):
     # get connections for indicated time 
     connections = np.column_stack((arr_i[:, 1], arr_i[:, 3]))
 
@@ -17,14 +17,14 @@ def get_domains(arr):
 
     return domains 
 
-def get_xyz_file(time,nbonds,pbc,type_i,dir_i):
+def get_xyz_file(time,nbonds,pbc,type_i,dir_i,name):
 
     time_offset =  time + 5000 
     file_id = int(np.ceil((time_offset/10)/2))
 
     print(file_id)
     poly_file = glob("{}/poly/PolymerPos*.T00{}.dat".format(dir_i, file_id))[0]
-    linker_file = glob("{}/poly/LinkerPos.*.T00{}.dat".format(dir_ifile_id))[0]
+    linker_file = glob("{}/poly/LinkerPos.*.T00{}.dat".format(dir_i,file_id))[0]
 
     # read crosslinker connections
     lf = glob("{}/*link.dat".format(dir_i))[0]
@@ -34,12 +34,12 @@ def get_xyz_file(time,nbonds,pbc,type_i,dir_i):
 
     dir_id = dir_i.split("/")[1]
     print("dir id", dir_id)
-    save_dir = "/home/carina/git_repos/rhombi/utils/biogel/visual_inspection/{}".format(dir_id)
+    save_dir = "/home/carina/git_repos/rhombi/utils/biogel/visual_inspection/{}/{}".format(name, dir_id)
 
     if os.path.exists(save_dir):
         pass 
     else:
-        os.mkdirs(save_dir)
+        os.makedirs(save_dir)
 
     df = pd.read_csv(poly_file, 
         delim_whitespace=True, names=['time','x','y','z'])
@@ -195,6 +195,6 @@ if __name__ == "__main__":
 
             for pbc_i in pbc:
                 for type_i in types:
-                    get_xyz_file(time,nbonds,pbc_i,type_i,dir_i)
+                    get_xyz_file(time,nbonds,pbc_i,type_i,dir_i,name)
 
 
