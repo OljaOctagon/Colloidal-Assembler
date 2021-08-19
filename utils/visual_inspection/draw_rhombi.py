@@ -174,7 +174,7 @@ if __name__ == '__main__':
             #rhombus_color=domain_colors[i]
             #rhombus_color = type_color_dict[patch_i[i,0]]
             #rhombus_color = '#C17DCB'
-            orientation_color_dict[color_arr[-1][i]]
+            rhombus_color = orientation_color_dict[arr_color[-1][i]]
 
             rotmat_i = rotation_matrix(orient_i[i])
             ax_n = get_orient(ax0, rotmat_i)
