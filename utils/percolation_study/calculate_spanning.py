@@ -132,6 +132,16 @@ if __name__ == '__main__':
             cutoff = np.sqrt(np.power((1 + cos60),2) + np.power(sin60,2)) + 0.1
             patch_cutoff = 0.1
             virtual_pos, virtual_orient = calculate_pbc_images(pos_i,orient_i,box_l)
+
+
+            ### DEBUG MODE write out pbc images 
+            np.save("virtual_pos.npy", virtual_pos)
+            np.save("virtual_orient.npy", virtual_orient)
+            np.save("virtual_box.npy", box_l*3)
+            print("saved virtual pos")
+            ######################################
+
+
             virtual_box = box_l*3
             N_patches = 4
             N_virtual = N_particles*N_images
