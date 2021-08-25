@@ -167,8 +167,9 @@ if __name__ == '__main__':
             virtual_max_domain = gt.get_particles_in_largest_cluster(G_virtual)
             virtual_frac_largest_i = len(virtual_max_domain)/(N_particles*N_images)
 
-            virtual_frac_largest.append(virtual_frac_largest_i)
+        virtual_frac_largest.append(virtual_frac_largest_i)
 
+    print(frac_largest, virtual_frac_largest, check_point_values)
     with open("spanning.dat", 'w') as f:
         f.write("time,fraction_largest, fraction_largest_virtual\n")
         for j,val in enumerate(check_point_values[-1:]):
