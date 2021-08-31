@@ -9,11 +9,15 @@ from itertools import islice
 from collections import deque
 
 def push(i,j,rot,cell_lists):
+    print(i,j)
     network_list=[]
     for klist in cell_lists:
+        print("lists", klist, cell_lists)
         for k in klist:
             im_j = j + k*N_particles
-            l=islice(deque(klist).rotate(rot),k,None)
+            deque_l = deque(klist)
+            deque_l.rotate(rot*-1)
+            l = deque_l[0]
             im_i = i + l*N_particles
             network_list.append([im_i,im_j])
 
@@ -34,19 +38,17 @@ if __name__ == '__main__':
     virtual_frac_largest = []
 
 
-    cell_dict = {'top-bottom': [[2,1,8][3,0,7],[4,5,6]],
+    cell_dict = {'top-bottom': [[2,1,8],[3,0,7],[4,5,6]],
                     'left-right':[[2,3,4],[1,0,5],[8,7,6]],
                     'diag-top-bottom':[[2,0,6],[3,5,8],[4,1,7]],
                     'diag-bottom-top': [[8,0,4],[1,3,6],[2,7,5]]}
 
-
-
     for j,val in enumerate(check_point_values[-1:]):
         print("checkpoint time ", val)
-        pos_i = np.fromfile("positions_{}.bin".format(val))
-        pos_i = np.reshape(pos_i, (-1,3))
-        pos_i = pos_i[:,:2]
-        N_particles=len(pos_i)
+        pos = np.fromfile("positions_{}.bin".format(val))
+        pos = np.reshape(pos, (-1,3))
+        pos = pos[:,:2]
+        N_particles=len(pos)
         box_all = np.fromfile("Box_{}.bin".format(val))
         box_l = box_all[3:5]
 
@@ -66,7 +68,7 @@ if __name__ == '__main__':
         virtual_patch_network = []
         N_images = 9
 
-        for conn_j in connections:
+        for conn_j in connections_j:
             i,j = conn_j
 
             # Calculate distances between next neighbours
@@ -88,8 +90,8 @@ if __name__ == '__main__':
             # if pbc not hit:
             # particles remain neighbours and are filled into new network edge array
             if (x_abs < box_x) and (y_abs < box_y):
-                for k in N_images:
-                    virtual_patch_network.append(i+k*N,j+k*N)
+                for k in range(N_images):
+                    virtual_patch_network.append([i+k*N_particles, j+k*N_particles])
 
             # pbc are hit and particles are neighbours with image according to cell lists
 
