@@ -6,18 +6,24 @@ import networkx as nx
 import glob
 import os
 from itertools import islice
-from collections import deque
+from itertools import cycle 
 
 def push(i,j,rot,cell_lists):
     print(i,j)
     network_list=[]
     for klist in cell_lists:
-        print("lists", klist, cell_lists)
-        for k in klist:
+        
+        nklist=klist
+        if rot==-1:
+            nklist=klist[::-1]
+
+        for ki,k in enumerate(nklist):
             im_j = j + k*N_particles
-            deque_l = deque(klist)
-            deque_l.rotate(rot*-1)
-            l = deque_l[0]
+            print("list", nklist)
+            starts_at_k = islice(cycle(nklist),ki+1,None)
+            l = next(starts_at_k) 
+            print("k, l", k,l)
+
             im_i = i + l*N_particles
             network_list.append([im_i,im_j])
 
@@ -98,9 +104,13 @@ if __name__ == '__main__':
             else: 
                 # top-bottom
                 if (x_abs < box_x) and (y_abs > box_y):
+                    
+                    print("top-bottom") 
                     if y_sign > 0:
                         rot = 1
+                        print("rot=1")
                     if y_sign < 0:
+                        print("rot=-1")
                         rot = -1
 
                     network_list_images = push(i,j,rot,cell_dict['top-bottom'])
@@ -108,6 +118,8 @@ if __name__ == '__main__':
 
                 # left-right
                 if (x_abs > box_x) and (y_abs < box_y):
+                    
+                    print("left-right") 
                     # to the left
                     if x_sign > 0:
                         rot=-1
@@ -122,6 +134,7 @@ if __name__ == '__main__':
                 if (x_abs > box_x) and (y_abs > box_y):
                     # left top to right bottom 
                     if x_sign != y_sign:
+                        print("diagonal left top to right bottom") 
                         if x_sign > 0 and y_sign < 0:
                             rot = -1
                         if x_sign < 0 and y_sign > 0:
@@ -131,6 +144,7 @@ if __name__ == '__main__':
 
                     # left bottom to right top 
                     if x_sign == y_sign:
+                        print("left bottom to right top") 
                         if x_sign > 0:
                             rot = 1
                         if x_sign < 0:
