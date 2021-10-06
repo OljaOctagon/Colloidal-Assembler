@@ -1,7 +1,8 @@
 from psycopg2 import connect, extensions, sql
 import psycopg2
 import glob 
-
+import configparser 
+import re
 
 DB_NAME="raw_data_rhombi_percolation"
 TABLE_NAME = "data"
@@ -16,41 +17,46 @@ password = "pwd_test"
 conn.set_isolation_level( autocommit )
 cursor = conn.cursor()
 
-files_i = "double*/*.bin"
+dirs = glob.glob("double*")
+print(dirs)
 
+for dir_i in dirs: 
 
-# order files in right order 
-# split and find out identifier 
+    config = configparser.ConfigParser()
+    config.read('{}/para.ini'.format(dir_i))
 
+    N = int(config['System']['Number_of_Particles']
+    phi = float(config['System']['Packing_Fraction'])
+    temperature = float(config['System']['Temperature'])
+    ptype = config['Rhombus']['rhombus_type']
+    delta = config['Rhombus']['patch_delta']
+    patch_size = config['Rhombus']['patch_size']
 
+    pos_file =glob.glob('{}/positions_*.bin')
+    orient_file = glob.glob('{}/orientations_*.bin')
+    box_file = glob.glob("{}/Box_*.bin")
 
+    # get the last value from the string 
+    g = lambda x: int(re.findall(r'\d+', x)[-1])
 
-files = glob.glob(ndir)
+    mc_times = sorted(list(map(g,pos_file)))
 
-        mean_psi = []
-        std_psi = []
+    for time_i in mc_times:
+        with open(pos_file,'rb') as fh:
+            pos_bin = fh.read() 
 
-        mean_N = []
-        std_N = []
+        orient_file = "{}/orientations_{}.bin".format(dir_i,time_i)
+        with open(pos_file,'rb') as fh:
+            orient_bin = fh.read() 
 
-        for file_i in files:
+        box_file = "{}/Box_{}.bin".format(dir_i,time_i)
+        with open(box_file,'rb') as fh:
+            box_bin = fh.read() 
 
-            phi_i = file_i.split("_")[2]
-            temp_i = file_i.split("_")[6]  
+       
+        sql_statement="INSERT INTO data VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+        data_tuple = 
 
-
-
-
-
-
-
-sql_statement="INSERT INTO data VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)"
-data_tuple = 
-
-
-cursor.execute(sql_statement, data_tuple)
-
-cursor.execute("ALTER TABLE data ADD ROW ")
-
-cursor.execute("CREATE TABLE data (ptype varchar, delta float, phi float, temperature float,  prun integer, mctime integer, pos bytea, orient bytea, box bytea, PRIMARY KEY (ptype, delta, phi, temperature, prun, mctime));")
-
+        cursor.execute(sql_statement, data_tuple)
+        c.execute("INSERT INTO players(player_name) VALUES(%(name)s)", {"name":name})
+        
