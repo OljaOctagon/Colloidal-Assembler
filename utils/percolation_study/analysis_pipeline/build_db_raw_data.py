@@ -10,12 +10,12 @@ conn = connect(
 dbname = "python_test",
 user = "drcarina",
 host = "localhost", 
-password = "pwd_test"
+password = "pwd"
 )
 
 
 # string for the new database name to be created
-DB_NAME = "raw_data_rhombi_percolation"
+DB_NAME = "test"
 
 # get the isolation leve for autocommit
 autocommit = extensions.ISOLATION_LEVEL_AUTOCOMMIT
@@ -62,7 +62,7 @@ conn = connect(
 dbname = DB_NAME,
 user = "drcarina",
 host = "localhost", 
-password = "pwd_test"
+password = "pwd"
 )
 
 conn.set_isolation_level( autocommit )
@@ -83,10 +83,14 @@ exists=table_exists(conn, TABLE_NAME)
 cursor = conn.cursor()
 
 if exists:
-	print("Data table already exists")
+    print("Data table already exists")
 
 else:
-	# create data table 
-	print("CREATE TABLE") 
-	cursor.execute("CREATE TABLE data (ptype varchar, delta float, phi float, temperature float,  prun integer, mctime integer, pos bytea, orient bytea, box bytea, PRIMARY KEY (ptype, delta, phi, temperature, prun, mctime));")
+    # create data table
+    print("CREATE TABLE")
+    #cursor.execute("CREATE TABLE data (ptype varchar, delta float, phi float, temperature float, mctime integer);")
+    cursor.execute("CREATE TABLE data (ptype varchar, delta float, phi float, temperature float, mctime integer, pos bytea, orient bytea, box bytea, PRIMARY KEY (ptype, delta, phi, temperature, mctime));")
+    #cursor.execute("CREATE TABLE data (ptype varchar, delta float, phi float, temperature float, mctime integer, pos bytea, orient bytea, box bytea);")
 
+
+conn.close()
