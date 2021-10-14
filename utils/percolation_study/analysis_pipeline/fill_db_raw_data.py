@@ -3,28 +3,28 @@ import psycopg2
 import glob 
 import configparser 
 import re
-import pickle
-import numpy as np 
 
-DB_NAME="test"
-TABLE_NAME = "data"
+if __name__ == '__main__':
+    
+    DB_NAME="test"
+    TABLE_NAME = "data"
 
-conn = connect(
-dbname = DB_NAME,
-user = "drcarina",
-host = "localhost", 
-password = "pwd"
-)
+    conn = connect(
+    dbname = DB_NAME,
+    user = "drcarina",
+    host = "localhost", 
+    password = "pwd"
+    )
 
-# get the isolation leve for autocommit
-autocommit = extensions.ISOLATION_LEVEL_AUTOCOMMIT
-conn.set_isolation_level( autocommit )
-cursor = conn.cursor()
+    # get the isolation leve for autocommit
+    autocommit = extensions.ISOLATION_LEVEL_AUTOCOMMIT
+    conn.set_isolation_level( autocommit )
+    cursor = conn.cursor()
 
-dirs = glob.glob("double*/")
-print(dirs)
+    dirs = glob.glob("double*/")
+    print(dirs)
 
-for dir_i in dirs: 
+    for dir_i in dirs: 
 
     config = configparser.ConfigParser()
     config.read('{}para.ini'.format(dir_i))
@@ -38,8 +38,8 @@ for dir_i in dirs:
     patch_size = config['Rhombus']['patch_size']
 
     pos_files =glob.glob('{}positions_*.bin'.format(dir_i))
-    
-  
+
+
     # get the last value from the string 
     g = lambda x: int(re.findall(r'\d+', x)[-1])
 
@@ -47,8 +47,6 @@ for dir_i in dirs:
     print("TIME",mc_times)
 
     for time_i in mc_times:
-
-
         pos_file = "{}positions_{}.bin".format(dir_i,time_i)
         with open(pos_file,'rb') as fh:
             pos = fh.read() 
@@ -73,27 +71,6 @@ for dir_i in dirs:
         #cursor.execute('''UPDATE data SET box = %s''', (box + b'1',))
 
 
-conn.close()
+    conn.close()
 
-# TEST 
-print("TEST TEST TEST TEST ")
-print("test if binary data was read correctly")
-
-expl_file="double_manta_asymm_1_phi_0.01_delta_0.2_temp_0.01/positions_20000000.bin" 
-
-pos_from_buffer=np.fromfile(expl_file, dtype=float)
-print(pos_from_buffer[0], len(pos_pos_from_buffer))
-
-
-conn = connect(
-dbname = DB_NAME,
-user = "drcarina",
-host = "localhost", 
-password = "pwd"
-)
-
-sql="SELECT pos FROM data WHERE (phi,mctime) IN ((0.01, 20000000));"
-cursor.execute(sql)
-pos_from_db = pickle.loads(cursor.fetchall())
-print(pos_from_db[0], len(pos_from_db))
-
+    
