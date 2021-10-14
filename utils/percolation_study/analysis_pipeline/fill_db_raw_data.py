@@ -21,48 +21,48 @@ if __name__ == '__main__':
     conn.set_isolation_level( autocommit )
     cursor = conn.cursor()
 
-    dirs = glob.glob("double*/")
+    dirs = glob.glob("double*/double*")
     print(dirs)
 
     for dir_i in dirs: 
 
-    config = configparser.ConfigParser()
-    config.read('{}para.ini'.format(dir_i))
+        config = configparser.ConfigParser()
+        config.read('{}para.ini'.format(dir_i))
 
 
-    N = int(config['System']['Number_of_Particles'])
-    phi = float(config['System']['Packing_Fraction'])
-    temperature = float(config['System']['Temperature'])
-    ptype = config['Rhombus']['rhombus_type']
-    delta = config['Rhombus']['patch_delta']
-    patch_size = config['Rhombus']['patch_size']
+        N = int(config['System']['Number_of_Particles'])
+        phi = float(config['System']['Packing_Fraction'])
+        temperature = float(config['System']['Temperature'])
+        ptype = config['Rhombus']['rhombus_type']
+        delta = config['Rhombus']['patch_delta']
+        patch_size = config['Rhombus']['patch_size']
 
-    pos_files =glob.glob('{}positions_*.bin'.format(dir_i))
+        pos_files =glob.glob('{}positions_*.bin'.format(dir_i))
 
 
-    # get the last value from the string 
-    g = lambda x: int(re.findall(r'\d+', x)[-1])
+        # get the last value from the string 
+        g = lambda x: int(re.findall(r'\d+', x)[-1])
 
-    mc_times = sorted(list(map(g,pos_files)))
-    print("TIME",mc_times)
+        mc_times = sorted(list(map(g,pos_files)))
+        print("TIME",mc_times)
 
-    for time_i in mc_times:
-        pos_file = "{}positions_{}.bin".format(dir_i,time_i)
-        with open(pos_file,'rb') as fh:
-            pos = fh.read() 
+        for time_i in mc_times:
+            pos_file = "{}positions_{}.bin".format(dir_i,time_i)
+            with open(pos_file,'rb') as fh:
+                pos = fh.read() 
 
-        orient_file = "{}orientations_{}.bin".format(dir_i,time_i)
-        with open(pos_file,'rb') as fh:
-            orient = fh.read() 
+            orient_file = "{}orientations_{}.bin".format(dir_i,time_i)
+            with open(pos_file,'rb') as fh:
+                orient = fh.read() 
 
-        box_file = "{}Box_{}.bin".format(dir_i,time_i)
-        with open(box_file,'rb') as fh:
-            box = fh.read() 
+            box_file = "{}Box_{}.bin".format(dir_i,time_i)
+            with open(box_file,'rb') as fh:
+                box = fh.read() 
 
-        sql_statement="INSERT INTO data VALUES (%s,%s,%s,%s,%s,%s,%s,%s)"
-        data_tuple = (ptype, delta, phi, temperature, time_i, pos, orient, box)
-      
-        cursor.execute(sql_statement, data_tuple)
+            sql_statement="INSERT INTO data VALUES (%s,%s,%s,%s,%s,%s,%s,%s)"
+            data_tuple = (ptype, delta, phi, temperature, time_i, pos, orient, box)
+          
+            cursor.execute(sql_statement, data_tuple)
        
 
     conn.close()
