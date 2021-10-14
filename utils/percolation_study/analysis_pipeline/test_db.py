@@ -13,7 +13,7 @@ class Test_DB_values(unittest.TestCase):
 
         ###############################
 
-        DB_NAME="test"
+        DB_NAME = "db_percol_raw_data"
         TABLE_NAME = "data"
         conn = connect(
         dbname = DB_NAME,

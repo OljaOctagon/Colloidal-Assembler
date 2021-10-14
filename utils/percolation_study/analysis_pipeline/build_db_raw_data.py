@@ -13,9 +13,8 @@ host = "localhost",
 password = "pwd"
 )
 
-
 # string for the new database name to be created
-DB_NAME = "test"
+DB_NAME = "db_percol_raw_data"
 
 # get the isolation leve for autocommit
 autocommit = extensions.ISOLATION_LEVEL_AUTOCOMMIT
@@ -57,7 +56,6 @@ conn.close()
 
 
 # reconnect and create table if it doesn't exist 
-
 conn = connect(
 dbname = DB_NAME,
 user = "drcarina",
@@ -88,9 +86,6 @@ if exists:
 else:
     # create data table
     print("CREATE TABLE")
-    #cursor.execute("CREATE TABLE data (ptype varchar, delta float, phi float, temperature float, mctime integer);")
     cursor.execute("CREATE TABLE data (ptype varchar, delta float, phi float, temperature float, mctime integer, pos bytea, orient bytea, box bytea, PRIMARY KEY (ptype, delta, phi, temperature, mctime));")
-    #cursor.execute("CREATE TABLE data (ptype varchar, delta float, phi float, temperature float, mctime integer, pos bytea, orient bytea, box bytea);")
-
-
+   
 conn.close()

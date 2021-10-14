@@ -6,7 +6,7 @@ import re
 
 if __name__ == '__main__':
     
-    DB_NAME="test"
+    DB_NAME = "db_percol_raw_data"
     TABLE_NAME = "data"
 
     conn = connect(
@@ -62,14 +62,8 @@ if __name__ == '__main__':
         sql_statement="INSERT INTO data VALUES (%s,%s,%s,%s,%s,%s,%s,%s)"
         data_tuple = (ptype, delta, phi, temperature, time_i, pos, orient, box)
       
-        #sql_statement="INSERT INTO data VALUES (%s,%s,%s,%s,%s)"
-        #data_tuple = (ptype, delta, phi, temperature, time_i)
-
         cursor.execute(sql_statement, data_tuple)
-        #cursor.execute('''UPDATE data SET pos = %s''', (pos + b'1',))
-        #cursor.execute('''UPDATE data SET orient = %s''', (orient + b'1',))
-        #cursor.execute('''UPDATE data SET box = %s''', (box + b'1',))
-
+       
 
     conn.close()
 
