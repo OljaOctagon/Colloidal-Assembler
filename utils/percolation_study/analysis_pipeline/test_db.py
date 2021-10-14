@@ -10,7 +10,7 @@ class Test_DB_values(unittest.TestCase):
 
         expl_file="double_manta_asymm_1_phi_0.01_delta_0.2_temp_0.01/positions_20000000.bin"
         pos_from_buffer=np.fromfile(expl_file, dtype=float)
-       
+
         ###############################
 
         DB_NAME="test"
@@ -29,8 +29,9 @@ class Test_DB_values(unittest.TestCase):
 
         sql="SELECT pos FROM data WHERE (phi,mctime) IN ((0.01, 20000000));"
         cursor.execute(sql)
-        pos_from_db = pickle.loads(cursor.fetchall())
-       
+        blob=cursor.fetchone()
+        pos_from_db=np.frombuffer(blob[0], dtype="float")
+
         self.assertEqual(pos_from_db[0],pos_from_buffer[0])
         self.assertEqual(len(pos_from_db),len(pos_from_buffer))
 
