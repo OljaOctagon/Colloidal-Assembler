@@ -1,4 +1,4 @@
-#include "traingle.h"
+#include "triangle.h"
 #include <iostream>
 
 triangle::triangle() {
@@ -35,10 +35,10 @@ triangle::triangle() {
     boost::property_tree::ptree pt;
     boost::property_tree::ini_parser::read_ini("para.ini", pt);
 
-    level = pt.get<double>("Triangle.Energy_Level");
+    level = pt.get<double>("Rhombus.Energy_Level");
     T  = pt.get<double>("System.Temperature");
 
-    delta_energy = pt.get<double>("Triangle.Energy_Difference");
+    delta_energy = pt.get<double>("Rhombus.Energy_Difference");
 
     p1 = level;
     p2 = - level;
@@ -136,33 +136,32 @@ triangle::~triangle() {
 void triangle::edges_from_center(){
 
     sinus = L * np.sin(alpha) * 1. / 3.;
-    l = L / 2.;
-    h = H / 2.;
+    L_2 = L / 2.;
+    H_2 = H / 2.;
 
-
-    x[0] = x_center - l;
+    x[0] = x_center - L_2;
     y[0] = y_center - sinus;
-    z[0] = z_center - h;
+    z[0] = z_center - H_2;
 
-    x[1] = x_center + l;
+    x[1] = x_center + L_2;
     y[1] = y_center - sinus;
-    z[1] = z_center - h;
+    z[1] = z_center - H_2;
 
     x[2] = x_center;
-    y[2] = y_center + 2.0 * sinus;
-    z[2] = z_center - h;
+    y[2] = y_center + 2. * sinus;
+    z[2] = z_center - H_2;
 
-    x[3] = x_center - l
+    x[3] = x_center - L_2;
     y[3] = y_center - sinus;
-    z[3] = z_center + h;
+    z[3] = z_center + H_2;
 
-    x[4] = x_center + l;
+    x[4] = x_center + L_2;
     y[4] = y_center - sinus;
-    z[4] = z_center + h;
+    z[4] = z_center + H_2;
 
     x[5] = x_center;
-    y[5] = y_center + 2.0 * sinus;
-    z[5] = z_center + h;
+    y[5] = y_center + 2. * sinus;
+    z[5] = z_center + H_2;
 
 }
 
@@ -178,18 +177,77 @@ void triangle::distance_from_center() {
 
 }
 
-//Axis Calculations only for facenormals?
+//complete
 void triangle::Calculate_Axis() {
 
+    double norm_ax;
+
+    ax_1.x = x[1] - x[0];
+    ax_1.y = y[1] - y[0];
+    ax_1.z = z[1] - z[0];
+
+    norm_ax = ax_1.norm();
+
+    ax_1.x = ax_1.x / norm_ax;
+    ax_1.y = ax_1.y / norm_ax;
+    ax_1.z = ax_1.z / norm_ax;
+
+    ax_3.x = x[4] - x[0];
+    ax_3.y = y[4] - y[0];
+    ax_3.z = z[4] - z[0];
+
+    norm_ax = ax_3.norm();
+
+    ax_3.x = ax_3.x / norm_ax;
+    ax_3.y = ax_3.y / norm_ax;
+    ax_3.z = ax_3.z / norm_ax;
+
+    ax_2.x = ax_3.y * ax_1.z - ax_3.z * ax_1.y;
+    ax_2.y = ax_3.z * ax_1.x - ax_3.x * ax_1.z;
+    ax_2.z = ax_3.x * ax_1.y - ax_3.y * ax_1.x;
+
+    norm_ax = ax_2.norm();
+
+    ax_2.x = ax_2.x / norm_ax;
+    ax_2.y = ax_2.y / norm_ax;
+    ax_2.z = ax_2.z / norm_ax;
 }
 
-//Axis Calculations only for facenormals?
+//complete?
+void triangle::Calculate_Long_Axis() {
+
+    double norm_ax;
+
+    long_axis.x = x[1] - x[0];
+    long_axis.y = y[1] - y[0];
+    long_axis.z = z[1] - z[0];
+
+    norm_ax = long_axis.norm();
+
+    long_axis.x = long_axis.x / norm_ax;
+    long_axis.y = long_axis.y / norm_ax;
+    long_axis.z = long_axis.z / norm_ax;
+
+}
+
+//complete
 void triangle::Set_Axis() {
 
+    ax_1_old.x = ax_1.x;
+    ax_1_old.y = ax_1.y;
+    ax_1_old.z = ax_1.z;
+
+    ax_2_old.x = ax_2.x;
+    ax_2_old.y = ax_2.y;
+    ax_2_old.z = ax_2.z;
+
+    ax_3_old.x = ax_3.x;
+    ax_3_old.y = ax_3.y;
+    ax_3_old.z = ax_3.z;
+
 }
 
-//which param necessary? -> ra,vc,cross in rhombohedron.cpp
-//add all types
+//diag3
 void triangle::Set_Lengths() {
 
     // Triangle
@@ -197,55 +255,44 @@ void triangle::Set_Lengths() {
 
     L = 1.0;
     Lz = 0.1 * Lx;
+    H = L * sin(alpha);
+    H_2 = H / 2.;
 
-    h = Ly * sin(alpha);
+
+    h = L * sin(alpha);
     h_2 = double(h) / 2.0;
-    a_x = Ly * cos(alpha);
-
-    ra.x = Lx;
-    ra.y = 0.0;
-    ra.z = 0.0;
-
-    rb.x = a_x;
-    rb.y = h;
-    rb.z = 0.0;
-
-    rc.x = 0.0;
-    rc.y = 0.0;
-    rc.z = Lz;
-
-    diag2_short = sqrt((Lx - a_x) * (Lx - a_x) + h * h);
-    diag2_long = sqrt((Lx + a_x) * (Lx + a_x) + h * h);
-
-    diag3_short = sqrt(diag2_short * diag2_short + Lz * Lz);
-    diag3_long = sqrt(diag2_long * diag2_long + Lz * Lz);
+    a_x = L * cos(alpha);
 
 
-    vc.x = ra.x + rb.x + rc.x;
-    vc.y = ra.y + rb.y + rc.y;
-    vc.z = ra.z + rb.z + rc.z;
+    //diag2_short = sqrt((L*L + h * h);
+    //diag2_long = sqrt((Lx + a_x) * (Lx + a_x) + h * h);
+
+    //umkugel R = sqrt(r^2 + h^2 / 4) with r = L^2 sqrt(3)/4
+
+    //diag3_short = sqrt(diag2_short * diag2_short + Lz * Lz);
+    //diag3_long = sqrt(diag2_long * diag2_long + Lz * Lz);
 
     //cut_off = vc.norm();
-    cross_p.x = rb.y * rc.z - rb.z * rc.y;
-    cross_p.y = rb.z * rc.x - rb.x * rc.z;
-    cross_p.z = rb.x * rc.y - rb.y * rc.x;
 
-    V = fabs(ra.x * cross_p.x + ra.y * cross_p.y + ra.z * cross_p.z);
-    A = Lx*h;
-
+    A = L * L * sqrt(3.) / 4.;
+    V = A * Lz
 
     boost::property_tree::ptree pt;
     boost::property_tree::ini_parser::read_ini("para.ini", pt);
 
     patch_size = pt.get<double>("Rhombus.patch_size");
 
-    cut_off = diag2_long + 2* patch_size;
+    r = L * L * sqrt(3)/4
+    
+    cut_off = H * 4. / 3. + 2 * patch_size;
     cut_off_squared = cut_off * cut_off;
 
     r_patch[0] = patch_size;
     r_patch[1] = patch_size;
     r_patch[2] = patch_size;
     r_patch[3] = patch_size;
+    r_patch[4] = patch_size;
+    r_patch[5] = patch_size;
 
     patch_cutoff[0] = r_patch[0] * 2;
     patch_cutoff_squared[0] = patch_cutoff[0] * patch_cutoff[0];
@@ -259,11 +306,17 @@ void triangle::Set_Lengths() {
     patch_cutoff[3] = r_patch[3] * 2;
     patch_cutoff_squared[3] = patch_cutoff[3] * patch_cutoff[3];
 
-    patch_delta = pt.get<double>("Triangle.patch_delta");
-    rhombus_type = pt.get<string>("Triangle.rhombus_type");
+    patch_cutoff[4] = r_patch[4] * 2;
+    patch_cutoff_squared[4] = patch_cutoff[4] * patch_cutoff[4];
+
+    patch_cutoff[5] = r_patch[5] * 2;
+    patch_cutoff_squared[5] = patch_cutoff[5] * patch_cutoff[5];
+
+    patch_delta = pt.get<double>("Rhombus.patch_delta");
+    triangle_type = pt.get<string>("Rhombus.rhombus_type");
 
     //available types:
-    //six_patch, three_asymm
+    //six_patch, three_asymm, two_neighbour_fixedcorner, two_opposite_fixedcorner
 
     patch_x = 0.5;
     d0 = patch_x;
@@ -280,7 +333,7 @@ void triangle::Set_Lengths() {
     patch_type[4] = 0;
     patch_type[5] = 0;
 
-    if (rhombus_type.compare("six_patch") == 0) {
+    if (triangle_type.compare("six_patch") == 0) {
         d0 = patch_delta;
         d1 = patch_delta;
         d2 = patch_delta;
@@ -296,7 +349,7 @@ void triangle::Set_Lengths() {
         patch_type[5] = 0;
     }
 
-        if (rhombus_type.compare("three_asymm") == 0) {
+    if (triangle_type.compare("three_asymm") == 0) {
         d0 = patch_delta;
         d1 = patch_x;
         d2 = patch_delta;
@@ -312,9 +365,41 @@ void triangle::Set_Lengths() {
         patch_type[5] = 1;
     }
 
+    if (triangle_type.compare("two_neighbour_fixedcorner") == 0) {
+        d0 = 0;
+        d1 = 1 - patch_delta;
+        d2 = patch_x;
+        d3 = patch_x;
+        d4 = patch_x;
+        d5 = patch_x;
+
+        patch_type[0] = 0;
+        patch_type[1] = 0;
+        patch_type[2] = 1;
+        patch_type[3] = 1;
+        patch_type[4] = 1;
+        patch_type[5] = 1;
+    }
+
+    if (triangle_type.compare("two_opposite_fixedcorner") == 0) {
+        d0 = patch_delta;
+        d1 = patch_x;
+        d2 = patch_x;
+        d3 = 0;
+        d4 = patch_x;
+        d5 = patch_x;
+
+        patch_type[0] = 0;
+        patch_type[1] = 1;
+        patch_type[2] = 1;
+        patch_type[3] = 0;
+        patch_type[4] = 1;
+        patch_type[5] = 1;
+    }
+
 }
 
-//?
+//complete
 void triangle::Set_Lengths(int e0, int e1, int e2, int e3, int e4, int e5) {
 
     patch_type[0] = e0;
@@ -326,7 +411,7 @@ void triangle::Set_Lengths(int e0, int e1, int e2, int e3, int e4, int e5) {
 
 }
 
-//how does x_center calc work
+//completish
 void triangle::Set_Start_Lattice_Position(int id, double box_Lx, 
                                             int N_box) {
     // for cubic lattice
@@ -345,10 +430,10 @@ void triangle::Set_Start_Lattice_Position(int id, double box_Lx,
     N_sitesp_yz = ceil(N_sitesp_x_float / sin(alpha));
     N_sitesp_yz_float = double(N_sitesp_yz);
 
-    l_distp_x = (box_Lx - N_sitesp_x_float * Lx) / N_sitesp_x_float;
+    l_distp_x = (box_Lx - N_sitesp_x_float * L) / N_sitesp_x_float;
     l_distp_yz = (box_Lx - N_sitesp_yz_float * h) / N_sitesp_yz_float;
 
-    x_center = a_x / 2.0 + l_distp_x / 2.0 + double(id % N_sitesp_x) * Lx +
+    x_center = a_x / 2.0 + l_distp_x / 2.0 + double(id % N_sitesp_x) * L +
                double(id % N_sitesp_x) * l_distp_x;
     y_center = h_2 + l_distp_yz / 2.0 +
                double((id / N_sitesp_x) % N_sitesp_yz) * h +
@@ -363,7 +448,7 @@ void triangle::Set_Start_Lattice_Position(int id, double box_Lx,
 
 }
 
-//how does x_center calc work
+//completish
 void triangle::Set_Start_Lattice_Position(int id, double box_Lx, 
                                             double box_Ly, double box_Lz, 
                                             int N_box) {
@@ -384,9 +469,9 @@ void triangle::Set_Start_Lattice_Position(int id, double box_Lx,
     l_distpx = l_distpx*0.7;
     l_distpy = l_distpy*0.7;
 
-    x_center = Lx / 2.0 + l_distpx / 2.0 +
+    x_center = L / 2.0 + l_distpx / 2.0 +
                double(id % N_sitespx + l_distpx * (id % N_sitespx));
-    y_center = h / 2.0 + l_distpy / 2.0 +
+    y_center = H / 2.0 + l_distpy / 2.0 +
                double((id / N_sitespx) % N_sitespy +
                       l_distpx * ((id / N_sitespy) % N_sitespx));
     z_center = Lz / 2.0;
@@ -421,16 +506,14 @@ void triangle::Calculate_Patch_Position() {
 
 }
 
-//complete
-//facenormal - center ?
-//what is edges[...] in rhombohedron.cpp
+//edges[...]
 void triangle::Calculate_Face_Normals() {
 
     double face_ax;
 
-    facenormal[0].x = (x[0] + x[1] + x[2])/3.;
-    facenormal[0].y = (y[0] + y[1] + y[2])/3.;
-    facenormal[0].z = (z[0] + z[1] + z[2])/3.;
+    facenormal[0].x = (x[0] + x[1] + x[2])/3. - x_center;
+    facenormal[0].y = (y[0] + y[1] + y[2])/3. - y_center;
+    facenormal[0].z = (z[0] + z[1] + z[2])/3. - z_center;
 
     face_ax = facenormal[0].norm();
 
@@ -438,9 +521,9 @@ void triangle::Calculate_Face_Normals() {
     facenormal[0].y = facenormal[0].y / face_ax;
     facenormal[0].z = facenormal[0].z / face_ax;
 
-    facenormal[1].x = (x[0] + x[1] + x[4] + x[3])/4.;
-    facenormal[1].y = (y[0] + y[1] + y[4] + y[3])/4.;
-    facenormal[1].z = (z[0] + z[1] + z[4] + z[3])/4.;
+    facenormal[1].x = (x[0] + x[1] + x[4] + x[3])/4. - x_center;
+    facenormal[1].y = (y[0] + y[1] + y[4] + y[3])/4. - y_center;
+    facenormal[1].z = (z[0] + z[1] + z[4] + z[3])/4. - z_center;
 
     face_ax = facenormal[1].norm();
 
@@ -448,9 +531,9 @@ void triangle::Calculate_Face_Normals() {
     facenormal[1].y = facenormal[1].y / face_ax;
     facenormal[1].z = facenormal[1].z / face_ax;
 
-    facenormal[2].x = (x[1] + x[2] + x[5] + x[4])/4.;
-    facenormal[2].y = (y[1] + y[2] + y[5] + y[4])/4.;
-    facenormal[2].z = (z[1] + z[2] + z[5] + z[4])/4.;
+    facenormal[2].x = (x[1] + x[2] + x[5] + x[4])/4. - x_center;
+    facenormal[2].y = (y[1] + y[2] + y[5] + y[4])/4. - y_center;
+    facenormal[2].z = (z[1] + z[2] + z[5] + z[4])/4. - z_center;
 
     face_ax = facenormal[2].norm();
 
@@ -458,18 +541,31 @@ void triangle::Calculate_Face_Normals() {
     facenormal[2].y = facenormal[2].y / face_ax;
     facenormal[2].z = facenormal[2].z / face_ax;
 
-    facenormal[3].x = (x[2] + x[0] + x[3] + x[5])/4.;
-    facenormal[3].y = (y[2] + y[0] + y[3] + y[5])/4.;
-    facenormal[3].z = (z[2] + z[0] + z[3] + z[5])/4.;
+    facenormal[3].x = (x[2] + x[0] + x[3] + x[5])/4. - x_center;
+    facenormal[3].y = (y[2] + y[0] + y[3] + y[5])/4. - y_center;
+    facenormal[3].z = (z[2] + z[0] + z[3] + z[5])/4. - z_center;
 
     face_ax = facenormal[3].norm();
 
     facenormal[3].x = facenormal[3].x / face_ax;
     facenormal[3].y = facenormal[3].y / face_ax;
     facenormal[3].z = facenormal[3].z / face_ax;
+
+    //edges[0].x = ax_1.x;
+    //edges[0].y = ax_1.y;
+    //edges[0].z = ax_1.z;
+
+    //edges[1].x = ax_2.x;
+    //edges[1].y = ax_2.y;
+    //edges[1].z = ax_2.z;
+
+    //edges[2].x = ax_3.x;
+    //edges[2].y = ax_3.y;
+    //edges[2].z = ax_3.z;
+
 }
 
-//double check with dist_x usw
+//complete
 void triangle::Calculate_Projection_to_Separating_Axis(m_vector laxis) {
     double Rp;
     double rmax;

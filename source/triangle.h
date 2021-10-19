@@ -20,6 +20,9 @@ class triangle : public polyhedra {
 
   public:
     double alpha;
+    double sinus;
+    double L_2;
+    double H_2;
     double a_x;
     double h;
     double h_2;
@@ -38,7 +41,7 @@ class triangle : public polyhedra {
 
     m_vector vc; 
     m_vector cross_p;
-    string rhombus_type;
+    string triangle_type;
     triangle();
     ~triangle();
 
@@ -47,7 +50,7 @@ class triangle : public polyhedra {
     void Calculate_Axis();
     void Set_Axis();
     void Set_Lengths();
-    void Set_Lengths(int e0, int e1, int e2, int e3);
+    void Set_Lengths(int e0, int e1, int e2, int e3, int e4, int e5);
     void Set_Start_Lattice_Position(int id, double box_Lx, int N_box);
     void Set_Start_Lattice_Position(int id, double box_Lx, double box_Ly,
                                     double box_Lz, int N_box);
