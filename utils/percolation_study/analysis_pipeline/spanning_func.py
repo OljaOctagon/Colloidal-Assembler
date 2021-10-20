@@ -8,8 +8,7 @@ import os
 from itertools import islice
 from itertools import cycle 
 
-def push(i,j,rot,cell_lists):
-    print(i,j)
+def push(i,j,rot,cell_lists,N_particles):
     network_list=[]
     for klist in cell_lists:
         
@@ -19,10 +18,9 @@ def push(i,j,rot,cell_lists):
 
         for ki,k in enumerate(nklist):
             im_j = j + k*N_particles
-            print("list", nklist)
+            
             starts_at_k = islice(cycle(nklist),ki+1,None)
             l = next(starts_at_k) 
-            print("k, l", k,l)
 
             im_i = i + l*N_particles
             network_list.append([im_i,im_j])
@@ -31,6 +29,8 @@ def push(i,j,rot,cell_lists):
 
 
 def get_spanning(pos,box,connections):
+
+    print("Calculate optimized spanning")
 
     frac_largest = []
     virtual_frac_largest = []
@@ -49,13 +49,14 @@ def get_spanning(pos,box,connections):
     particles_max_domain = gt.get_particles_in_largest_cluster(G)
     N_largest = len(particles_max_domain)
 
+    N_particles = len(pos)
     frac_largest = N_largest/N_particles
    
     virtual_frac_largest = 0 
     virtual_patch_network = []
     N_images = 9
 
-    for conn_j in connections_j:
+    for conn_j in connections:
         i,j = conn_j
 
         # Calculate distances between next neighbours
@@ -63,7 +64,7 @@ def get_spanning(pos,box,connections):
         pdist = pos[j]-pos[i]
 
         x = pdist[0]
-        y=  pdist[1]
+        y = pdist[1]
 
         # define some shorthands 
         x_abs = np.fabs(x)
@@ -86,21 +87,19 @@ def get_spanning(pos,box,connections):
             # top-bottom
             if (x_abs < box_x) and (y_abs > box_y):
                 
-                print("top-bottom") 
                 if y_sign > 0:
                     rot = 1
-                    print("rot=1")
+                  
                 if y_sign < 0:
-                    print("rot=-1")
+                  
                     rot = -1
 
-                network_list_images = push(i,j,rot,cell_dict['top-bottom'])
+                network_list_images = push(i,j,rot,cell_dict['top-bottom'], N_particles)
                 virtual_patch_network.extend(network_list_images)
 
             # left-right
             if (x_abs > box_x) and (y_abs < box_y):
-                
-                print("left-right") 
+            
                 # to the left
                 if x_sign > 0:
                     rot=-1
@@ -108,29 +107,29 @@ def get_spanning(pos,box,connections):
                 if x_sign < 0:
                     rot=1
 
-                network_list_images = push(i,j,rot,cell_dict['left-right'])
+                network_list_images = push(i,j,rot,cell_dict['left-right'], N_particles)
                 virtual_patch_network.extend(network_list_images)
 
             # diagognal  
             if (x_abs > box_x) and (y_abs > box_y):
                 # left top to right bottom 
                 if x_sign != y_sign:
-                    print("diagonal left top to right bottom") 
+                    
                     if x_sign > 0 and y_sign < 0:
                         rot = -1
                     if x_sign < 0 and y_sign > 0:
                         rot = 1
-                    network_list_images = push(i,j,rot,cell_dict['diag-top-bottom'])
+                    network_list_images = push(i,j,rot,cell_dict['diag-top-bottom'], N_particles)
                     virtual_patch_network.extend(network_list_images)
 
                 # left bottom to right top 
                 if x_sign == y_sign:
-                    print("left bottom to right top") 
+                 
                     if x_sign > 0:
                         rot = 1
                     if x_sign < 0:
                         rot = -1
-                    network_list_images = push(i,j,rot,cell_dict['diag-bottom-top'])
+                    network_list_images = push(i,j,rot,cell_dict['diag-bottom-top'], N_particles)
                     virtual_patch_network.extend(network_list_images)
 
     print("Calculate bonded neighbour graph")
