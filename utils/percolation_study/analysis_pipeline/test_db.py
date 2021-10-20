@@ -34,7 +34,7 @@ class Test_DB_values(unittest.TestCase):
 
         self.assertEqual(pos_from_db[0],pos_from_buffer[0])
         self.assertEqual(len(pos_from_db),len(pos_from_buffer))
-
+        conn.close()
 
 if __name__ == '__main__':
     unittest.main()
