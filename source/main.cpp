@@ -40,6 +40,7 @@ int main(int argc, char *argv[]) {
     // init new run
     if (strcmp(runtype, new_runtype) == 0) {
 
+        cout << "in new run" << endl;
         // initialize box
         Box->Startconfig(Fileio.N_in, Fileio.P_sigma_in,
                          Fileio.mu_in_1, Fileio.mu_in_2, Fileio.mu_in_3,
@@ -57,8 +58,10 @@ int main(int argc, char *argv[]) {
         gsl_rng_set(r, R2);
 
         Box->edges_from_center();
-        // initialize lattice
+        // initialize lattice   
+        cout<< "before startconfig" << endl;
         Particles.Startconfig(Box);
+        cout<< "after startconfig" << endl;
         Particles.Make_Cell_List(Box);
         Particles.Set_Cell_List(Box);
         Particles.Make_Cell_Neighbour_List();

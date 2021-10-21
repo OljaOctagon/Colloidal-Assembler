@@ -21,6 +21,8 @@ class triangle : public polyhedra {
   public:
     double alpha;
     double sinus;
+    double L;
+    double H;
     double L_2;
     double H_2;
     double a_x;

@@ -135,9 +135,9 @@ triangle::~triangle() {
 //complete
 void triangle::edges_from_center(){
 
-    sinus = L * sin(alpha) * 1. / 3.;
-    L_2 = L / 2.;
-    H_2 = H / 2.;
+    sinus = Lx * sin(alpha) * 1. / 3.;
+    L_2 = Lx / 2.;
+    H_2 = Ly / 2.;
 
     x[0] = x_center - L_2;
     y[0] = y_center - sinus;
@@ -253,9 +253,9 @@ void triangle::Set_Lengths() {
     // Triangle
     alpha = (60 * M_PI) / 180.0;
 
-    L = 1.0;
+    Lx = 1.0;
     Lz = 0.1 * Lx;
-    H = L * sin(alpha);
+    Ly = L * sin(alpha);
     H_2 = H / 2.;
 
 
@@ -274,7 +274,7 @@ void triangle::Set_Lengths() {
 
     //cut_off = vc.norm();
 
-    A = L * L * sqrt(3.) / 4.;
+    A = Lx * Lx * sqrt(3.) / 4.;
     V = A * Lz;
 
     boost::property_tree::ptree pt;
@@ -431,7 +431,7 @@ void triangle::Set_Start_Lattice_Position(int id, double box_Lx,
     l_distp_x = (box_Lx - N_sitesp_x_float * L) / N_sitesp_x_float;
     l_distp_yz = (box_Lx - N_sitesp_yz_float * h) / N_sitesp_yz_float;
 
-    x_center = a_x / 2.0 + l_distp_x / 2.0 + double(id % N_sitesp_x) * L +
+    x_center = a_x / 2.0 + l_distp_x / 2.0 + double(id % N_sitesp_x) * Lx +
                double(id % N_sitesp_x) * l_distp_x;
     y_center = h_2 + l_distp_yz / 2.0 +
                double((id / N_sitesp_x) % N_sitesp_yz) * h +
@@ -467,9 +467,9 @@ void triangle::Set_Start_Lattice_Position(int id, double box_Lx,
     l_distpx = l_distpx*0.7;
     l_distpy = l_distpy*0.7;
 
-    x_center = L / 2.0 + l_distpx / 2.0 +
+    x_center = Lx / 2.0 + l_distpx / 2.0 +
                double(id % N_sitespx + l_distpx * (id % N_sitespx));
-    y_center = H / 2.0 + l_distpy / 2.0 +
+    y_center = Ly / 2.0 + l_distpy / 2.0 +
                double((id / N_sitespx) % N_sitespy +
                       l_distpx * ((id / N_sitespy) % N_sitespx));
     z_center = Lz / 2.0;
@@ -564,7 +564,7 @@ void triangle::Calculate_Face_Normals() {
 }
 
 //complete
-void triangle::Calculate_Projection_to_Separating_Axis(m_vector laxis) {
+double triangle::Calculate_Projection_to_Separating_Axis(m_vector laxis) {
     double Rp;
     double rmax;
     double rmin;
