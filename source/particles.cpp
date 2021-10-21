@@ -158,6 +158,18 @@ particles::particles(int number_of_cells_in, int size, int MAX_coll_p_in,
         }
     }
 
+    if (particle_type.compare("triangle") == 0) {
+
+        Triangle = new triangle[size];
+        Triangle_old = new triangle[size];
+
+        for (int i = 0; i < size; i++) {
+
+            N_Particle[i] = &Triangle[i];
+            N_Particle_old[i] = &Triangle_old[i];
+        }
+    }
+
     // Initialization of N_Particle
     double rand_s;
     int a, b, c, d;

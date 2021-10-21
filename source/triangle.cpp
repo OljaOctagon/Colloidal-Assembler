@@ -35,10 +35,10 @@ triangle::triangle() {
     boost::property_tree::ptree pt;
     boost::property_tree::ini_parser::read_ini("para.ini", pt);
 
-    level = pt.get<double>("Rhombus.Energy_Level");
+    level = pt.get<double>("Triangle.Energy_Level");
     T  = pt.get<double>("System.Temperature");
 
-    delta_energy = pt.get<double>("Rhombus.Energy_Difference");
+    delta_energy = pt.get<double>("Triangle.Energy_Difference");
 
     p1 = level;
     p2 = - level;
@@ -135,7 +135,7 @@ triangle::~triangle() {
 //complete
 void triangle::edges_from_center(){
 
-    sinus = L * np.sin(alpha) * 1. / 3.;
+    sinus = L * sin(alpha) * 1. / 3.;
     L_2 = L / 2.;
     H_2 = H / 2.;
 
@@ -280,7 +280,7 @@ void triangle::Set_Lengths() {
     boost::property_tree::ptree pt;
     boost::property_tree::ini_parser::read_ini("para.ini", pt);
 
-    patch_size = pt.get<double>("Rhombus.patch_size");
+    patch_size = pt.get<double>("Triangle.patch_size");
 
     cut_off = H * 4. / 3. + 2 * patch_size;
     cut_off_squared = cut_off * cut_off;
@@ -310,8 +310,8 @@ void triangle::Set_Lengths() {
     patch_cutoff[5] = r_patch[5] * 2;
     patch_cutoff_squared[5] = patch_cutoff[5] * patch_cutoff[5];
 
-    patch_delta = pt.get<double>("Rhombus.patch_delta");
-    triangle_type = pt.get<string>("Rhombus.rhombus_type");
+    patch_delta = pt.get<double>("Triangle.patch_delta");
+    triangle_type = pt.get<string>("Triangle.triangle_type");
 
     //available types:
     //six_patch, three_asymm, two_neighbour_fixedcorner, two_opposite_fixedcorner
