@@ -275,15 +275,13 @@ void triangle::Set_Lengths() {
     //cut_off = vc.norm();
 
     A = L * L * sqrt(3.) / 4.;
-    V = A * Lz
+    V = A * Lz;
 
     boost::property_tree::ptree pt;
     boost::property_tree::ini_parser::read_ini("para.ini", pt);
 
     patch_size = pt.get<double>("Rhombus.patch_size");
 
-    r = L * L * sqrt(3)/4
-    
     cut_off = H * 4. / 3. + 2 * patch_size;
     cut_off_squared = cut_off * cut_off;
 

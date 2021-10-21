@@ -35,7 +35,7 @@ class triangle : public polyhedra {
     m_vector ra;
     m_vector rb;
     m_vector rc;
-    double d0, d1, d2, d3;
+    double d0, d1, d2, d3, d4, d5;
     double patch_x;
     double patch_size;
 
