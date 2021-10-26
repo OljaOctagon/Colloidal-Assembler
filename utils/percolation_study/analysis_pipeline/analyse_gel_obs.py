@@ -206,7 +206,7 @@ if __name__ == '__main__':
         # Energy: trend and fluctuation estimate of last time points 
         energy_file = "{}/Energy.dat".format(dir_name)
         if exists(energy_file):
-            energy_to_time = pd.read_csv(energy_file, delim_whitespace=True)
+            energy_to_time = pd.read_csv(energy_file, delim_whitespace=True).values
             trend, level, fluct, d0, is_converged, perr, energy_ma = get_energy_trend(energy_to_time)
 
             new_results['energy_converged'] = is_converged 
