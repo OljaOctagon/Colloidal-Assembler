@@ -174,7 +174,8 @@ if __name__ == '__main__':
         new_results = {}
         # connections of last time 
 
-        dir_name = "{}/{}_phi_{}_delta_{}_temp_{0:.2f}".format(ptype,ptype,phi,delta,temperature)
+        temp_str = "{0:.2f}".format(temperature)
+        dir_name = "{}/{}_phi_{}_delta_{}_temp_{}".format(ptype,ptype,phi,delta,temp_str)
         file_name = "{}/patch_network.dat".format(dir_name)
 
         print("Evaluating data of {}".format(dir_name))
