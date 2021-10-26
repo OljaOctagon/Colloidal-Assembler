@@ -10,6 +10,7 @@ import pandas as pd
 import configparser
 import matplotlib.pyplot as plt 
 
+from os.path import exists
 
 def plot_energy(energy_to_time, trend, level, fluct, is_converged, subdir_name):
 
@@ -155,7 +156,7 @@ if __name__ == '__main__':
 
     gen_dict = {'fsys': gen_fsys}
 
-    columns = ['id', 'frac_largest', 'frac_largest_virtual', 'energy_converged', 'energy_fluctuation', 'current_time']
+    columns = ['id', 'frac_largest', 'frac_largest_virtual', 'energy_converged', 'energy_fluctuation', 'level', 'current_time']
     df = pd.DataFrame(columns=columns)
     
 
@@ -170,25 +171,43 @@ if __name__ == '__main__':
 
         subdir_name = "{}_phi_{}_delta_{}_temp_{}".format(ptype,phi,delta,temperature)
 
-        connections = gt.read_bonds(file_name)[-1]   
-        # calculate spanning 
-        frac_largest, virtual_frac_largest = get_spanning(pos, box, connections)
+        new_results['id'] = subdir_name 
+        new_results['frac_largest'] = np.nan
+        new_results['virtual_frac_largest'] = np.nan
+        new_results['energy_converged'] = np.nan
+        new_results['energy_fluctuation'] = np.nan
+        new_results['energy_lev el'] = np.nan
+        new_results['current_time'] = last_time 
+
+
+        if exists(file_name):
+            connections = gt.read_bonds(file_name)[-1]
+            # calculate spanning
+            frac_largest, virtual_frac_largest = get_spanning(pos, box, connections)
+            new_results['frac_largest'] = frac_largest 
+            new_results['virtual_frac_largest'] = virtual_frac_largest
+
+
+        else:
+            print("{}: doesn't exist".format(file_name))
 
 
         # Energy: trend and fluctuation estimate of last time points 
-        energy_to_time = pd.read_csv("{}/Energy.dat".format(dir_name), delim_whitespace=True).values
-        trend, level, fluct, is_converged = get_energy_trend(energy_to_time)
+        energy_file = "{}/Energy.dat".format(dir_name)
+        if exists(energy_file):
+            energy_to_time = pd.read_csv("{}/Energy.dat".format(dir_name), delim_whitespace=True).values
+            trend, level, fluct, is_converged = get_energy_trend(energy_to_time)
 
-        plot_energy(energy_to_time, trend, level, fluct, is_converged,subdir_name)
+            new_results['energy_converged'] = is_converged 
+            new_results['energy_fluctuation'] = fluct
+            new_results['energy_level'] = level
 
-        
-        new_results['id'] = subdir_name 
-        new_results['frac_largest'] = frac_largest 
-        new_results['virtual_frac_largest'] = virtual_frac_largest
-        new_results['energy_converged'] = is_converged 
-        new_results['energy_fluctuation'] = fluct
-        new_results['current_time'] = last_time 
+            plot_energy(energy_to_time, trend, level, fluct, is_converged,subdir_name)
 
+        else:
+            print("{}: doesn't exist".format(energy_file))
+
+    
         df = df.append(new_results, ignore_index=True)
         
 
