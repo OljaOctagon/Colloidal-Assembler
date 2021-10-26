@@ -24,7 +24,7 @@ def plot_energy(energy_to_time, trend, level, fluct, d0, is_converged, subdir_na
     plt.plot(x,y,lw=2, c='k')
     plt.plot(x,fit_func,c='r',
         lw=2, linestyle='dashed', 
-        label="trend = {}, level = {}".format(trend, level))
+        label="trend = {}, fluct = {}".format(trend, fluct))
 
     window_size=11
     wcut=(window_size-1)//2
@@ -67,7 +67,7 @@ def get_energy_trend(energy_to_time):
     pfit = np.abs(fit_func(energy_to_time[-last_nobs:,0],trend,d0))
 
     wcut=(window_size-1)//2
-    fluct = np.std(pxdata - pfit)
+    fluct = np.std(pxdata)
     level = np.mean(pxdata)
 
 
