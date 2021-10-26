@@ -190,7 +190,7 @@ if __name__ == '__main__':
         new_results['current_time'] = last_time 
 
         new_results['frac_largest'] = np.nan
-        new_results['virtual_frac_largest'] = np.nan
+        new_results['frac_largest_virtual'] = np.nan
         #new_results['energy_converged'] = np.nan
         #new_results['energy_fluctuation'] = np.nan
         #new_results['energy_lev el'] = np.nan
@@ -201,7 +201,7 @@ if __name__ == '__main__':
             # calculate spanning
             frac_largest, virtual_frac_largest = get_spanning(pos, box, connections)
             new_results['frac_largest'] = frac_largest 
-            new_results['virtual_frac_largest'] = virtual_frac_largest
+            new_results['frac_largest_virtual'] = virtual_frac_largest
 
 
         else:
