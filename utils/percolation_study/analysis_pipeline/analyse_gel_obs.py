@@ -162,7 +162,9 @@ if __name__ == '__main__':
 
     gen_dict = {'fsys': gen_fsys}
 
-    columns = ['id', 'frac_largest', 'frac_largest_virtual', 'energy_converged', 'energy_fluctuation', 'level', 'current_time']
+    #columns = ['id', 'frac_largest', 'frac_largest_virtual', 'energy_converged', 'energy_fluctuation', 'level', 'current_time']
+    
+    columns = ['id','ptype','delta', 'phi', 'temperature', 'current_time', 'frac_largest', 'frac_largest_virtual']
     df = pd.DataFrame(columns=columns)
     
 
@@ -172,20 +174,26 @@ if __name__ == '__main__':
         new_results = {}
         # connections of last time 
 
-        dir_name = "{}/{}_phi_{}_delta_{}_temp_{}".format(ptype,ptype,phi,delta,temperature)
+        dir_name = "{}/{}_phi_{}_delta_{}_temp_{{0:.2f}}".format(ptype,ptype,phi,delta,temperature)
         file_name = "{}/patch_network.dat".format(dir_name)
 
         print("Evaluating data of {}".format(dir_name))
         subdir_name = "{}_phi_{}_delta_{}_temp_{}".format(ptype,phi,delta,temperature)
 
+
         new_results['id'] = subdir_name 
+        new_results['ptype'] = ptype
+        new_results['delta'] = delta
+        new_results['phi'] = phi
+        new_results['temperature'] = temperature 
+          new_results['current_time'] = last_time 
+
         new_results['frac_largest'] = np.nan
         new_results['virtual_frac_largest'] = np.nan
-        new_results['energy_converged'] = np.nan
-        new_results['energy_fluctuation'] = np.nan
-        new_results['energy_lev el'] = np.nan
-        new_results['current_time'] = last_time 
-
+        #new_results['energy_converged'] = np.nan
+        #new_results['energy_fluctuation'] = np.nan
+        #new_results['energy_lev el'] = np.nan
+      
 
         if exists(file_name):
             connections = gt.read_bonds(file_name)[-1]
@@ -200,19 +208,19 @@ if __name__ == '__main__':
 
 
         # Energy: trend and fluctuation estimate of last time points 
-        energy_file = "{}/Energy.dat".format(dir_name)
-        if exists(energy_file):
-            energy_to_time = pd.read_csv(energy_file, delim_whitespace=True).values
-            trend, level, fluct, d0, is_converged, perr, energy_ma = get_energy_trend(energy_to_time)
+        #energy_file = "{}/Energy.dat".format(dir_name)
+        #if exists(energy_file):
+        #    energy_to_time = pd.read_csv(energy_file, delim_whitespace=True).values
+        #    trend, level, fluct, d0, is_converged, perr, energy_ma = get_energy_trend(energy_to_time)
 
-            new_results['energy_converged'] = is_converged 
-            new_results['energy_fluctuation'] = fluct
-            new_results['energy_level'] = level
+        #    new_results['energy_converged'] = is_converged 
+        #    new_results['energy_fluctuation'] = fluct
+        #    new_results['energy_level'] = level
 
-            plot_energy(energy_to_time, trend, level, fluct, d0, is_converged, subdir_name, perr, energy_ma)
+        #    plot_energy(energy_to_time, trend, level, fluct, d0, is_converged, subdir_name, perr, energy_ma)
 
-        else:
-            print("{}: doesn't exist".format(energy_file))
+        #else:
+        #    print("{}: doesn't exist".format(energy_file))
 
     
         df = df.append(new_results, ignore_index=True)

@@ -30,8 +30,6 @@ def push(i,j,rot,cell_lists,N_particles):
 
 def get_spanning(pos,box,connections):
 
-    print("Calculate optimized spanning")
-
     frac_largest = []
     virtual_frac_largest = []
 
@@ -132,12 +130,10 @@ def get_spanning(pos,box,connections):
                     network_list_images = push(i,j,rot,cell_dict['diag-bottom-top'], N_particles)
                     virtual_patch_network.extend(network_list_images)
 
-    print("Calculate bonded neighbour graph")
     # get virtual Graph
     G_virtual  = nx.Graph()
     G_virtual.add_edges_from(virtual_patch_network)
 
-    print("Calculate largest cluster")
     virtual_max_domain = gt.get_particles_in_largest_cluster(G_virtual)
     virtual_frac_largest = len(virtual_max_domain)/(N_particles*N_images)
 
