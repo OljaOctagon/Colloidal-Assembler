@@ -24,12 +24,13 @@ def plot_energy(energy_to_time, trend, level, fluct, d0, is_converged, subdir_na
     plt.plot(x,y,lw=2, c='k')
     plt.plot(x,fit_func,c='r',
         lw=2, linestyle='dashed', 
-        label="trend = {},level = {}, perr = {}".format(trend, level,perr))
+        label="trend = {}, level = {}".format(trend, level))
 
-    window_size=5
+    window_size=11
     wcut=(window_size-1)//2
-    plt.plot(x[wcut:-wcut],energy_ma, c='b', linestyle='dotted',lw=2, label="moving average")
+    plt.plot(x[wcut:-wcut],energy_ma, c='b', linestyle='dotted',lw=2, label="moving average, perr = {}".format(perr))
 
+    plt.ylim([-2500,0])
     plt.legend(loc='best')
     plt.savefig("energy_fit_{}.pdf".format(subdir_name))
     plt.close()
@@ -41,13 +42,9 @@ def moving_average(x, w):
 def get_energy_trend(energy_to_time):
 
     # get moving average 
-    window_size = 5
+    window_size = 11
 
     energy_ma = moving_average(energy_to_time[:,1],window_size)
-
-    print("moving average")
-    print(len(energy_ma))
-    print(len(energy_to_time))
 
     # fit last n observations to linear function 
     def fit_func(x,k,d):
@@ -57,10 +54,9 @@ def get_energy_trend(energy_to_time):
     ydata=energy_ma[-last_nobs:]
 
     max_time = energy_to_time[-1,0]
-    print("max time", max_time)
+    
     freq=energy_to_time[1,0] - energy_to_time[0,0]
-    print("freq", freq)
-
+    
     xdata = np.linspace(max_time-freq*last_nobs,max_time,last_nobs)
     popt, pcov = curve_fit(fit_func,xdata,ydata)
 
@@ -71,10 +67,9 @@ def get_energy_trend(energy_to_time):
     pfit = np.abs(fit_func(energy_to_time[-last_nobs:,0],trend,d0))
 
     wcut=(window_size-1)//2
-    fluct = np.std(energy_to_time[wcut:-wcut,1] - energy_ma) 
+    fluct = np.std(pxdata - pfit)
     level = np.mean(pxdata)
 
-    print("FLUCT", fluct, pxdata, pfit)
 
     T_trend = 1e-07
     is_converged = False
@@ -180,6 +175,7 @@ if __name__ == '__main__':
         dir_name = "{}/{}_phi_{}_delta_{}_temp_{}".format(ptype,ptype,phi,delta,temperature)
         file_name = "{}/patch_network.dat".format(dir_name)
 
+        print("Evaluating data of {}".format(dir_name))
         subdir_name = "{}_phi_{}_delta_{}_temp_{}".format(ptype,phi,delta,temperature)
 
         new_results['id'] = subdir_name 
