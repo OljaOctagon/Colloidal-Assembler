@@ -12,19 +12,26 @@ import matplotlib.pyplot as plt
 
 from os.path import exists
 
-def plot_energy(energy_to_time, trend, level, fluct, is_converged, subdir_name):
+def plot_energy(energy_to_time, trend, level, fluct, d0, is_converged, subdir_name):
 
     x = energy_to_time[:,0] 
     y = energy_to_time[:,1]
 
-    fit_func = trend*x+ level 
+    fit_func = trend*x+ d0
 
     fig, ax = plt.subplots()
 
     plt.plot(x,y,lw=2, c='k')
-    plt.plot(x,fit_func,c='r',lw=2, linestyle='dashed')
-    plt.fill_between(x, fit_func+y, fit_func-y,facecolor='y', alpha=0.5)
-    
+    plt.plot(x,fit_func,c='r',
+        lw=2, linestyle='dashed', 
+        label="trend = {},level = {}".format(trend, level))
+
+    xp = x[-50:]
+    yp = y[-50:]
+
+    plt.fill_between(xp, yp-fluct,yp+fluct,facecolor='y', alpha=0.5)
+
+    plt.legend(loc='best')
     plt.savefig("energy_fit_{}.pdf".format(subdir_name))
     plt.close()
 
@@ -35,7 +42,7 @@ def moving_average(x, w):
 def get_energy_trend(energy_to_time):
 
     # get moving average 
-    window_size = 6
+    window_size = 5
 
     energy_ma = moving_average(energy_to_time[:,1],window_size)
 
@@ -47,30 +54,33 @@ def get_energy_trend(energy_to_time):
     def fit_func(x,k,d):
         return k*x + d
 
-    last_nobs=20
-    ydata=energy_ma[-20:]
+    last_nobs=50
+    ydata=energy_ma[-last_nobs:]
 
     max_time = energy_to_time[-1,0]
     print("max time", max_time)
     freq=energy_to_time[1,0] - energy_to_time[0,0]
     print("freq", freq)
 
-
     xdata = np.linspace(max_time-freq*last_nobs,max_time,last_nobs)
     popt, pcov = curve_fit(fit_func,xdata,ydata)
 
-    trend, level = popt
+    trend, d0 = popt
 
-    fit_x = energy_to_time[window_size//2:-window_size//2,0]
+    pxdata = np.abs(energy_to_time[-last_nobs:,1])
+    pfit = np.abs(fit_func(energy_to_time[-last_nobs:,0],trend,d0))
 
-    fluct = np.std(energy_to_time[-20:,1] - fit_func(energy_to_time[-20:,0],trend,level))
+    fluct = np.std(pxdata - pfit) 
+    level = np.mean(pxdata)
 
-    T_trend = 0.01
+    print("FLUCT", fluct, pxdata, pfit)
+
+    T_trend = 1e-07
     is_converged = False
     if trend < T_trend:
         is_converged = True 
 
-    return trend, level, fluct, is_converged 
+    return trend, level, fluct, d0, is_converged 
 
 
 def generator_from_fsys(fsys_iterator):
@@ -195,14 +205,14 @@ if __name__ == '__main__':
         # Energy: trend and fluctuation estimate of last time points 
         energy_file = "{}/Energy.dat".format(dir_name)
         if exists(energy_file):
-            energy_to_time = pd.read_csv("{}/Energy.dat".format(dir_name), delim_whitespace=True).values
-            trend, level, fluct, is_converged = get_energy_trend(energy_to_time)
+            energy_to_time = pd.read_csv(energy_file, delim_whitespace=True)
+            trend, level, fluct, d0, is_converged = get_energy_trend(energy_to_time)
 
             new_results['energy_converged'] = is_converged 
             new_results['energy_fluctuation'] = fluct
             new_results['energy_level'] = level
 
-            plot_energy(energy_to_time, trend, level, fluct, is_converged,subdir_name)
+            plot_energy(energy_to_time, trend, level, fluct, d0, is_converged,subdir_name)
 
         else:
             print("{}: doesn't exist".format(energy_file))
