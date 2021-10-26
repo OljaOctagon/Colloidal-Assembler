@@ -186,7 +186,7 @@ if __name__ == '__main__':
         new_results['delta'] = delta
         new_results['phi'] = phi
         new_results['temperature'] = temperature 
-          new_results['current_time'] = last_time 
+        new_results['current_time'] = last_time 
 
         new_results['frac_largest'] = np.nan
         new_results['virtual_frac_largest'] = np.nan
