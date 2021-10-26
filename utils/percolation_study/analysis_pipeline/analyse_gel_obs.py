@@ -71,7 +71,7 @@ def get_energy_trend(energy_to_time):
     pfit = np.abs(fit_func(energy_to_time[-last_nobs:,0],trend,d0))
 
     wcut=(window_size-1)//2
-    fluct = np.std(energy_to_time[wcut:-wcut] - energy_ma) 
+    fluct = np.std(energy_to_time[wcut:-wcut,1] - energy_ma) 
     level = np.mean(pxdata)
 
     print("FLUCT", fluct, pxdata, pfit)
