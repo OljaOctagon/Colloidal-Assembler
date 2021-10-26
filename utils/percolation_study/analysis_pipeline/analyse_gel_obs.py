@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 
 from os.path import exists
 
-def plot_energy(energy_to_time, trend, level, fluct, d0, is_converged, subdir_name):
+def plot_energy(energy_to_time, trend, level, fluct, d0, is_converged, subdir_name,perr,energy_ma):
 
     x = energy_to_time[:,0] 
     y = energy_to_time[:,1]
@@ -24,12 +24,11 @@ def plot_energy(energy_to_time, trend, level, fluct, d0, is_converged, subdir_na
     plt.plot(x,y,lw=2, c='k')
     plt.plot(x,fit_func,c='r',
         lw=2, linestyle='dashed', 
-        label="trend = {},level = {}".format(trend, level))
+        label="trend = {},level = {}, perr = {}".format(trend, level,perr))
 
-    xp = x[-50:]
-    yp = y[-50:]
-
-    plt.fill_between(xp, yp-fluct,yp+fluct,facecolor='y', alpha=0.5)
+    window_size=5
+    wcut=(window_size-1)//2
+    plt.plot(x[wcut:-wcut],energy_ma, c='b', linestyle='dotted',lw=2, label="moving average")
 
     plt.legend(loc='best')
     plt.savefig("energy_fit_{}.pdf".format(subdir_name))
@@ -66,11 +65,13 @@ def get_energy_trend(energy_to_time):
     popt, pcov = curve_fit(fit_func,xdata,ydata)
 
     trend, d0 = popt
+    perr = np.sqrt(np.diag(pcov))
 
     pxdata = np.abs(energy_to_time[-last_nobs:,1])
     pfit = np.abs(fit_func(energy_to_time[-last_nobs:,0],trend,d0))
 
-    fluct = np.std(pxdata - pfit) 
+    wcut=(window_size-1)//2
+    fluct = np.std(energy_to_time[wcut:-wcut] - energy_ma) 
     level = np.mean(pxdata)
 
     print("FLUCT", fluct, pxdata, pfit)
@@ -80,7 +81,7 @@ def get_energy_trend(energy_to_time):
     if trend < T_trend:
         is_converged = True 
 
-    return trend, level, fluct, d0, is_converged 
+    return trend, level, fluct, d0, is_converged, perr, energy_ma
 
 
 def generator_from_fsys(fsys_iterator):
@@ -206,13 +207,13 @@ if __name__ == '__main__':
         energy_file = "{}/Energy.dat".format(dir_name)
         if exists(energy_file):
             energy_to_time = pd.read_csv(energy_file, delim_whitespace=True)
-            trend, level, fluct, d0, is_converged = get_energy_trend(energy_to_time)
+            trend, level, fluct, d0, is_converged, perr, energy_ma = get_energy_trend(energy_to_time)
 
             new_results['energy_converged'] = is_converged 
             new_results['energy_fluctuation'] = fluct
             new_results['energy_level'] = level
 
-            plot_energy(energy_to_time, trend, level, fluct, d0, is_converged,subdir_name)
+            plot_energy(energy_to_time, trend, level, fluct, d0, is_converged, subdir_name, perr, energy_ma)
 
         else:
             print("{}: doesn't exist".format(energy_file))
