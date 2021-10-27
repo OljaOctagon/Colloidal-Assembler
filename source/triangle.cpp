@@ -192,6 +192,16 @@ void triangle::Calculate_Axis() {
     ax_1.y = ax_1.y / norm_ax;
     ax_1.z = ax_1.z / norm_ax;
 
+    ax_2.x = x[2] - x[0];
+    ax_2.y = y[2] - y[0];
+    ax_2.z = z[2] - z[0];
+
+    norm_ax = ax_2.norm();
+
+    ax_2.x = ax_2.x / norm_ax;
+    ax_2.y = ax_2.y / norm_ax;
+    ax_2.z = ax_2.z / norm_ax;
+
     ax_3.x = x[4] - x[0];
     ax_3.y = y[4] - y[0];
     ax_3.z = z[4] - z[0];
@@ -202,6 +212,7 @@ void triangle::Calculate_Axis() {
     ax_3.y = ax_3.y / norm_ax;
     ax_3.z = ax_3.z / norm_ax;
 
+    /*
     ax_2.x = ax_3.y * ax_1.z - ax_3.z * ax_1.y;
     ax_2.y = ax_3.z * ax_1.x - ax_3.x * ax_1.z;
     ax_2.z = ax_3.x * ax_1.y - ax_3.y * ax_1.x;
@@ -210,7 +221,7 @@ void triangle::Calculate_Axis() {
 
     ax_2.x = ax_2.x / norm_ax;
     ax_2.y = ax_2.y / norm_ax;
-    ax_2.z = ax_2.z / norm_ax;
+    ax_2.z = ax_2.z / norm_ax;*/
 }
 
 //complete?
@@ -218,9 +229,9 @@ void triangle::Calculate_Long_Axis() {
 
     double norm_ax;
 
-    long_axis.x = x[1] - x[0];
-    long_axis.y = y[1] - y[0];
-    long_axis.z = z[1] - z[0];
+    long_axis.x = (x[1]+x[2]) - x[0];
+    long_axis.y = (y[1]+y[2]) - y[0];
+    long_axis.z = (z[1]+z[2]) - z[0];
 
     norm_ax = long_axis.norm();
 
@@ -509,9 +520,9 @@ void triangle::Calculate_Face_Normals() {
 
     double face_ax;
 
-    facenormal[0].x = (x[0] + x[1] + x[2])/3. - x_center;
-    facenormal[0].y = (y[0] + y[1] + y[2])/3. - y_center;
-    facenormal[0].z = (z[0] + z[1] + z[2])/3. - z_center;
+    facenormal[0].x = (x[0] + x[1] + x[4] + x[3])/4. - x_center;
+    facenormal[0].y = (y[0] + y[1] + y[4] + y[3])/4. - y_center;
+    facenormal[0].z = (z[0] + z[1] + z[4] + z[3])/4. - z_center;
 
     face_ax = facenormal[0].norm();
 
@@ -519,9 +530,9 @@ void triangle::Calculate_Face_Normals() {
     facenormal[0].y = facenormal[0].y / face_ax;
     facenormal[0].z = facenormal[0].z / face_ax;
 
-    facenormal[1].x = (x[0] + x[1] + x[4] + x[3])/4. - x_center;
-    facenormal[1].y = (y[0] + y[1] + y[4] + y[3])/4. - y_center;
-    facenormal[1].z = (z[0] + z[1] + z[4] + z[3])/4. - z_center;
+    facenormal[1].x = (x[1] + x[2] + x[5] + x[4])/4. - x_center;
+    facenormal[1].y = (y[1] + y[2] + y[5] + y[4])/4. - y_center;
+    facenormal[1].z = (z[1] + z[2] + z[5] + z[4])/4. - z_center;
 
     face_ax = facenormal[1].norm();
 
@@ -529,9 +540,9 @@ void triangle::Calculate_Face_Normals() {
     facenormal[1].y = facenormal[1].y / face_ax;
     facenormal[1].z = facenormal[1].z / face_ax;
 
-    facenormal[2].x = (x[1] + x[2] + x[5] + x[4])/4. - x_center;
-    facenormal[2].y = (y[1] + y[2] + y[5] + y[4])/4. - y_center;
-    facenormal[2].z = (z[1] + z[2] + z[5] + z[4])/4. - z_center;
+    facenormal[2].x = (x[2] + x[0] + x[3] + x[5])/4. - x_center;
+    facenormal[2].y = (y[2] + y[0] + y[3] + y[5])/4. - y_center;
+    facenormal[2].z = (z[2] + z[0] + z[3] + z[5])/4. - z_center;
 
     face_ax = facenormal[2].norm();
 
@@ -539,9 +550,10 @@ void triangle::Calculate_Face_Normals() {
     facenormal[2].y = facenormal[2].y / face_ax;
     facenormal[2].z = facenormal[2].z / face_ax;
 
-    facenormal[3].x = (x[2] + x[0] + x[3] + x[5])/4. - x_center;
-    facenormal[3].y = (y[2] + y[0] + y[3] + y[5])/4. - y_center;
-    facenormal[3].z = (z[2] + z[0] + z[3] + z[5])/4. - z_center;
+
+    facenormal[3].x = (x[0] + x[1] + x[2])/3. - x_center;
+    facenormal[3].y = (y[0] + y[1] + y[2])/3. - y_center;
+    facenormal[3].z = (z[0] + z[1] + z[2])/3. - z_center;
 
     face_ax = facenormal[3].norm();
 
@@ -549,17 +561,17 @@ void triangle::Calculate_Face_Normals() {
     facenormal[3].y = facenormal[3].y / face_ax;
     facenormal[3].z = facenormal[3].z / face_ax;
 
-    //edges[0].x = ax_1.x;
-    //edges[0].y = ax_1.y;
-    //edges[0].z = ax_1.z;
+    edges[0].x = facenormal[0].x;
+    edges[0].y = facenormal[0].y;
+    edges[0].z = facenormal[0].z;
 
-    //edges[1].x = ax_2.x;
-    //edges[1].y = ax_2.y;
-    //edges[1].z = ax_2.z;
+    edges[1].x = facenormal[1].x;
+    edges[1].y = facenormal[1].y;
+    edges[1].z = facenormal[1].z;
 
-    //edges[2].x = ax_3.x;
-    //edges[2].y = ax_3.y;
-    //edges[2].z = ax_3.z;
+    edges[2].x = facenormal[2].x;
+    edges[2].y = facenormal[2].y;
+    edges[2].z = facenormal[2].z;
 
 }
 
