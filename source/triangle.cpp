@@ -182,6 +182,11 @@ void triangle::Calculate_Axis() {
 
     double norm_ax;
 
+
+
+
+
+
     ax_1.x = x[1] - x[0];
     ax_1.y = y[1] - y[0];
     ax_1.z = z[1] - z[0];
@@ -202,9 +207,11 @@ void triangle::Calculate_Axis() {
     ax_2.y = ax_2.y / norm_ax;
     ax_2.z = ax_2.z / norm_ax;
 
-    ax_3.x = x[4] - x[0];
-    ax_3.y = y[4] - y[0];
-    ax_3.z = z[4] - z[0];
+    ax_3.x = x[3] - x[0];
+    ax_3.y = y[3] - y[0];
+    ax_3.z = z[3] - z[0];
+
+    // DONE: changed vec[4] to vec[3]
 
     norm_ax = ax_3.norm();
 
@@ -268,7 +275,7 @@ void triangle::Set_Lengths() {
     Lz = 0.1 * Lx;
     Ly = L * sin(alpha);
     H_2 = H / 2.;
-
+    // TODO: wo wird H definiert? 
 
     h = L * sin(alpha);
     h_2 = double(h) / 2.0;
@@ -520,6 +527,55 @@ void triangle::Calculate_Face_Normals() {
 
     double face_ax;
 
+    // TODO: calcuating cross products 
+
+    edges[0].x =  x[1] - x[0];
+    edges[0].y =  y[1] - y[0];
+    edges[0].z =  z[1] - z[0];
+
+    edges[1].x =  x[0] - x[2];
+    edges[1].y =  y[0] - y[2];
+    edges[1].z =  z[0] - z[2];
+
+    edges[2].x =  x[2] - x[1];
+    edges[2].y =  y[2] - y[1];
+    edges[2].z =  z[2] - z[1];
+
+    edges[3].x =  x[3] - x[0];
+    edges[3].y =  y[3] - y[0];
+    edges[3].z =  z[3] - z[0];
+
+
+    facenormal[0].x = edges[0].y * edges[1].z - edges[0].z * edges[1].y;
+    facenormal[0].y = edges[0].z * edges[1].x - edges[0].x * edges[1].z;
+    facenormal[0].z = edges[0].x * edges[1].y - edges[0].y * edges[1].x;
+
+    facenormal[1].x = edges[0].y * edges[3].z - edges[0].z * edges[3].y;
+    facenormal[1].y = edges[0].z * edges[3].x - edges[0].x * edges[3].z;
+    facenormal[1].z = edges[0].x * edges[3].y - edges[0].y * edges[3].x;
+
+    facenormal[2].x = edges[1].y * edges[3].z - edges[1].z * edges[3].y;
+    facenormal[2].y = edges[1].z * edges[3].x - edges[1].x * edges[3].z;
+    facenormal[2].z = edges[1].x * edges[3].y - edges[1].y * edges[3].x;
+
+    facenormal[3].x = edges[2].y * edges[3].z - edges[2].z * edges[3].y;
+    facenormal[3].y = edges[2].z * edges[3].x - edges[2].x * edges[3].z;
+    facenormal[3].z = edges[2].x * edges[3].y - edges[2].y * edges[3].x;
+
+
+    double f_norm;
+
+    for (int k = 0; k < N_independent_faces; k++) {
+
+        f_norm = facenormal[k].norm();
+
+        facenormal[k].x = facenormal[k].x / f_norm;
+        facenormal[k].y = facenormal[k].y / f_norm;
+        facenormal[k].z = facenormal[k].z / f_norm;
+    }
+
+
+    /*
     facenormal[0].x = (x[0] + x[1] + x[4] + x[3])/4. - x_center;
     facenormal[0].y = (y[0] + y[1] + y[4] + y[3])/4. - y_center;
     facenormal[0].z = (z[0] + z[1] + z[4] + z[3])/4. - z_center;
@@ -561,17 +617,9 @@ void triangle::Calculate_Face_Normals() {
     facenormal[3].y = facenormal[3].y / face_ax;
     facenormal[3].z = facenormal[3].z / face_ax;
 
-    edges[0].x = facenormal[0].x;
-    edges[0].y = facenormal[0].y;
-    edges[0].z = facenormal[0].z;
+    */
 
-    edges[1].x = facenormal[1].x;
-    edges[1].y = facenormal[1].y;
-    edges[1].z = facenormal[1].z;
-
-    edges[2].x = facenormal[2].x;
-    edges[2].y = facenormal[2].y;
-    edges[2].z = facenormal[2].z;
+    
 
 }
 
