@@ -265,14 +265,14 @@ void triangle::Set_Lengths() {
     alpha = (60 * M_PI) / 180.0;
 
     Lx = 1.0;
+    Ly = Lx * sin(alpha);
     Lz = 0.1 * Lx;
-    Ly = L * sin(alpha);
     H_2 = H / 2.;
 
 
-    h = L * sin(alpha);
+    h = Lx * sin(alpha);
     h_2 = double(h) / 2.0;
-    a_x = L * cos(alpha);
+    a_x = Lx * cos(alpha);
 
 
     //diag2_short = sqrt((L*L + h * h);

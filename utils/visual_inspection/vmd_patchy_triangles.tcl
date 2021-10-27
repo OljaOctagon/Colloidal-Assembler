@@ -48,10 +48,7 @@ proc drawpolyframe { name element op } {
 	global ncubes
 	global nlines
 	global data
-	global data_op1
-	global data_op2
 	global iop
-	global nlines_op
 	
 	
 	graphics top delete all
@@ -61,24 +58,12 @@ proc drawpolyframe { name element op } {
 	for {set icube 0} {$icube < $ncubes} {incr icube} {
 		#set coords [[atomselect top "atomicnumber==$icube" frame $vmd_frame([molinfo top])] get {x y z}]
 		#puts [lindex data $
-		set istart [expr $icube*8]
-		set iend [expr ($icube+1)*8]
+		set istart [expr $icube*6]
+		set iend [expr ($icube+1)*6]
 		#set coords [[atomselect top "index>=$istart && index<$iend" frame $vmd_frame([molinfo top])] get {x y z}]
 		#puts $coords
-		set iline_op [expr $nlines_op*$vmd_frame([molinfo top])+$icube+2]
-		set op1 [lindex $data_op1 $iline_op $iop]
 
-		if {($op1 == 1 ) } {
-			graphics top color 30
-		}
 
-		if {($op1 == 2 ) } {
-			graphics top color blue2
-		}
-
-		if {($op1 == 3) } {
-	       		graphics top color 31
-		}
 
 		set iline [expr $nlines*$vmd_frame([molinfo top])+$icube*6+2]
 		set V0 [list [lindex $data [expr $iline + 0] 1] [lindex $data [expr $iline + 0] 2] [lindex $data [expr $iline + 0] 3]]
@@ -92,7 +77,76 @@ proc drawpolyframe { name element op } {
 
 		vmd_draw_cube top $coords
 		
-	
+		
+		set p1ax [ lindex $V0 0 ]
+		set p1ay [ lindex $V0 1 ]
+		set p1az [ lindex $V0 2 ]
+
+		set p1bx [ lindex $V3 0 ]
+		set p1by [ lindex $V3 1 ]
+		set p1bz [ lindex $V3 2 ]
+
+		set p2ax [ lindex $V1 0 ]
+        set p2ay [ lindex $V1 1 ]
+        set p2az [ lindex $V1 2 ]
+                                          
+		set p2bx [ lindex $V4 0 ]
+    	set p2by [ lindex $V4 1 ]
+		set p2bz [ lindex $V4 2 ] 
+
+		set p3ax [ lindex $V2 0 ]  				
+        set p3ay [ lindex $V2 1 ]
+		set p3az [ lindex $V2 2 ]
+                                           
+        set p3bx [ lindex $V5 0 ]
+        set p3by [ lindex $V5 1 ]
+        set p3bz [ lindex $V5 2 ]
+                                        
+		set pp1 0.25
+
+		set p1_x [ expr $p1ax + $pp1*($p1bx - $p1ax)]
+		set p1_y [ expr $p1ay + $pp1*($p1by - $p1ay)]
+		set p1_z [ expr $p1az + 0.5 *($p1bz - $p1az)]
+
+		set p2_x [ expr $p1bx + $pp1*($p1ax - $p1bx)] 	
+        set p2_y [ expr $p1by + $pp1*($p1ay - $p1by)]
+        set p2_z [ expr $p1bz + 0.5 *($p1az - $p1bz)]
+
+		set p3_x [ expr $p2ax + $pp1*($p2bx - $p2ax)]
+        set p3_y [ expr $p2ay + $pp1*($p2by - $p2ay)]
+        set p3_z [ expr $p2az + 0.5 *($p2bz - $p2az)]
+                                                     
+        set p4_x [ expr $p2ax + $pp1*($p2ax - $p2bx)] 
+        set p4_y [ expr $p2ay + $pp1*($p2ay - $p2by)]
+        set p4_z [ expr $p2az + 0.5 *($p2az - $p2bz)]
+
+		set p5_x [ expr $p3ax + $pp1*($p3bx - $p3ax)]
+        set p5_y [ expr $p3ay + $pp1*($p3by - $p3ay)]
+        set p5_z [ expr $p3az + 0.5 *($p3bz - $p3az)]
+                                                     
+        set p6_x [ expr $p3ax + $pp1*($p3ax - $p3bx)] 
+        set p6_y [ expr $p3ay + $pp1*($p3ay - $p3by)]
+        set p6_z [ expr $p3az + 0.5 *($p3az - $p3bz)]
+
+		graphics top color red
+		set r_patch 0.05
+
+		set p1_vec [list $p1_x $p1_y $p1_z ]
+		set p2_vec [list $p2_x $p2_y $p2_z ]
+		set p3_vec [list $p3_x $p3_y $p3_z ] 	    
+	    set p4_vec [list $p4_x $p4_y $p4_z ]
+	    set p5_vec [list $p5_x $p5_y $p5_z ]
+	    set p6_vec [list $p6_x $p6_y $p6_z ]
+
+	    graphics top color blue
+		draw sphere $p1_vec radius $r_patch  resolution 30		
+		draw sphere $p2_vec radius $r_patch  resolution 30		
+		draw sphere $p3_vec radius $r_patch  resolution 30		
+		draw sphere $p4_vec radius $r_patch  resolution 30		
+		draw sphere $p5_vec radius $r_patch  resolution 30		
+		draw sphere $p6_vec radius $r_patch  resolution 30		
+
+
 		graphics top color orange 
 		#graphics top color orange
 
@@ -104,8 +158,6 @@ proc drawpolyframe { name element op } {
 		unset V3
 		unset V4
 		unset V5
-		unset V6
-		unset V7
 		unset coords
 	}
 
@@ -121,7 +173,7 @@ mol new $fname type xyz waitfor all step 1
 mol delrep 0 top 
 
 # GET NUMBER OF CUBES IN LAST FRAME
-set ncubes [expr [[atomselect top all frame $vmd_frame([molinfo top])] num]/8]
+set ncubes [expr [[atomselect top all frame $vmd_frame([molinfo top])] num]/6]
 
 # ENABLE TRACING
 enabletrace
@@ -133,15 +185,6 @@ set data [split [read $fp] "\n"]; puts ""
 close $fp
 unset fp
 set nlines [expr [lindex $data 0 0]+2]
-
-
-# LOAD USER DATA  FOR COLORING OP1
-set file "color_op.dat"
-set fp [open $file r]
-set data_op1 [split [read $fp] "\n"]; puts ""
-close $fp
-unset fp
-set nlines_op [expr [lindex $data_op1 0 0]+2]
 
 
 # GOTO FIRST FRAME
