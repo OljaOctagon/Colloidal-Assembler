@@ -187,5 +187,5 @@ if __name__ == '__main__':
     plt.hlines(np.array([-bx/3,0,bx/3,2*bx/3]), -bx/2+bx/6, bx/2+bx/6,lw=0.1)
     plt.axis("equal")
     plt.axis('off')
-    plt.savefig("./frames/frame_0.png", dpi=1500)
+    plt.savefig("./frames/pbc_frame_0.png", dpi=1500)
     plt.close()
