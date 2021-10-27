@@ -101,7 +101,6 @@ triangle::triangle() {
     Rot_old = new double[9];
 }
 
-//complete
 triangle::~triangle() {
 
     delete[] x;
@@ -132,12 +131,11 @@ triangle::~triangle() {
     delete[] patch_cutoff_squared;
 }
 
-//complete
 void triangle::edges_from_center(){
 
     sinus = Lx * sin(alpha) * 1. / 3.;
     L_2 = Lx / 2.;
-    H_2 = Ly / 2.;
+    H_2 = Lz / 2.;
 
     x[0] = x_center - L_2;
     y[0] = y_center - sinus;
@@ -165,7 +163,6 @@ void triangle::edges_from_center(){
 
 }
 
-//complete
 void triangle::distance_from_center() {
 
     for (int j = 0; j < edge_N; j++) {
@@ -177,15 +174,9 @@ void triangle::distance_from_center() {
 
 }
 
-//complete
 void triangle::Calculate_Axis() {
 
     double norm_ax;
-
-
-
-
-
 
     ax_1.x = x[1] - x[0];
     ax_1.y = y[1] - y[0];
@@ -211,7 +202,6 @@ void triangle::Calculate_Axis() {
     ax_3.y = y[3] - y[0];
     ax_3.z = z[3] - z[0];
 
-    // DONE: changed vec[4] to vec[3]
 
     norm_ax = ax_3.norm();
 
@@ -219,19 +209,8 @@ void triangle::Calculate_Axis() {
     ax_3.y = ax_3.y / norm_ax;
     ax_3.z = ax_3.z / norm_ax;
 
-    /*
-    ax_2.x = ax_3.y * ax_1.z - ax_3.z * ax_1.y;
-    ax_2.y = ax_3.z * ax_1.x - ax_3.x * ax_1.z;
-    ax_2.z = ax_3.x * ax_1.y - ax_3.y * ax_1.x;
-
-    norm_ax = ax_2.norm();
-
-    ax_2.x = ax_2.x / norm_ax;
-    ax_2.y = ax_2.y / norm_ax;
-    ax_2.z = ax_2.z / norm_ax;*/
 }
 
-//complete?
 void triangle::Calculate_Long_Axis() {
 
     double norm_ax;
@@ -248,7 +227,6 @@ void triangle::Calculate_Long_Axis() {
 
 }
 
-//complete
 void triangle::Set_Axis() {
 
     ax_1_old.x = ax_1.x;
@@ -265,17 +243,15 @@ void triangle::Set_Axis() {
 
 }
 
-//diag3
 void triangle::Set_Lengths() {
 
     // Triangle
     alpha = (60 * M_PI) / 180.0;
 
     Lx = 1.0;
-    Ly = Lx * sin(alpha);
+    Ly = Lx;
     Lz = 0.1 * Lx;
-    H_2 = H / 2.;
-    // TODO: wo wird H definiert? 
+    H_2 = Ly / 2.;
 
     h = Lx * sin(alpha);
     h_2 = double(h) / 2.0;
@@ -284,8 +260,6 @@ void triangle::Set_Lengths() {
 
     //diag2_short = sqrt((L*L + h * h);
     //diag2_long = sqrt((Lx + a_x) * (Lx + a_x) + h * h);
-
-    //umkugel R = sqrt(r^2 + h^2 / 4) with r = L^2 sqrt(3)/4
 
     //diag3_short = sqrt(diag2_short * diag2_short + Lz * Lz);
     //diag3_long = sqrt(diag2_long * diag2_long + Lz * Lz);
@@ -300,7 +274,7 @@ void triangle::Set_Lengths() {
 
     patch_size = pt.get<double>("Triangle.patch_size");
 
-    cut_off = H * 4. / 3. + 2 * patch_size;
+    cut_off = (2.0 * Lx / sqrt(3.)) + 2. * patch_size + 0.5;
     cut_off_squared = cut_off * cut_off;
 
     r_patch[0] = patch_size;
@@ -398,24 +372,23 @@ void triangle::Set_Lengths() {
     }
 
     if (triangle_type.compare("two_opposite_fixedcorner") == 0) {
-        d0 = patch_delta;
+        d0 = 0;
         d1 = patch_x;
-        d2 = patch_x;
-        d3 = 0;
+        d2 = patch_delta;
+        d3 = patch_x;
         d4 = patch_x;
         d5 = patch_x;
 
         patch_type[0] = 0;
         patch_type[1] = 1;
-        patch_type[2] = 1;
-        patch_type[3] = 0;
+        patch_type[2] = 0;
+        patch_type[3] = 1;
         patch_type[4] = 1;
         patch_type[5] = 1;
     }
 
 }
 
-//complete
 void triangle::Set_Lengths(int e0, int e1, int e2, int e3, int e4, int e5) {
 
     patch_type[0] = e0;
@@ -427,7 +400,6 @@ void triangle::Set_Lengths(int e0, int e1, int e2, int e3, int e4, int e5) {
 
 }
 
-//completish
 void triangle::Set_Start_Lattice_Position(int id, double box_Lx, 
                                             int N_box) {
     // for cubic lattice
@@ -464,7 +436,6 @@ void triangle::Set_Start_Lattice_Position(int id, double box_Lx,
 
 }
 
-//completish
 void triangle::Set_Start_Lattice_Position(int id, double box_Lx, 
                                             double box_Ly, double box_Lz, 
                                             int N_box) {
@@ -487,7 +458,7 @@ void triangle::Set_Start_Lattice_Position(int id, double box_Lx,
 
     x_center = Lx / 2.0 + l_distpx / 2.0 +
                double(id % N_sitespx + l_distpx * (id % N_sitespx));
-    y_center = Ly / 2.0 + l_distpy / 2.0 +
+    y_center = h / 2.0 + l_distpy / 2.0 +
                double((id / N_sitespx) % N_sitespy +
                       l_distpx * ((id / N_sitespy) % N_sitespx));
     z_center = Lz / 2.0;
@@ -496,7 +467,6 @@ void triangle::Set_Start_Lattice_Position(int id, double box_Lx,
 
 }
 
-//complete
 void triangle::Calculate_Patch_Position() {
 
     x_patch[0] = x[0] + d0 * (x[1] - x[0]);
@@ -522,12 +492,9 @@ void triangle::Calculate_Patch_Position() {
 
 }
 
-//edges[...]
 void triangle::Calculate_Face_Normals() {
 
     double face_ax;
-
-    // TODO: calcuating cross products 
 
     edges[0].x =  x[1] - x[0];
     edges[0].y =  y[1] - y[0];
@@ -623,7 +590,6 @@ void triangle::Calculate_Face_Normals() {
 
 }
 
-//complete
 double triangle::Calculate_Projection_to_Separating_Axis(m_vector laxis) {
     double Rp;
     double rmax;

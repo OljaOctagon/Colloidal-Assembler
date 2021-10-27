@@ -83,8 +83,7 @@ int pmove::Calculate_Separating_Axis_RHOMBI(particles &Particles, int id,
     double norm_L;
     int N_separating_axis;
 
-    //N_indep = 3;
-    N_indep = 4; 
+    N_indep = 3; 
     N_cross = 0;
 
     N_separating_axis = 2 * N_indep;
