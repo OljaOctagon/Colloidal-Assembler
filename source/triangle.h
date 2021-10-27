@@ -1,4 +1,4 @@
-#ifndef _triangles_h_included_
+#ifndef _triangle_h_included_
 #define _triangle_h_included_
 
 #define _USE_MATH_DEFINES
