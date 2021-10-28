@@ -274,7 +274,7 @@ void triangle::Set_Lengths() {
 
     patch_size = pt.get<double>("Triangle.patch_size");
 
-    cut_off = (2.0 * Lx / sqrt(3.)) + 2. * patch_size + 0.5;
+    cut_off = (2.0 * Lx / sqrt(3.)) + 2. * patch_size + 2.;
     cut_off_squared = cut_off * cut_off;
 
     r_patch[0] = patch_size;
