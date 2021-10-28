@@ -154,6 +154,7 @@ if __name__ == '__main__':
     # read data either through files system via glob or via db 
     parser = argparse.ArgumentParser()
     parser.add_argument('-input', type=str, choices=['fsys'])
+    parser.add_argument('-run_id', type=str)
 
     args = parser.parse_args()
 
@@ -227,5 +228,5 @@ if __name__ == '__main__':
         df = df.append(new_results, ignore_index=True)
         
 
-    df.to_pickle("results_percolation.pickle")
+    df.to_pickle("results_percolation_{}.pickle".format(run_id)
 
