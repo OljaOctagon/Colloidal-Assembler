@@ -172,7 +172,7 @@ particles::particles(int number_of_cells_in, int size, int MAX_coll_p_in,
 
     // Initialization of N_Particle
     double rand_s;
-    int a, b, c, d;
+    int a, b, c, d, e, f;
 
     for (int id = 0; id < size; id++) {
         N_Particle[id]->Set_Initial_Quaternion();
