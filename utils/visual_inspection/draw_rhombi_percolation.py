@@ -115,7 +115,7 @@ if __name__ == '__main__':
     if not os.path.isdir("./frames"):
         os.mkdir("./frames")
     print(check_point_values)
-    for j,val in enumerate(check_point_values):
+    for j,val in enumerate(check_point_values[-100:]):
         pos_i = np.fromfile("positions_{}.bin".format(val))
         pos_i = np.reshape(pos_i, (-1,3))
         pos_i = pos_i[:,:2]
@@ -185,11 +185,11 @@ if __name__ == '__main__':
                                     facecolor=pcolor[pi])
                 ax.add_patch(patch)
 
-        ax.scatter(pos_i[:,0], pos_i[:,1],s=1)
+        #ax.scatter(pos_i[:,0], pos_i[:,1],s=0.1)
         ax.set_title("Frame {}".format(j))
         plt.xlim((-1,30))
         plt.ylim((-1,40))
         plt.axis("equal")
         plt.axis('off')
-        plt.savefig("./frames/frame_{}.png".format(j), dpi=500)
+        plt.savefig("./frames/frame_{}.png".format(j), dpi=300)
         plt.close()
