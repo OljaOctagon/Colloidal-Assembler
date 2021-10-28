@@ -198,6 +198,9 @@ particles::particles(int number_of_cells_in, int size, int MAX_coll_p_in,
             b = 1;
             c = 0;
             d = 0;
+            e = 0;
+            f = 0;
+
           }
 
           if ((rand_s < 2./3.) && (rand_s >= 1./3.)) {
@@ -205,6 +208,8 @@ particles::particles(int number_of_cells_in, int size, int MAX_coll_p_in,
             b = 3;
             c = 0;
             d = 0;
+            e = 0;
+            f = 0;
           }
 
           if (rand_s >=  2./3.) {
@@ -212,11 +217,13 @@ particles::particles(int number_of_cells_in, int size, int MAX_coll_p_in,
             b = 1;
             c = 1;
             d = 0;
+            e = 0;
+            f = 0;
           }
 
 
-          N_Particle[id]->Set_Lengths(a, b, c, d);
-          N_Particle_old[id]->Set_Lengths(a, b, c, d);
+          N_Particle[id]->Set_Lengths(a, b, c, d, e, f);
+          N_Particle_old[id]->Set_Lengths(a, b, c, d, e, f);
         }
 
 
@@ -232,6 +239,8 @@ particles::particles(int number_of_cells_in, int size, int MAX_coll_p_in,
               b = 1;
               c = 0;
               d = 0;
+              e = 0;
+              f = 0; 
             }
 
             if (rand_s >= 0.5) {
@@ -239,10 +248,13 @@ particles::particles(int number_of_cells_in, int size, int MAX_coll_p_in,
               b = 3;
               c = 0;
               d = 0;
+              e = 0;
+              f = 0; 
+
             }
 
-            N_Particle[id]->Set_Lengths(a, b, c, d);
-            N_Particle_old[id]->Set_Lengths(a, b, c, d);
+            N_Particle[id]->Set_Lengths(a, b, c, d, e, f);
+            N_Particle_old[id]->Set_Lengths(a, b, c, d, e, f);
         }
     }
 }

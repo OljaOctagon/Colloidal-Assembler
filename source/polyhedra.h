@@ -146,7 +146,7 @@ class polyhedra {
     virtual void Calculate_Axis() {}
     virtual void Set_Axis() {}
     virtual void Set_Lengths() {}
-    virtual void Set_Lengths(int a, int b, int c, int d) {}
+    virtual void Set_Lengths(int a, int b, int c, int d, int e, int f) {}
     virtual void Set_Start_Lattice_Position(int id, double box_Lx, int N_box) {
     }
     virtual void Set_Start_Lattice_Position(int id, double box_Lx,
