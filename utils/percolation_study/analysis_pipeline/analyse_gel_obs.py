@@ -228,5 +228,4 @@ if __name__ == '__main__':
         df = df.append(new_results, ignore_index=True)
         
 
-    df.to_pickle("results_percolation_{}.pickle".format(run_id)
-
+    df.to_pickle("results_percolation_{}.pickle".format(run_id))
