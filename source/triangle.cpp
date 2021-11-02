@@ -386,7 +386,6 @@ void triangle::Set_Lengths() {
         patch_type[4] = 1;
         patch_type[5] = 1;
     }
-
 }
 
 void triangle::Set_Lengths(int e0, int e1, int e2, int e3, int e4, int e5) {
@@ -513,22 +512,22 @@ void triangle::Calculate_Face_Normals() {
     edges[3].z =  z[3] - z[0];
 
 
-    facenormal[0].x = edges[0].y * edges[1].z - edges[0].z * edges[1].y;
-    facenormal[0].y = edges[0].z * edges[1].x - edges[0].x * edges[1].z;
-    facenormal[0].z = edges[0].x * edges[1].y - edges[0].y * edges[1].x;
 
-    facenormal[1].x = edges[0].y * edges[3].z - edges[0].z * edges[3].y;
-    facenormal[1].y = edges[0].z * edges[3].x - edges[0].x * edges[3].z;
-    facenormal[1].z = edges[0].x * edges[3].y - edges[0].y * edges[3].x;
+    facenormal[0].x = edges[0].y * edges[3].z - edges[0].z * edges[3].y;
+    facenormal[0].y = edges[0].z * edges[3].x - edges[0].x * edges[3].z;
+    facenormal[0].z = edges[0].x * edges[3].y - edges[0].y * edges[3].x;
 
-    facenormal[2].x = edges[1].y * edges[3].z - edges[1].z * edges[3].y;
-    facenormal[2].y = edges[1].z * edges[3].x - edges[1].x * edges[3].z;
-    facenormal[2].z = edges[1].x * edges[3].y - edges[1].y * edges[3].x;
+    facenormal[1].x = edges[1].y * edges[3].z - edges[1].z * edges[3].y;
+    facenormal[1].y = edges[1].z * edges[3].x - edges[1].x * edges[3].z;
+    facenormal[1].z = edges[1].x * edges[3].y - edges[1].y * edges[3].x;
 
-    facenormal[3].x = edges[2].y * edges[3].z - edges[2].z * edges[3].y;
-    facenormal[3].y = edges[2].z * edges[3].x - edges[2].x * edges[3].z;
-    facenormal[3].z = edges[2].x * edges[3].y - edges[2].y * edges[3].x;
+    facenormal[2].x = edges[2].y * edges[3].z - edges[2].z * edges[3].y;
+    facenormal[2].y = edges[2].z * edges[3].x - edges[2].x * edges[3].z;
+    facenormal[2].z = edges[2].x * edges[3].y - edges[2].y * edges[3].x;
 
+    facenormal[3].x = edges[0].y * edges[1].z - edges[0].z * edges[1].y;
+    facenormal[3].y = edges[0].z * edges[1].x - edges[0].x * edges[1].z;
+    facenormal[3].z = edges[0].x * edges[1].y - edges[0].y * edges[1].x;
 
     double f_norm;
 
@@ -612,7 +611,7 @@ double triangle::Calculate_Projection_to_Separating_Axis(m_vector laxis) {
 	    }
     }
 
-    Rp = fabs((rmax-rmin)/2.0);
+    Rp = fabs((rmax-rmin));
     //Rp=rmax-rmin;
     return Rp;
 

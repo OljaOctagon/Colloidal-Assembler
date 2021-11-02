@@ -19,8 +19,71 @@ double pmove::Calculate_Cross_Product_z(m_vector a, m_vector b) {
     return cz;
 }
 
+double pmove::Calculate_Projection_to_Separating_Axis_Two_Objects(particles &Particles, int id_a,
+                                            int id_b, m_vector L_axis) {
+    int edge_N;
+    edge_N =  Particles.N_Particle[id_a]->edge_N;
+
+    double x_center_a, y_center_a, z_center_a;
+    double *dist_x_a, *dist_y_a, *dist_z_a;
+    x_center_a = Particles.N_Particle[id_a]->x_center;
+    y_center_a = Particles.N_Particle[id_a]->y_center;
+    z_center_a = Particles.N_Particle[id_a]->z_center;
+    dist_x_a = Particles.N_Particle[id_a]->dist_x;
+    dist_y_a = Particles.N_Particle[id_a]->dist_y;
+    dist_z_a = Particles.N_Particle[id_a]->dist_z;
+
+    double x_center_b, y_center_b, z_center_b;
+    double *dist_x_b, *dist_y_b, *dist_z_b;
+    x_center_b = Particles.N_Particle[id_b]->x_center;
+    y_center_b = Particles.N_Particle[id_b]->y_center;
+    z_center_b = Particles.N_Particle[id_b]->z_center;
+    dist_x_b = Particles.N_Particle[id_b]->dist_x;
+    dist_y_b = Particles.N_Particle[id_b]->dist_y;
+    dist_z_b = Particles.N_Particle[id_b]->dist_z;
+
+    double center_offset_x, center_offset_y, center_offset_z;
+    center_offset_x = x_center_b - x_center_a;
+    center_offset_y = y_center_b - y_center_a;
+    center_offset_z = z_center_b - z_center_a;
+
+
+    double dL;
+    double rmax;
+    double rmin;
+    double scp_oc;
+
+    rmin = dist_x_a[0] * L_axis.x + dist_y_a[0] * L_axis.y + dist_z_a[0] * L_axis.z;
+    rmax = rmin;
+
+    for (int j=0;j<edge_N;j++) {
+        scp_oc  = dist_x_a[j] * L_axis.x 
+                + dist_y_a[j] * L_axis.y 
+                + dist_z_a[j] * L_axis.z;
+        if (scp_oc < rmin) {
+            rmin = scp_oc;
+        }
+        else if (scp_oc > rmax) {
+            rmax = scp_oc;
+        }
+        scp_oc  = (dist_x_b[j] + center_offset_x) * L_axis.x 
+                + (dist_y_b[j] + center_offset_y) * L_axis.y 
+                + (dist_z_b[j] + center_offset_z) * L_axis.z;
+        if (scp_oc < rmin) {
+            rmin = scp_oc;
+        }
+        else if (scp_oc > rmax) {
+            rmax = scp_oc;
+        }
+    }
+
+    dL = fabs(rmax-rmin);
+    return dL;
+}
+
 int pmove::Calculate_Separating_Axis_GENERAL(particles &Particles, int id,
                                              int j, m_vector *L_axis) {
+
 
     int N_indep, N_cross;
     double norm_L;
@@ -103,7 +166,6 @@ int pmove::Calculate_Separating_Axis_RHOMBI(particles &Particles, int id,
         L_axis[k].z = Particles.N_Particle[j]->facenormal[k+1 - N_indep].z;
     }
 
-   
     return N_separating_axis;
 }
 
@@ -161,12 +223,12 @@ void pmove::Collision_Test(particles &Particles, box *Box, int id,
 
                     L_axis_norm2 = Scalar_Product(L_axis[j], L_axis[j]);
 
+
                     if (L_axis_norm2 > 0.5) {
 
-                        dL = Scalar_Product(
-                            Collision_List[id].Elements[cp_id].distance,
+                        dL = Calculate_Projection_to_Separating_Axis_Two_Objects(Particles,id,collision_partner,
                             L_axis[j]);
-                        dL = fabs(dL);
+                        //dL = fabs(dL);
 
                         R_id = Particles.N_Particle[id]
                                    ->Calculate_Projection_to_Separating_Axis(

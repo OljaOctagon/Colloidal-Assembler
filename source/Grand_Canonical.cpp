@@ -40,7 +40,7 @@ void pmove::Particle_Insertion(particles &Particles, box *Box, fileio &Fileio,
 
     // set particle patch topology randomly but according to phi_binary
     double rand_s;
-    int patch_1, patch_2, patch_3, patch_4;
+    int patch_1, patch_2, patch_3, patch_4, patch_5, patch_6;
     int p_type;
 
     double mu_current;
@@ -53,6 +53,8 @@ void pmove::Particle_Insertion(particles &Particles, box *Box, fileio &Fileio,
         patch_2 = 0;
         patch_3 = 0;
         patch_4 = 0;
+        patch_5 = 0;
+        patch_6 = 0;
         rand_s = gsl_rng_uniform(r01);
 
 
@@ -63,6 +65,8 @@ void pmove::Particle_Insertion(particles &Particles, box *Box, fileio &Fileio,
             patch_2 = 1;
             patch_3 = 0;
             patch_4 = 0;
+            patch_5 = 0;
+            patch_6 = 0;
 
             mu_current = Box->mu_1;
 
@@ -73,6 +77,8 @@ void pmove::Particle_Insertion(particles &Particles, box *Box, fileio &Fileio,
             patch_2 = 3;
             patch_3 = 0;
             patch_4 = 0;
+            patch_5 = 0;
+            patch_6 = 0;
 
             mu_current = Box->mu_2;
 
@@ -80,9 +86,9 @@ void pmove::Particle_Insertion(particles &Particles, box *Box, fileio &Fileio,
 
 
         Particles.N_Particle[id]->Set_Lengths(patch_1, patch_2, patch_3,
-                                              patch_4);
+                                              patch_4, patch_5, patch_6);
         Particles.N_Particle_old[id]->Set_Lengths(patch_1, patch_2, patch_3,
-                                                  patch_4);
+                                                  patch_4, patch_5, patch_6);
     }
 
     if (Particles.ternary_on.compare("on") == 0) {
@@ -91,6 +97,8 @@ void pmove::Particle_Insertion(particles &Particles, box *Box, fileio &Fileio,
       patch_2 = 0;
       patch_3 = 0;
       patch_4 = 0;
+      patch_5 = 0;
+      patch_6 = 0;
       rand_s = gsl_rng_uniform(r01);
 
 
@@ -101,6 +109,8 @@ void pmove::Particle_Insertion(particles &Particles, box *Box, fileio &Fileio,
         patch_2 = 1;
         patch_3 = 0;
         patch_4 = 0;
+        patch_5 = 0;
+        patch_6 = 0;
 
         mu_current = Box->mu_1;
 
@@ -111,6 +121,8 @@ void pmove::Particle_Insertion(particles &Particles, box *Box, fileio &Fileio,
         patch_2 = 3;
         patch_3 = 0;
         patch_4 = 0;
+        patch_5 = 0;
+        patch_6 = 0;
 
         mu_current = Box->mu_2;
 
@@ -121,15 +133,17 @@ void pmove::Particle_Insertion(particles &Particles, box *Box, fileio &Fileio,
         patch_2 = 1;
         patch_3 = 1;
         patch_4 = 0;
+        patch_5 = 0;
+        patch_6 = 0;
 
         mu_current = Box->mu_3;
 
       }
 
       Particles.N_Particle[id]->Set_Lengths(patch_1, patch_2, patch_3,
-                                            patch_4);
+                                            patch_4, patch_5, patch_6);
       Particles.N_Particle_old[id]->Set_Lengths(patch_1, patch_2, patch_3,
-                                                patch_4);
+                                                patch_4, patch_5, patch_6);
     }
 
     phi_t = Particles.N_Particle[id]->phi;

@@ -259,6 +259,8 @@ class pmove : public particles, public box {
     double Calculate_Cross_Product_x(m_vector a, m_vector b);
     double Calculate_Cross_Product_y(m_vector a, m_vector b);
     double Calculate_Cross_Product_z(m_vector a, m_vector b);
+    double Calculate_Projection_to_Separating_Axis_Two_Objects(particles &Particles, int id_a,
+                                            int id_b, m_vector L_axis);
     int Calculate_Separating_Axis_GENERAL(particles &Particles, int id, int j,
                                           m_vector *L_axis);
 
