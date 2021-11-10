@@ -102,7 +102,7 @@ proc drawpolyframe { name element op } {
         set p3by [ lindex $V3 1 ]
         set p3bz [ lindex $V3 2 ]
                                         
-		set pp1 0.25
+		set pp1 0.1
 
 
 
