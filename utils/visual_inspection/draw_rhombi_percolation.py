@@ -192,4 +192,7 @@ if __name__ == '__main__':
         plt.axis("equal")
         plt.axis('off')
         plt.savefig("./frames/frame_{}.png".format(j), dpi=300)
-        plt.close()
+        
+        plt.cla()
+        plt.clf()
+        plt.close('all')

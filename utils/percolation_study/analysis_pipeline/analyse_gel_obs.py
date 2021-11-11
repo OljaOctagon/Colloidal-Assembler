@@ -198,11 +198,16 @@ if __name__ == '__main__':
       
 
         if exists(file_name):
+            
             connections = gt.read_bonds(file_name)[-1]
-            # calculate spanning
-            frac_largest, virtual_frac_largest = get_spanning(pos, box, connections)
-            new_results['frac_largest'] = frac_largest 
-            new_results['frac_largest_virtual'] = virtual_frac_largest
+            if calc_spanning == True:  
+                # calculate spanning
+                frac_largest, virtual_frac_largest = get_spanning(pos, box, connections)
+                new_results['frac_largest'] = frac_largest 
+                new_results['frac_largest_virtual'] = virtual_frac_largest
+
+            if calc_connectivities == True: 
+                get_connectivity()
 
 
         else:
