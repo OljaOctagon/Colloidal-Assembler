@@ -18,8 +18,8 @@ def get_connectivity(connections):
     degree_sequence = [d for n,d in G.degree()]
 
     average_degree = np.mean(degree_sequence)
-    np.hist(degree_sequence)
-
+    hist, bin_edges = np.hist(degree_sequence, bins=4, range=(1,4), density=True)
+ 
     # save average degree with run_id together with spanning 
     # save degree in pandas dataframe with run_id and 0,1,2,3,4 as columns ready for plotting 
 
@@ -30,7 +30,5 @@ def get_connectivity(connections):
     n_to_disconnect = nx.edge_connectivity(S)
 
     # take larget connected component and take that one 
-
-
     communities = label_propagation_communities(G_starWars)
     print([community for community in communities])
