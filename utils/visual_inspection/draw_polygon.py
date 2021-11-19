@@ -12,11 +12,6 @@ style.use('seaborn-poster')
 mpl.rcParams['font.family'] = "sans-serif"
 sns.set_context('poster')
 
-def get_edge_points(pos_i,ax_n,sign_p):
-    edge_n = np.zeros(2)
-    edge_n = pos_i + sign_p[0]*ax_n[:,0]/2. + sign_p[1]*ax_n[:,1]/2.
-
-    return edge_n
 
 def rotation_matrix(theta):
     rot_mat = np.zeros((2,2))
@@ -33,36 +28,36 @@ def get_orient(v, rot_mat):
     return rot_mat.dot(v)
 
 def read_bonds(filen):
-	first_line_pair = [0,0,0,0]
-	cut=False
-	with open(filen, 'r') as f:
-		network_list = []
-		for line in f:
-			if "#" in line:
-				network_list.append([])
-				first_line_pair = [0,0,0,0]
-				cut=False
+    first_line_pair = [0,0,0,0]
+    cut=False
+    with open(filen, 'r') as f:
+        network_list = []
+        for line in f:
+            if "#" in line:
+                network_list.append([])
+                first_line_pair = [0,0,0,0]
+                cut=False
 
-			else:
-				line_counter=len(network_list[-1])
-				pairs = list(map(int, line.split(" ")))
-				if pairs == first_line_pair or cut==True:
-					cut=True
-				else:
-					network_list[-1].append(np.array(pairs))
+            else:
+                line_counter=len(network_list[-1])
+                pairs = list(map(int, line.split(" ")))
+                if pairs == first_line_pair or cut==True:
+                    cut=True
+                else:
+                    network_list[-1].append(np.array(pairs))
 
-				if line_counter == 0:
-					first_line_pair = pairs
-	network_list = [ np.array(item) for item in network_list]
+                if line_counter == 0:
+                    first_line_pair = pairs
+    network_list = [ np.array(item) for item in network_list]
 
-	return network_list
+    return network_list
 
 
 def read_config(val):
-	pos_i = np.fromfile("positions_{}.bin".format(val))
+    pos_i = np.fromfile("positions_{}.bin".format(val))
     pos_i = np.reshape(pos_i, (-1,3))
     pos_i = pos_i[:,:2]
-    
+
     orient_i = np.fromfile("orientations_{}.bin".format(val))
     orient_i = np.reshape(orient_i, (-1,5))[:,4]
 
@@ -70,16 +65,60 @@ def read_config(val):
     return pos_i, orient_i
 
 
- def get_triange_vertices(pos_i, orient_i):
- 	pass
- 	
+def get_triangle_vertices(pos_i, orient_i):
+    vertices = np.zeros((3,2))
 
- def get_rhombi_vertices(pos_i,orient_i):
- 	pass
+    l2 = 0.5
+    h2_small = np.sqrt(3)/6
+    h2_large = 2*h2_small
 
-	if __name__ == '__main__':
+    rotmat_i = rotation_matrix(orient_i[i])
+    ax0 = np.array([[-l2, l2, 0], [-h2_small, -h2_small, h2_large]])
 
-   
+    #ax0 = np.array([
+    #    [-l2,-h2_small],
+    #    [l2,-h2_small,
+    #    [0, h2_large]])
+
+    ax_n = get_orient(ax0, rotmat_i)
+    ax_n = ax_n.transpose()
+
+    vertices[0] = pos_i[i] + ax_n[0]
+    vertices[1] = pos_i[i] + ax_n[1]
+    vertices[2] = pos_i[i] + ax_n[2]
+
+
+    return vertices
+
+
+
+def get_rhombi_vertices(pos_i,orient_i):
+
+    def get_edge_points(pos_i,ax_n,sign_p):
+        vertex_n = np.zeros(2)
+        vertex_n = pos_i + sign_p[0]*ax_n[:,0]/2. + sign_p[1]*ax_n[:,1]/2.
+        return vertex_n
+
+    sin60 = np.sin(np.pi/3.)
+    cos60 = np.cos(np.pi/3.)
+
+    ax0 = np.array([[1,cos60],[0,sin60]])
+    vertices = np.zeros((4,2))
+    ax_n = np.zeros((2,2))
+
+    rotmat_i = rotation_matrix(orient_i[i])
+    ax_n = get_orient(ax0, rotmat_i)
+
+    vertices[0] = get_edge_points(pos_i[i],ax_n,np.array([-1,-1]))
+    vertices[1] = get_edge_points(pos_i[i],ax_n,np.array([+1,-1]))
+    vertices[2] = get_edge_points(pos_i[i],ax_n,np.array([+1,+1]))
+    vertices[3] = get_edge_points(pos_i[i],ax_n,np.array([-1,+1]))
+
+    return vertices
+
+
+if __name__ == '__main__':
+
     # get all check point values and sort them
     checkpoints= glob.glob("Box*.bin")
     check_point_values = np.sort(
@@ -100,34 +139,45 @@ def read_config(val):
 
     for j,val in enumerate(check_point_values):
 
-    	pos_i, orient_i = read_config(val)
-    	N_particles = len(pos_i)
+        pos_i, orient_i = read_config(val)
+        N_particles = len(pos_i)
 
 
-    	parser = argparse.ArgumentParser(description='Particle drawing methods')
-    	parser.add_argument('-polygon_type', type=str, choices=['rhombi', 'triangle'])
+        parser = argparse.ArgumentParser(description='Particle drawing methods')
+        parser.add_argument('-polygon_type', type=str, choices=['rhombus', 'triangle'])
 
-    	args = parser.parse_args()
+        args = parser.parse_args()
 
-    	vertex_functions = {
-    	'triangles': get_triangle_vertices,
-    	'rhombi': get_rhombi_vertices}
-    
-    	get_vertices = vertex_functions[args.polygon_type]
+        vertex_functions = {
+        'triangle': get_triangle_vertices,
+        'rhombus': get_rhombi_vertices}
 
-    	for i in range(N):
+        get_vertices = vertex_functions[args.polygon_type]
 
-    		vertices = get_vertices(pos_i, orient_i)
+        fig,ax = plt.subplots()
+        ax.set_aspect('equal', 'box')
 
-    		polygon = patches.Polygon(vertices, 
-    			linewidth=0.5, 
-    			edgecolor='k',
-    			facecolor=polygon_color, alpha=0.7)
+        for i in range(N_particles):
+
+            vertices = get_vertices(pos_i, orient_i)
+
+            polygon = patches.Polygon(vertices, 
+                linewidth=0.1, 
+                edgecolor='k',
+                facecolor=polygon_color, alpha=0.7)
             
             ax.add_patch(polygon)
 
-            plt.axis("equal")
-            plt.savefig("./frames/frame_{}.png".format(j), dpi=500)
-            plt.close()
+        ax.scatter(pos_i[:,0], pos_i[:,1],s=1)
+        ax.set_title("Frame {}".format(j))
+            
+        plt.axis("equal")
+        plt.axis('off')
 
- 
+        plt.axis("equal")
+        plt.savefig("./frames/frame_{}.png".format(j), dpi=1000)
+        
+        plt.cla()
+        plt.clf()
+        plt.close('all')
+
