@@ -511,7 +511,7 @@ void pmove::Iterate(particles &Particles, box *Box, fileio &Fileio,
 
         if (rhalf > 0.5) {
           //cout<<"Cluster rot move"<<endl;
-          Rot_Cluster_Move(Particles, Box, Fileio, mc_time);
+         //Rot_Cluster_Move(Particles, Box, Fileio, mc_time);
         }
         
         // if (rhalf>2./3.){

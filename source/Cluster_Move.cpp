@@ -203,7 +203,11 @@ void pmove::Rot_Cluster_Move(particles &Particles, box *Box, fileio &Fileio,
         j = List[k];
         //cout<<"list k"<<j<<endl;
         //cout<<"pos y  before rot map "<<Particles.N_Particle[j]->y_center<<endl;
-        Rot_Move_Map(Particles, j, Box, center_mass, Rot_mat);
+        
+
+        //Rot_Move_Map(Particles, j, Box, center_mass, Rot_mat);
+        
+
         //cout<<"pos y after rot map  "<<Particles.N_Particle[j]->y_center<<endl;
         Particles.Check_Periodic_CM(j, Box);
         Update_Periodic_Positions(Particles, Box, j);
@@ -458,6 +462,7 @@ void pmove::Trans_Cluster_Move(particles &Particles, box *Box, fileio &Fileio,
 
     //cout<<"Collision List and Test"<<endl;
     do {
+
         Particles.Collision_List[List[k]].Calculate(Box, List[k],
                                                     Particles.Id_Cell_List,
                                                     Particles.Cell_List, Particles.Cell,
