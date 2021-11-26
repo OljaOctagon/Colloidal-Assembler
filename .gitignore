@@ -4,3 +4,5 @@ test/*xyz
 tests/*
 .DS_Store
 high_energies/*
+source/McPoly
+source/*.o
