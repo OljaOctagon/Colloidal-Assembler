@@ -20,9 +20,12 @@ double pmove::Calculate_Cross_Product_z(m_vector a, m_vector b) {
 }
 
 double pmove::Calculate_Projection_to_Separating_Axis_Two_Objects(particles &Particles, int id_a,
-                                            int id_b, m_vector L_axis) {
+                                            int id_b, m_vector L_axis, box *Box) {
     int edge_N;
     edge_N =  Particles.N_Particle[id_a]->edge_N;
+
+    Particles.N_Particle[id_a]->distance_from_center();
+    Particles.N_Particle[id_b]->distance_from_center();
 
     double x_center_a, y_center_a, z_center_a;
     double *dist_x_a, *dist_y_a, *dist_z_a;
@@ -46,6 +49,10 @@ double pmove::Calculate_Projection_to_Separating_Axis_Two_Objects(particles &Par
     center_offset_x = x_center_b - x_center_a;
     center_offset_y = y_center_b - y_center_a;
     center_offset_z = z_center_b - z_center_a;
+
+    center_offset_x = center_offset_x - Box->Lx * rint(center_offset_x / Box->Lx);
+    center_offset_y = center_offset_y - Box->Ly * rint(center_offset_y / Box->Ly);
+    center_offset_z = center_offset_z - Box->Lz * rint(center_offset_z / Box->Lz);
 
 
     double dL;
@@ -227,7 +234,7 @@ void pmove::Collision_Test(particles &Particles, box *Box, int id,
                     if (L_axis_norm2 > 0.5) {
 
                         dL = Calculate_Projection_to_Separating_Axis_Two_Objects(Particles,id,collision_partner,
-                            L_axis[j]);
+                            L_axis[j], Box);
                         //dL = fabs(dL);
 
                         R_id = Particles.N_Particle[id]

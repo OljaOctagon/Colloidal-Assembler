@@ -251,7 +251,6 @@ void triangle::Set_Lengths() {
     Lx = 1.0;
     Ly = Lx;
     Lz = 0.1 * Lx;
-    H_2 = Ly / 2.;
 
     h = Lx * sin(alpha);
     h_2 = double(h) / 2.0;
@@ -598,11 +597,15 @@ double triangle::Calculate_Projection_to_Separating_Axis(m_vector laxis) {
 
     distance_from_center();
 
-    rmin =  dist_x[0]*laxis.x + dist_y[0]*laxis.y + dist_z[0]*laxis.z;
+    rmin = dist_x[0]*laxis.x
+         + dist_y[0]*laxis.y 
+         + dist_z[0]*laxis.z;
     rmax = rmin;
 
     for (int j=1;j<edge_N;j++){
-	    scp_oc = dist_x[j]*laxis.x + dist_y[j]*laxis.y + dist_z[j]*laxis.z;
+	    scp_oc = dist_x[j]*laxis.x
+               + dist_y[j]*laxis.y 
+               + dist_z[j]*laxis.z;
 	    if (scp_oc < rmin) {
 		    rmin = scp_oc;
 	    }

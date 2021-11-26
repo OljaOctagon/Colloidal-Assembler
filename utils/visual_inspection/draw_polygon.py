@@ -137,7 +137,7 @@ if __name__ == '__main__':
     if not os.path.isdir("./frames"):
         os.mkdir("./frames")
 
-    for j,val in enumerate(check_point_values):
+    for j,val in enumerate(check_point_values[-6:]):
 
         pos_i, orient_i = read_config(val)
         N_particles = len(pos_i)
