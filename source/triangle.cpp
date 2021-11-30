@@ -322,7 +322,7 @@ void triangle::Set_Lengths() {
     patch_type[4] = 0;
     patch_type[5] = 0;
 
-    if (triangle_type.compare("six_patch") == 0) {
+        if (triangle_type.compare("six_patch") == 0) {
         d0 = patch_delta;
         d1 = patch_delta;
         d2 = patch_delta;
@@ -344,6 +344,64 @@ void triangle::Set_Lengths() {
         d2 = patch_delta;
         d3 = patch_x;
         d4 = patch_delta;
+    patch_cutoff_squared[1] = patch_cutoff[1] * patch_cutoff[1];
+
+    patch_cutoff[2] = r_patch[2] * 2;
+    patch_cutoff_squared[2] = patch_cutoff[2] * patch_cutoff[2];
+
+    patch_cutoff[3] = r_patch[3] * 2;
+    patch_cutoff_squared[3] = patch_cutoff[3] * patch_cutoff[3];
+
+    patch_cutoff[4] = r_patch[4] * 2;
+    patch_cutoff_squared[4] = patch_cutoff[4] * patch_cutoff[4];
+
+    patch_cutoff[5] = r_patch[5] * 2;
+    patch_cutoff_squared[5] = patch_cutoff[5] * patch_cutoff[5];
+
+    patch_delta = pt.get<double>("Triangle.patch_delta");
+    triangle_type = pt.get<string>("Triangle.triangle_type");
+
+    //available types:
+    //6patch, 3asym, vn, vo, mouse, 2asym_c
+
+    patch_x = 0.5;
+    d0 = patch_x;
+    d1 = patch_x;
+    d2 = patch_x;
+    d3 = patch_x;
+    d4 = patch_x;
+    d5 = patch_x;
+
+    patch_type[0] = 0;
+    patch_type[1] = 0;
+    patch_type[2] = 0;
+    patch_type[5] = 0;
+    patch_type[5] = 0;
+    }
+
+    if (triangle_type.compare("6patch") == 0) {
+        //six patches
+        d0 = patch_delta;
+        d1 = patch_delta;
+        d2 = patch_delta;
+        d3 = patch_delta;
+        d4 = patch_delta;
+        d5 = patch_delta;
+
+        patch_type[0] = 0;
+        patch_type[1] = 0;
+        patch_type[2] = 0;
+        patch_type[3] = 0;
+        patch_type[4] = 0;
+        patch_type[5] = 0;
+
+    if (triangle_type.compare("3asym") == 0) {
+        //three asymmetric patches
+        d0 = patch_delta;
+        d1 = patch_x;
+        d2 = patch_delta;
+        d3 = patch_x;
+        d4 = patch_delta;
         d5 = patch_x;
 
         patch_type[0] = 0;
@@ -354,7 +412,8 @@ void triangle::Set_Lengths() {
         patch_type[5] = 1;
     }
 
-    if (triangle_type.compare("two_neighbour_fixedcorner") == 0) {
+    if (triangle_type.compare("vn") == 0) {
+        //patch at Vertice and Neighbour
         d0 = 0;
         d1 = 1 - patch_delta;
         d2 = patch_x;
@@ -370,7 +429,8 @@ void triangle::Set_Lengths() {
         patch_type[5] = 1;
     }
 
-    if (triangle_type.compare("two_opposite_fixedcorner") == 0) {
+    if (triangle_type.compare("vo") == 0) {
+        //patch at Vertice and its Opposite
         d0 = 0;
         d1 = patch_x;
         d2 = patch_delta;
@@ -383,6 +443,41 @@ void triangle::Set_Lengths() {
         patch_type[2] = 0;
         patch_type[3] = 1;
         patch_type[4] = 1;
+        patch_type[5] = 1;
+    }
+
+
+    if (triangle_type.compare("mouse") == 0) {
+        //mouse like patch
+        d0 = patch_delta;
+        d1 = patch_x;
+        d2 = patch_x;
+        d3 = patch_delta;
+        d4 = patch_delta;
+        d5 = patch_x;
+
+        patch_type[0] = 0;
+        patch_type[1] = 1;
+        patch_type[2] = 1;
+        patch_type[3] = 0;
+        patch_type[4] = 0;
+        patch_type[5] = 1;
+    }
+
+    if (triangle_type.compare("2asym_c") == 0) {
+        //2 asymmetric patches and one centered
+        d0 = 0.5;
+        d1 = patch_x;
+        d2 = patch_delta;
+        d3 = patch_x;
+        d4 = patch_delta;
+        d5 = patch_x;
+
+        patch_type[0] = 0;
+        patch_type[1] = 1;
+        patch_type[2] = 0;
+        patch_type[3] = 1;
+        patch_type[4] = 0;
         patch_type[5] = 1;
     }
 }
