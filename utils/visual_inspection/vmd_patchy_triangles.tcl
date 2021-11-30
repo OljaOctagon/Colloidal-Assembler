@@ -102,7 +102,7 @@ proc drawpolyframe { name element op } {
         set p3by [ lindex $V3 1 ]
         set p3bz [ lindex $V3 2 ]
                                         
-		set pp1 0.1
+		set pp1 0.33
 
 
 
@@ -147,18 +147,19 @@ proc drawpolyframe { name element op } {
 
 
 	    graphics top color blue
+
 		#six_patch
-		draw sphere $p1_vec radius $r_patch  resolution 30		
-		draw sphere $p2_vec radius $r_patch  resolution 30		
-		draw sphere $p3_vec radius $r_patch  resolution 30		
-		draw sphere $p4_vec radius $r_patch  resolution 30		
-		draw sphere $p5_vec radius $r_patch  resolution 30		
-		draw sphere $p6_vec radius $r_patch  resolution 30		
+		#draw sphere $p1_vec radius $r_patch  resolution 30		
+		#draw sphere $p2_vec radius $r_patch  resolution 30		
+		#draw sphere $p3_vec radius $r_patch  resolution 30		
+		#draw sphere $p4_vec radius $r_patch  resolution 30		
+		#draw sphere $p5_vec radius $r_patch  resolution 30		
+		#draw sphere $p6_vec radius $r_patch  resolution 30		
 
 		#3asymm
-		#draw sphere $p1_vec radius $r_patch  resolution 30				
-		#draw sphere $p3_vec radius $r_patch  resolution 30			
-		#draw sphere $p5_vec radius $r_patch  resolution 30	
+		draw sphere $p1_vec radius $r_patch  resolution 30				
+		draw sphere $p3_vec radius $r_patch  resolution 30			
+		draw sphere $p5_vec radius $r_patch  resolution 30	
 
 		#2nfc
 		#draw sphere $p0_vec radius $r_patch  resolution 30	
