@@ -305,7 +305,7 @@ void triangle::Set_Lengths() {
     triangle_type = pt.get<string>("Triangle.triangle_type");
 
     //available types:
-    //six_patch, three_asymm, two_neighbour_fixedcorner, two_opposite_fixedcorner
+    //6patch, 3asym, vn, vo, mouse, 2asym_c
 
     patch_x = 0.5;
     d0 = patch_x;
@@ -322,63 +322,6 @@ void triangle::Set_Lengths() {
     patch_type[4] = 0;
     patch_type[5] = 0;
 
-        if (triangle_type.compare("six_patch") == 0) {
-        d0 = patch_delta;
-        d1 = patch_delta;
-        d2 = patch_delta;
-        d3 = patch_delta;
-        d4 = patch_delta;
-        d5 = patch_delta;
-
-        patch_type[0] = 0;
-        patch_type[1] = 0;
-        patch_type[2] = 0;
-        patch_type[3] = 0;
-        patch_type[4] = 0;
-        patch_type[5] = 0;
-    }
-
-    if (triangle_type.compare("three_asymm") == 0) {
-        d0 = patch_delta;
-        d1 = patch_x;
-        d2 = patch_delta;
-        d3 = patch_x;
-        d4 = patch_delta;
-    patch_cutoff_squared[1] = patch_cutoff[1] * patch_cutoff[1];
-
-    patch_cutoff[2] = r_patch[2] * 2;
-    patch_cutoff_squared[2] = patch_cutoff[2] * patch_cutoff[2];
-
-    patch_cutoff[3] = r_patch[3] * 2;
-    patch_cutoff_squared[3] = patch_cutoff[3] * patch_cutoff[3];
-
-    patch_cutoff[4] = r_patch[4] * 2;
-    patch_cutoff_squared[4] = patch_cutoff[4] * patch_cutoff[4];
-
-    patch_cutoff[5] = r_patch[5] * 2;
-    patch_cutoff_squared[5] = patch_cutoff[5] * patch_cutoff[5];
-
-    patch_delta = pt.get<double>("Triangle.patch_delta");
-    triangle_type = pt.get<string>("Triangle.triangle_type");
-
-    //available types:
-    //6patch, 3asym, vn, vo, mouse, 2asym_c
-
-    patch_x = 0.5;
-    d0 = patch_x;
-    d1 = patch_x;
-    d2 = patch_x;
-    d3 = patch_x;
-    d4 = patch_x;
-    d5 = patch_x;
-
-    patch_type[0] = 0;
-    patch_type[1] = 0;
-    patch_type[2] = 0;
-    patch_type[5] = 0;
-    patch_type[5] = 0;
-    }
-
     if (triangle_type.compare("6patch") == 0) {
         //six patches
         d0 = patch_delta;
@@ -394,6 +337,7 @@ void triangle::Set_Lengths() {
         patch_type[3] = 0;
         patch_type[4] = 0;
         patch_type[5] = 0;
+    }
 
     if (triangle_type.compare("3asym") == 0) {
         //three asymmetric patches
@@ -493,7 +437,7 @@ void triangle::Set_Lengths(int e0, int e1, int e2, int e3, int e4, int e5) {
 
 }
 
-void triangle::Set_Start_Lattice_Position(int id, double box_Lx, 
+void triangle::Set_Start_Lattice_Position(int id, double box_Lx,
                                             int N_box) {
     // for cubic lattice
     int N_sitesp_x;
@@ -529,11 +473,11 @@ void triangle::Set_Start_Lattice_Position(int id, double box_Lx,
 
 }
 
-void triangle::Set_Start_Lattice_Position(int id, double box_Lx, 
-                                            double box_Ly, double box_Lz, 
+void triangle::Set_Start_Lattice_Position(int id, double box_Lx,
+                                            double box_Ly, double box_Lz,
                                             int N_box) {
     // for cubic lattice in 2D or anisotropic box shape
-                                                
+
     int N_sitespx, N_sitespy, N_sitespz;
     double N_sitespx_float, N_sitespy_float, N_sitespz_float;
     double l_distpx, l_distpy, l_distpz;
@@ -679,7 +623,7 @@ void triangle::Calculate_Face_Normals() {
 
     */
 
-    
+
 
 }
 
@@ -693,20 +637,20 @@ double triangle::Calculate_Projection_to_Separating_Axis(m_vector laxis) {
     distance_from_center();
 
     rmin = dist_x[0]*laxis.x
-         + dist_y[0]*laxis.y 
+         + dist_y[0]*laxis.y
          + dist_z[0]*laxis.z;
     rmax = rmin;
 
     for (int j=1;j<edge_N;j++){
-	    scp_oc = dist_x[j]*laxis.x
-               + dist_y[j]*laxis.y 
+            scp_oc = dist_x[j]*laxis.x
+               + dist_y[j]*laxis.y
                + dist_z[j]*laxis.z;
-	    if (scp_oc < rmin) {
-		    rmin = scp_oc;
-	    }
-	    else if (scp_oc > rmax) {
-		    rmax = scp_oc;
-	    }
+            if (scp_oc < rmin) {
+                    rmin = scp_oc;
+            }
+            else if (scp_oc > rmax) {
+                    rmax = scp_oc;
+            }
     }
 
     Rp = fabs((rmax-rmin));

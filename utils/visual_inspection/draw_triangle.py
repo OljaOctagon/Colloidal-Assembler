@@ -65,13 +65,15 @@ class Triangle:
             #veritce_opposite
             self.patch_pos = np.zeros((2,2))
             self.patch_pos[0] = self.vertices[0]
-            self.patch_pos[1] = self.vertices[0] + delta * (self.vertices[1]-self.vertices[0])
+            self.patch_pos[1] = self.vertices[1] + delta * (self.vertices[2]-self.vertices[1])
+
 
         elif(type=="vn"):
             #vertice_neighbour
             self.patch_pos = np.zeros((2,2))
             self.patch_pos[0] = self.vertices[0]
-            self.patch_pos[1] = self.vertices[1] + delta * (self.vertices[2]-self.vertices[1])
+            self.patch_pos[1] = self.vertices[0] + delta * (self.vertices[1]-self.vertices[0])
+
 
         elif(type=="2asym_c"):
             #two_asymm_center
@@ -110,7 +112,7 @@ if __name__ == '__main__':
     if not os.path.isdir("./frames"):
         os.mkdir("./frames")
 
-    for k,val in enumerate(check_point_values[-10:]):
+    for k,val in enumerate(check_point_values):
 
         position_list = np.fromfile("positions_{}.bin".format(val))
         position_list = np.reshape(position_list, (-1,3))
@@ -138,11 +140,9 @@ if __name__ == '__main__':
 
         ax.scatter(position_list[:,0], position_list[:,1],s=1, color='g')
         ax.set_title("Frame {} ".format(k) + ptype)
-        plt.xlim((-1,30))
-        plt.ylim((-1,40))
 
         plt.axis('off')
-        plt.savefig("./frames/frame_{}.png".format(k), dpi=1000)
+        plt.savefig("./frames/frame_{}.png".format(k), dpi=500)
         plt.cla()
         plt.clf()
         plt.close('all')
