@@ -92,32 +92,35 @@ def get_rhombi_vertices(pos_i,orient_i,i):
 
 
 
-def get_intersect(pos_i,all_vertices,id_i,sx,sy,r_sphere,a_rhombi,rhombi_long_diagonal):
+def get_intersect(pos_i,all_vertices,id_i,sx,sy,r_sphere,a_rhombi,cut_off):
 
     intersect=False 
-    dist  = pos_i[id_i] - sp 
-    dist = dist - np.array([box_lx,box_ly])*np.fint(
+    dist  = pos_i[id_i] - np.array([sx,sy])
+    dist = dist - np.array([box_lx,box_ly])*np.rint(
         dist/np.array([box_lx,box_ly]))
 
     # test outer sphere of rhombi as coarse overlap test
-    if np.abs(dist)>rhombi_long_diagonal:
+    if np.abs(np.linalg.norm(dist))>cut_off:
         intersect=False 
 
     else:
 
-        nearest_point = sp + (dist/np.linalg.norm(dist))*r_sphere 
+        nearest_point = np.array([sx,sy]) + (dist/np.linalg.norm(dist))*r_sphere 
+        ndist = pos_i[id_i] - nearest_point
+        ndist = ndist - np.array([box_lx,box_ly])*np.rint(
+        dist/np.array([box_lx,box_ly]))
 
         e01 = (all_vertices[id_i][1] - all_vertices[id_i][0])/a_rhombi
         e02 = (all_vertices[id_i][3] - all_vertices[id_i][0])/a_rhombi
 
-        nearest_point_rhs = np.array([np.dot(nearest_point,e01),
-            np.dot(nearest_point,e01)])
+        nearest_point_rhs = np.array([np.dot(ndist,e01),
+            np.dot(ndist,e02)])
 
         length_nearest_point_rhs = np.linalg.norm(nearest_point_rhs)
 
         if length_nearest_point_rhs < 1:
             intersect=True
-    
+
     return intersect 
 
 
@@ -142,20 +145,18 @@ if __name__ == '__main__':
     box_lx = box_all[3]
     box_ly = box_all[4]
 
-
-
     pos_i, orient_i = read_config(filei, val)
     N_particles = len(pos_i)
 
     N_vertices = []
 
     # Make cell lists 
-    r_sphere=0.5
+    r_sphere=0.2
     a_rhombi = 1.0
     alpha = np.pi/3
     rhombi_long_diagonal = a_rhombi * np.sqrt(np.power(1+np.cos(alpha)+np.sin(alpha),2))
 
-    L_cell_min = r_sphere + rhombi_long_diagonal/2 
+    L_cell_min = r_sphere + (rhombi_long_diagonal/2)
 
     Nx_cell = int(np.floor(box_lx/L_cell_min))
     Ny_cell = int(np.floor(box_ly/L_cell_min))
@@ -164,15 +165,17 @@ if __name__ == '__main__':
     L_cell_y = box_ly/Ny_cell 
 
 
-    cell_ID_of_particle = np.array([int.np.floor(pos_i[:,0]/L_cell_x)
-        , int(np.floor(pos_i[:,1]/L_cell_y))
+    cell_ID_of_particle_x = np.floor(pos_i[:,0]/L_cell_x).astype(int)
+    cell_ID_of_particle_y = np.floor(pos_i[:,1]/L_cell_y).astype(int)
+
+    cell_ID_of_particle = np.column_stack((cell_ID_of_particle_x,cell_ID_of_particle_y))
 
     from collections import defaultdict 
 
     cell_list=defaultdict(list)
 
     # fill cell list 
-    for i,entry in enumerate(cell_ID_of_particle):
+    for i, entry in enumerate(cell_ID_of_particle):
         cell_list[(entry[0],entry[1])].append(i)
 
     all_vertices = []
@@ -180,73 +183,87 @@ if __name__ == '__main__':
         all_vertices.append(get_rhombi_vertices(pos_i,orient_i,i))
 
 
-    print("box x-length: {}, box y_lenght: {}, box_center: {},{}".format(box_lx,box_ly, box_x_center, box_y_center))
-
-    print("Number of cells in x-direction: {}, side-length of cells in x-direction: {}".format(Nx_cell,L_Cell_x))
-
-    print("Number of cells in y-direction: {}, side-length of cells in y-direction: {}".format(Ny_cell,L_Cell_y))
-
-
-    Nsteps = 100
+    Nsteps = 1000
     pore_cloud_centers = []
 
-
-    print("Box start and end coordinates:")
     box_xstart = box_x_center - box_lx/2.
     box_xend = box_x_center + box_lx/2
 
     box_ystart = box_y_center - box_ly/2.
     box_yend = box_y_center + box_ly/2. 
 
-    print("Box xstart, Box xend: {},{}".format(box_xstart,box_xend))
-    print("Box ystart, Box yend: {},{}".format(box_ystart,box_yend))
+    np.random.seed(10)
+   
+    for istep in range(Nsteps):
 
-
-    print("number of generated spheres: {}".format(Nsteps))
-    for istep in Nsteps:
-
-        print(istep)
         # pick center of sphere 
         sx = np.random.uniform(box_xstart,box_xend)
         sy = np.random.uniform(box_ystart,box_yend)
         sp=np.array([sx,sy])
 
-        cell_of_sphere = (int.np.floor(sx/L_cell_x),
-            int(np.floor(sy/L_cell_y)))
+        cell_of_sphere = np.array([int(np.floor(sx/L_cell_x)),
+            int(np.floor(sy/L_cell_y))])
 
         overlap_candidates = []
         # add particles of original cell 
-        overlap_candidates.append(cell_list[cell_of_sphere])
+        overlap_candidates.extend(cell_list[(cell_of_sphere[0],cell_of_sphere[1])])
 
         # get particles from neighbour cells 
-        neigbour_cells = [(-1,0),(1,0),(0,-1),(0,1),(-1,-1),(1,-1),(-1,1),(1,1)]
+        neighbour_cells = np.array([[-1,0],[1,0],[0,-1],[0,1],[-1,-1],[1,-1],[-1,1],[1,1]])
 
         for ncell in neighbour_cells: 
-            ncell = cell_list + neighbour_cells 
-            ncell = (left_neighbour[0]%Nx_cell, left_neighbour[1]%Ny_cell)
-            overlap_candidates.append(cell_list[ncell])
+            celli = cell_of_sphere + ncell
+            celli = (celli[0]%Nx_cell, celli[1]%Ny_cell)
+           
 
+            overlap_candidates.extend(cell_list[celli])
+
+        #overlap_candidates=range(N_particles)
         global_intersect=False 
         ic=0
-        while (global_intersect == False and ic < len(overlap_candidates)):
-            
-            id_i = overlap_candidates[ic]       
+    
+        if overlap_candidates:
+            while (global_intersect == False and ic < len(overlap_candidates)):
+                
+                id_i = overlap_candidates[ic]       
+                global_intersect=get_intersect(pos_i,all_vertices,id_i,sx,sy,r_sphere,a_rhombi,L_cell_min)
 
-            global_intersect=get_intersect(pos_i,all_vertices,id_i,sp, r_sphere,a_rhombi,rhombi_long_diagonal)
+                ic=ic+1 
 
-            ic=ic+1 
 
-        if global_intersect==False:
-            pore_cloud_centers.append(sp)
+            if global_intersect==False:
+                pore_cloud_centers.append([sx,sy])
 
+        else:
+            pore_cloud_centers.append([sx,sy])
 
     print("Fraction of non_overlapping spheres: {}".format(len(pore_cloud_centers)/Nsteps))
 
+    # write out file 
+    arr = np.asarray(pore_cloud_centers)
+    arr.tofile("pore_cloud_centers.bin")
+
+
+    ### Clustering algorithm with pbc 
+
+    
+
+
+
+    """
     print("plotting")
     fig,ax = plt.subplots(figsize=(20,20))
     ax.set_aspect('equal', 'box')
     polygon_color = 'cyan'
     #polygon_color = "#04CC80"
+
+    xcoords = range(Nx_cell)*L_cell_x
+    for xc in xcoords:
+        plt.axvline(x=xc)
+    ycoords = range(Ny_cell)*L_cell_y
+    for xc in ycoords:
+        plt.axhline(y=xc)
+
 
     for i in range(N_particles):
         vertices = get_rhombi_vertices(pos_i, orient_i, i)
@@ -259,14 +276,17 @@ if __name__ == '__main__':
     
 
     for sphere_i in pore_cloud_centers:
-        patches.Circle((sphere_i[0],sphere_i[1]), radius=r_sphere,color='red',edgecolor='k', alpha=0.5)
-    
+        sphere=patches.Circle((sphere_i[0],sphere_i[1]), 
+            radius=r_sphere,facecolor='red',
+            edgecolor='k', alpha=0.5)
+        ax.add_patch(sphere)   
 
     plt.axis("equal")
     #plt.axis('off')
 
-    plt.savefig("{}/rhombi_pore_test.png".format(filedir), dpi=100)
+    plt.savefig("rhombi_pore_test.png", dpi=100)
     plt.show()
+    """
 
 
 
