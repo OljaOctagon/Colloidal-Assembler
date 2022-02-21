@@ -122,7 +122,7 @@ if __name__ == '__main__':
         orientation_list = np.reshape(orientation_list, (-1,5))[:,4]
 
         N=len(position_list)
-        triangles = np.ndarray((N),dtype=Triangle)
+        triangles = np.ndarray((N),dtype=object)
 
         fig,ax = plt.subplots()
         ax.set_aspect('equal', 'box')
