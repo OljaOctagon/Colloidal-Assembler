@@ -45,39 +45,55 @@ class Triangle:
 
     def calc_patch_pos(self, type):
         if(type=="6patch"):
-                #six_patch
-                self.patch_pos = np.zeros((6,2))
-                self.patch_pos[0] = self.vertices[0] + delta * (self.vertices[1]-self.vertices[0])
-                self.patch_pos[1] = self.vertices[0] + (1 - delta) * (self.vertices[1]-self.vertices[0])
-                self.patch_pos[2] = self.vertices[1] + delta * (self.vertices[2]-self.vertices[1])
-                self.patch_pos[3] = self.vertices[1] + (1 - delta) * (self.vertices[2]-self.vertices[1])
-                self.patch_pos[4] = self.vertices[2] + delta * (self.vertices[0]-self.vertices[2])
-                self.patch_pos[5] = self.vertices[2] + (1 - delta) * (self.vertices[0]-self.vertices[2])
+            #six_patch
+            self.patch_pos = np.zeros((6,2))
+            self.patch_pos[0] = self.vertices[0] + delta * (self.vertices[1]-self.vertices[0])
+            self.patch_pos[1] = self.vertices[0] + (1 - delta) * (self.vertices[1]-self.vertices[0])
+            self.patch_pos[2] = self.vertices[1] + delta * (self.vertices[2]-self.vertices[1])
+            self.patch_pos[3] = self.vertices[1] + (1 - delta) * (self.vertices[2]-self.vertices[1])
+            self.patch_pos[4] = self.vertices[2] + delta * (self.vertices[0]-self.vertices[2])
+            self.patch_pos[5] = self.vertices[2] + (1 - delta) * (self.vertices[0]-self.vertices[2])
 
         elif(type=="3asym"):
-                #three_asymm
-                self.patch_pos = np.zeros((3,2))
-                self.patch_pos[0] = self.vertices[0] + delta * (self.vertices[1]-self.vertices[0])
-                self.patch_pos[1] = self.vertices[1] + delta * (self.vertices[2]-self.vertices[1])
-                self.patch_pos[2] = self.vertices[2] + delta * (self.vertices[0]-self.vertices[2])
+            #three_asymm
+            self.patch_pos = np.zeros((3,2))
+            self.patch_pos[0] = self.vertices[0] + delta * (self.vertices[1]-self.vertices[0])
+            self.patch_pos[1] = self.vertices[1] + delta * (self.vertices[2]-self.vertices[1])
+            self.patch_pos[2] = self.vertices[2] + delta * (self.vertices[0]-self.vertices[2])
 
-        elif(type=="2nfc"):
-                #two_neighbour_fixedcorner
-                self.patch_pos = np.zeros((2,2))
-                self.patch_pos[0] = self.vertices[0]
-                self.patch_pos[1] = self.vertices[0] + delta * (self.vertices[1]-self.vertices[0])
+        elif(type=="vo"):
+            #veritce_opposite
+            self.patch_pos = np.zeros((2,2))
+            self.patch_pos[0] = self.vertices[0]
+            self.patch_pos[1] = self.vertices[1] + delta * (self.vertices[2]-self.vertices[1])
 
-        elif(type=="2ofc"):
-                #two_opposite_fixedcorner
-                self.patch_pos = np.zeros((2,2))
-                self.patch_pos[0] = self.vertices[0]
-                self.patch_pos[1] = self.vertices[1] + delta * (self.vertices[2]-self.vertices[1])
+
+        elif(type=="vn"):
+            #vertice_neighbour
+            self.patch_pos = np.zeros((2,2))
+            self.patch_pos[0] = self.vertices[0]
+            self.patch_pos[1] = self.vertices[0] + delta * (self.vertices[1]-self.vertices[0])
+
+
+        elif(type=="2asym_c"):
+            #two_asymm_center
+            self.patch_pos = np.zeros((3,2))
+            self.patch_pos[0] = self.vertices[0] + 0.5 * (self.vertices[1]-self.vertices[0])
+            self.patch_pos[1] = self.vertices[1] + delta * (self.vertices[2]-self.vertices[1])
+            self.patch_pos[2] = self.vertices[2] + delta * (self.vertices[0]-self.vertices[2])
+
+        elif(type=="mouse"):
+            #mouse
+            self.patch_pos = np.zeros((3,2))
+            self.patch_pos[0] = self.vertices[0] + delta * (self.vertices[1]-self.vertices[0])
+            self.patch_pos[1] = self.vertices[1] + (1 - delta) * (self.vertices[2]-self.vertices[1])
+            self.patch_pos[2] = self.vertices[2] + delta * (self.vertices[0]-self.vertices[2])
 
 if __name__ == '__main__':
 
     # command line
     parser = argparse.ArgumentParser(description='Particle drawing methods')
-    parser.add_argument('-ptype', type=str, choices=['6patch', '3asym', '2nfc', '2ofc'])
+    parser.add_argument('-ptype', type=str, choices=['6patch', '3asym', 'vo', 'vn', '2asym_c', 'mouse'])
     parser.add_argument('-delta', type=float)
     parser.add_argument('-radius', type=float)
 
@@ -96,21 +112,24 @@ if __name__ == '__main__':
     if not os.path.isdir("./frames"):
         os.mkdir("./frames")
 
-    for j,val in enumerate(check_point_values[-1:]):
+    for k,val in enumerate(check_point_values):
+
         position_list = np.fromfile("positions_{}.bin".format(val))
         position_list = np.reshape(position_list, (-1,3))
         position_list = position_list[:,:2]
+
         orientation_list = np.fromfile("orientations_{}.bin".format(val))
         orientation_list = np.reshape(orientation_list, (-1,5))[:,4]
 
         N=len(position_list)
-        triangles = np.ndarray((N),dtype=Triangle)
+        triangles = np.ndarray((N),dtype=object)
 
         fig,ax = plt.subplots()
         ax.set_aspect('equal', 'box')
+
         for j in range(N):
             triangles[j] = Triangle(j, position_list[j], orientation_list[j], ptype, delta, radius)
-            polygon = patches.Polygon(triangles[j].vertices, linewidth=0.5, edgecolor='k',facecolor='g', alpha=0.7)
+            polygon = patches.Polygon(triangles[j].vertices, linewidth=0.1, edgecolor='k',facecolor='g', alpha=0.7)
             ax.add_patch(polygon)
 
             for patch_id in range(len(triangles[j].patch_pos)):
@@ -119,10 +138,11 @@ if __name__ == '__main__':
                                         radius=radius,facecolor='r')
                 ax.add_patch(patch)
 
-        ax.set_title("Frame {}".format(j))
-        plt.xlim((-1,30))
-        plt.ylim((-1,40))
-        plt.axis("equal")
+        ax.scatter(position_list[:,0], position_list[:,1],s=1, color='g')
+        ax.set_title("Frame {} ".format(k) + ptype)
+
         plt.axis('off')
-        plt.savefig("./frames/frame_{}.png".format(j), dpi=500)
-        plt.close()
+        plt.savefig("./frames/frame_{}.png".format(k), dpi=500)
+        plt.cla()
+        plt.clf()
+        plt.close('all')

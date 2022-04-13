@@ -6,3 +6,5 @@ tests/*
 source/*.o 
 source/McPoly 
 high_energies/*
+source/McPoly
+source/*.o

@@ -371,11 +371,11 @@ void pmove::Rot_Move_Map(particles &Particles, int id1, box *Box,
         particle_dist_z = Particles.N_Particle[id1]->z[j] - center_mass.z;
 
         particle_dist_x =
-            particle_dist_x + Box->Lx * rint(particle_dist_x / Box->Lx);
+            particle_dist_x - Box->Lx * rint(particle_dist_x / Box->Lx);
         particle_dist_y =
-            particle_dist_y + Box->Ly * rint(particle_dist_y / Box->Ly);
+            particle_dist_y - Box->Ly * rint(particle_dist_y / Box->Ly);
         particle_dist_z =
-            particle_dist_z + Box->Lz * rint(particle_dist_z / Box->Lz);
+            particle_dist_z - Box->Lz * rint(particle_dist_z / Box->Lz);
 
         map_dist[j].x = particle_dist_x;
         map_dist[j].y = particle_dist_y;
@@ -511,7 +511,7 @@ void pmove::Iterate(particles &Particles, box *Box, fileio &Fileio,
 
         if (rhalf > 0.5) {
           //cout<<"Cluster rot move"<<endl;
-          Rot_Cluster_Move(Particles, Box, Fileio, mc_time);
+         //Rot_Cluster_Move(Particles, Box, Fileio, mc_time);
         }
         
         // if (rhalf>2./3.){

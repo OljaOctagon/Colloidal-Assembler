@@ -251,7 +251,6 @@ void triangle::Set_Lengths() {
     Lx = 1.0;
     Ly = Lx;
     Lz = 0.1 * Lx;
-    H_2 = Ly / 2.;
 
     h = Lx * sin(alpha);
     h_2 = double(h) / 2.0;
@@ -306,7 +305,7 @@ void triangle::Set_Lengths() {
     triangle_type = pt.get<string>("Triangle.triangle_type");
 
     //available types:
-    //six_patch, three_asymm, two_neighbour_fixedcorner, two_opposite_fixedcorner
+    //6patch, 3asym, vn, vo, mouse, 2asym_c
 
     patch_x = 0.5;
     d0 = patch_x;
@@ -323,7 +322,8 @@ void triangle::Set_Lengths() {
     patch_type[4] = 0;
     patch_type[5] = 0;
 
-    if (triangle_type.compare("six_patch") == 0) {
+    if (triangle_type.compare("6patch") == 0) {
+        //six patches
         d0 = patch_delta;
         d1 = patch_delta;
         d2 = patch_delta;
@@ -339,7 +339,8 @@ void triangle::Set_Lengths() {
         patch_type[5] = 0;
     }
 
-    if (triangle_type.compare("three_asymm") == 0) {
+    if (triangle_type.compare("3asym") == 0) {
+        //three asymmetric patches
         d0 = patch_delta;
         d1 = patch_x;
         d2 = patch_delta;
@@ -355,7 +356,8 @@ void triangle::Set_Lengths() {
         patch_type[5] = 1;
     }
 
-    if (triangle_type.compare("two_neighbour_fixedcorner") == 0) {
+    if (triangle_type.compare("vn") == 0) {
+        //patch at Vertice and Neighbour
         d0 = 0;
         d1 = 1 - patch_delta;
         d2 = patch_x;
@@ -371,7 +373,8 @@ void triangle::Set_Lengths() {
         patch_type[5] = 1;
     }
 
-    if (triangle_type.compare("two_opposite_fixedcorner") == 0) {
+    if (triangle_type.compare("vo") == 0) {
+        //patch at Vertice and its Opposite
         d0 = 0;
         d1 = patch_x;
         d2 = patch_delta;
@@ -384,6 +387,41 @@ void triangle::Set_Lengths() {
         patch_type[2] = 0;
         patch_type[3] = 1;
         patch_type[4] = 1;
+        patch_type[5] = 1;
+    }
+
+
+    if (triangle_type.compare("mouse") == 0) {
+        //mouse like patch
+        d0 = patch_delta;
+        d1 = patch_x;
+        d2 = patch_x;
+        d3 = patch_delta;
+        d4 = patch_delta;
+        d5 = patch_x;
+
+        patch_type[0] = 0;
+        patch_type[1] = 1;
+        patch_type[2] = 1;
+        patch_type[3] = 0;
+        patch_type[4] = 0;
+        patch_type[5] = 1;
+    }
+
+    if (triangle_type.compare("2asym_c") == 0) {
+        //2 asymmetric patches and one centered
+        d0 = 0.5;
+        d1 = patch_x;
+        d2 = patch_delta;
+        d3 = patch_x;
+        d4 = patch_delta;
+        d5 = patch_x;
+
+        patch_type[0] = 0;
+        patch_type[1] = 1;
+        patch_type[2] = 0;
+        patch_type[3] = 1;
+        patch_type[4] = 0;
         patch_type[5] = 1;
     }
 }
@@ -399,7 +437,7 @@ void triangle::Set_Lengths(int e0, int e1, int e2, int e3, int e4, int e5) {
 
 }
 
-void triangle::Set_Start_Lattice_Position(int id, double box_Lx, 
+void triangle::Set_Start_Lattice_Position(int id, double box_Lx,
                                             int N_box) {
     // for cubic lattice
     int N_sitesp_x;
@@ -435,11 +473,11 @@ void triangle::Set_Start_Lattice_Position(int id, double box_Lx,
 
 }
 
-void triangle::Set_Start_Lattice_Position(int id, double box_Lx, 
-                                            double box_Ly, double box_Lz, 
+void triangle::Set_Start_Lattice_Position(int id, double box_Lx,
+                                            double box_Ly, double box_Lz,
                                             int N_box) {
     // for cubic lattice in 2D or anisotropic box shape
-                                                
+
     int N_sitespx, N_sitespy, N_sitespz;
     double N_sitespx_float, N_sitespy_float, N_sitespz_float;
     double l_distpx, l_distpy, l_distpz;
@@ -585,7 +623,7 @@ void triangle::Calculate_Face_Normals() {
 
     */
 
-    
+
 
 }
 
@@ -598,17 +636,21 @@ double triangle::Calculate_Projection_to_Separating_Axis(m_vector laxis) {
 
     distance_from_center();
 
-    rmin =  dist_x[0]*laxis.x + dist_y[0]*laxis.y + dist_z[0]*laxis.z;
+    rmin = dist_x[0]*laxis.x
+         + dist_y[0]*laxis.y
+         + dist_z[0]*laxis.z;
     rmax = rmin;
 
     for (int j=1;j<edge_N;j++){
-	    scp_oc = dist_x[j]*laxis.x + dist_y[j]*laxis.y + dist_z[j]*laxis.z;
-	    if (scp_oc < rmin) {
-		    rmin = scp_oc;
-	    }
-	    else if (scp_oc > rmax) {
-		    rmax = scp_oc;
-	    }
+            scp_oc = dist_x[j]*laxis.x
+               + dist_y[j]*laxis.y
+               + dist_z[j]*laxis.z;
+            if (scp_oc < rmin) {
+                    rmin = scp_oc;
+            }
+            else if (scp_oc > rmax) {
+                    rmax = scp_oc;
+            }
     }
 
     Rp = fabs((rmax-rmin));
