@@ -4,9 +4,6 @@ import networkx as nx
 import matplotlib as pyplot 
 from collections import defaultdict 
 import particle_tools as rt 
-
-from shapely.geometry import Point
-from shapely.geometry.polygon import Polygon
 import numba 
 
 @numba.jit(nopython=True)
@@ -120,6 +117,25 @@ class Spheres:
     def get_pos(self,id_i):
         return self.pos[id_i]
 
+    def estimate_volume(self, voxcels, coord_vi, coord_pi, blx):
+        Ntrial = 100
+        p_pos = np.reshape(self.pos[coord_pi],(self.ndim,1))
+        total_intersect=0
+        points = voxcels.lx*(0.5 - np.random.sample((Ntrial,voxcels.ndim)))
+
+        for dim_i in range(voxcels.ndim):
+            points[:,dim_i] =  points[:,dim_i] + voxcels.pos[coord_vi][dim_i]  
+
+        pos_c = self.pos[coord_pi]
+        pos_c = np.reshape(pos_c, (1,-1))
+        dist, ndist = get_vdistance(points,pos_c,blx) 
+
+        total_intersect = len(ndist[ndist<self.inner_radius].flatten())
+        overlap_volume = total_intersect/Ntrial 
+
+        return overlap_volume
+
+
     
 class Voxcels:
     def __init__(self,lx,vxn,origin,ndim):
@@ -134,14 +150,6 @@ class Voxcels:
         
         en = np.array([-1,0,1])
         enl = len(en)
-
-        #xyz = np.meshgrid(en,en,en)
-        #cxyz = (np.empty(),np.empty(),np.empty())
-
-        #for dim_i in range(self.ndim):
-        #    cxyz[dim_i] = np.reshape(cxyz[dim_i],(1,np.power(enl,3)))
-
-        #arr=np.transpose(np.concatenate(cxyz, axis=0))
 
         if self.ndim == 3: 
             cx,cy,cz = np.meshgrid(en,en,en)
@@ -259,10 +267,6 @@ class Rhombi:
         self.h = self.lx * np.sin(self.alpha)
         self.a_x = self.ly * np.cos(self.alpha)
 
-        #self.outer_radius = np.sqrt((self.lx + self.a_x) * (self.lx + self.a_x) + self.h * self.h)/2.
-        #self.inner_radius = np.sqrt((self.lx - self.a_x) * (self.lx - self.a_x) + self.h * self.h)/2. + 0.15
-    
-
         self.long_diagonal = self.lx*np.sqrt(2+2*np.cos(self.alpha))
         self.short_diagonal = self.lx*np.sqrt(2-2*np.cos(self.alpha))
 
@@ -274,13 +278,6 @@ class Rhombi:
         self.N_edges = 4
         self.N_patches = 4 
        
-        #en=np.array([-1,1])
-        #enl=len(en)
-        #x,y = np.meshgrid(en,en)
-        #dx = np.reshape(x,(1,np.power(enl,self.ndim)))
-        #dy = np.reshape(x,(1,np.power(enl,self.ndim)))
-        #self.vertex_basis = np.transpose(np.concatenate((dx,dy), axis=0))
-
         def get_edge_points(p,ax_n,sign_p):
             vertex_n = np.zeros(2)
             vertex_n = p + sign_p[0]*ax_n[:,0]/2. + sign_p[1]*ax_n[:,1]/2.
@@ -316,27 +313,33 @@ class Rhombi:
             self.vertices[i,2] = get_edge_points(p,self.ax_n[i],np.array([+1,+1]))
             self.vertices[i,3] = get_edge_points(p,self.ax_n[i],np.array([-1,+1]))
 
-    def point_intersect(self,rel_point,pi):
-        intersect = 0
-        point_rhs = np.zeros((self.ndim,1))
 
-        #e01 = self.ax_n[coord_pi, :, 0]/self.lx 
-        #e02 = self.ax_n[coord_pi, :, 1]/self.lx 
+    def estimate_volume(self, voxcels, coord_vi, coord_pi, blx):
+        Ntrial = 100
+        p_pos = np.reshape(self.pos[coord_pi],(self.ndim,1))
+        total_intersect=0
+        points = voxcels.lx*(0.5 - np.random.sample((Ntrial,voxcels.ndim)))
 
-        e01 = (self.vertices[pi, 1] - self.vertices[pi, 0])/self.lx 
-        e02 = (self.vertices[pi, 3] - self.vertices[pi, 0])/self.lx
+        for dim_i in range(voxcels.ndim):
+            points[:,dim_i] =  points[:,dim_i] + voxcels.pos[coord_vi][dim_i]  
 
-        point_rhs = np.array([
-        np.dot(rel_point,e01),
-        np.dot(rel_point,e02)])
+        pos_c = self.pos[coord_pi]
+        pos_c = np.reshape(pos_c, (1,-1))
+        dist, ndist = get_vdistance(points,pos_c,blx) 
 
-        length_point_rhs = np.linalg.norm(point_rhs)
+        total_intersect = len(ndist[ndist<self.inner_radius].flatten())
 
-        if length_point_rhs < 1:
-            intersect=1
+        overlap_cand = np.argwhere((ndist>self.inner_radius)&(ndist<self.outer_radius))
+        polygon=self.vertices[coord_pi]
+        inside1 = [numba_ray_tracing(points[i,0], points[i,1], polygon) for i in overlap_cand[:,0] ]
+        total_intersect += np.count_nonzero(inside1)
 
-        return intersect 
+        overlap_volume = total_intersect/Ntrial 
 
+        return overlap_volume
+
+
+   
 def get_distance(v_pos,p_pos, blx):
     dist = p_pos - v_pos 
     dist = dist - blx*np.rint(dist/blx)
@@ -351,10 +354,7 @@ def get_vdistance(pos_v,pos_c,blx):
    
     pos_c_tiled = np.tile(pos_c,(n,1))
     pos_v_repeat = np.repeat(pos_v,m,axis=0)
-    
-    #print("tiled", pos_c_tiled)
-    #print("repeat", pos_v_repeat)
-
+ 
     dist = pos_c_tiled - pos_v_repeat 
     dist = dist - blx*np.rint(dist/blx)
     ndist = np.linalg.norm(dist,axis=1)
@@ -362,99 +362,6 @@ def get_vdistance(pos_v,pos_c,blx):
     ndist = np.reshape(ndist,(n,m))
     return dist, ndist 
 
-
-def point_intersect(pdist, voxcels, coord_vi):
-    
-    intersect = 0
-    vertices = voxcels.get_vertices(coord_vi)
-
-    e01 = (vertices[1] - vertices[0])/voxcels.lx 
-    e02 = (vertices[3] - vertices[0])/voxcels.lx 
-    e03 = (vertices[4] - vertices[0])/voxcels.lx
-
-    point_rhs = np.array([
-        np.dot(pdist,e01),
-        np.dot(pdist,e02),
-        np.dot(pdist,e03)])
-    
-    length_point_rhs = np.linalg.norm(point_rhs)
-    if length_point_rhs < 1:
-        intersect=1
-
-    return intersect 
-
-def estimate_volume(voxcels, coord_vi, particles, coord_pi,blx):
-    Ntrial = 100
-    p_pos = np.reshape(particles.pos[coord_pi],(particles.ndim,1))
-    total_intersect=0
-    points = voxcels.lx*(0.5 - np.random.sample((Ntrial,voxcels.ndim)))
-
-    for dim_i in range(voxcels.ndim):
-        points[:,dim_i] =  points[:,dim_i] + voxcels.pos[coord_vi][dim_i]  
-
-
-    pos_c = particles.pos[coord_pi]
-    pos_c = np.reshape(pos_c, (1,-1))
-    dist, ndist = get_vdistance(points,pos_c,blx) 
-
-    total_intersect = len(ndist[ndist<particles.inner_radius].flatten())
-
-    #for i,j in np.argwhere(ndist<particles.inner_radius)&(ndist<particles.outer_radius)):
-    overlap_cand = np.argwhere((ndist>particles.inner_radius)&(ndist<particles.outer_radius))
-    #print("oc", overlap_cand)
-    polygon=particles.vertices[coord_pi]
-    inside1 = [numba_ray_tracing(points[i,0], points[i,1], polygon) for i in overlap_cand[:,0] ]
-    #print("inside", inside1)
-    total_intersect += np.count_nonzero(inside1)
-    #for i,j in np.argwhere(ndist<particles.inner_radius)&(ndist<particles.outer_radius)):
-    #    point = Point(tuple(points[i]))
-    #    p1 = tuple(particles.vertices[coord_pi,0])
-    #    p2 = tuple(particles.vertices[coord_pi,1])
-    #    p3 = tuple(particles.vertices[coord_pi,2])
-    #    p4 = tuple(particles.vertices[coord_pi,3])
-
-    #    polygon = Polygon([p1,p2,p3,p4])
-    #    total_intersect += polygon.contains(point)
-
-        #total_intersect+= particles.point_intersect(dist[i,j],coord_pi)
-
-    overlap_volume = total_intersect/Ntrial 
-    #print("overlap_volume ", overlap_volume)
-    return overlap_volume
-
-
-def get_overlap_volume(voxcels, coord_vi, particles, coord_pi, blx):
-    v_pos = voxcels.pos[coord_vi]
-    p_pos = particles.get_pos(coord_pi)
-    overlap_volume_i = 0 
-    # get distance 
-    dist_vp = get_distance(v_pos,p_pos,blx)
-    ldist_vp = np.linalg.norm(dist_vp)
-                         
-    # no overlap if distance larger than outer radius of voxcels + radius of sphere
-    if ldist_vp > (voxcels.outer_radius + particles.radius):
-        return overlap_volume_i 
-                         
-    # else, check inner radius of voxcel 
-    else:
-        # overlap, if distance smaller than inner radius:
-        if ldist_vp < (voxcels.inner_radius + particles.radius):
-            #print("overlap because dist smaller than inner radius")
-            overlap_volume_i = estimate_volume(voxcels, coord_vi, particles, coord_pi, blx)
-            #print("overlap volume MUST BE BIGGER THAN ZERO", overlap_volume_i)
-            return overlap_volume_i 
-                         
-        # otherwise, detailed overlap check 
-        else: 
-            nearest_point_distance = (dist_vp/ldist_vp)*(1 - particles.radius)                    
-            intersect = point_intersect(nearest_point_distance,voxcels, coord_vi)
-
-            if intersect==0:
-                return overlap_volume_i
-
-            else:
-                overlap_volume_i = estimate_volume(voxcels, coord_vi, particles, coord_pi, blx)
-                return overlap_volume_i
 
 def get_pore_volume(voxcels):
         G = nx.Graph()

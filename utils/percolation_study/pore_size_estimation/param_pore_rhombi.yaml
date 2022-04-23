@@ -1,0 +1,12 @@
+dimension: 2 
+side_length: 1
+voxcels_per_cell: 7
+threshold_overlap: 0.25 
+outfile: "pore_sizes.pickle"
+output_frame: True
+frame_name: "voxcels.png"
+N_trial: 100 
+
+
+
+
