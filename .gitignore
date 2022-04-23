@@ -6,3 +6,6 @@ tests/*
 source/*.o 
 source/McPoly 
 high_energies/*
+/utils/percolation_study/pore_size_estimation/benchmark_results/*
+*.ipynb_checkpoints*
+*__pycache__*
