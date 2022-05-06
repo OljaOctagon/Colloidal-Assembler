@@ -119,7 +119,7 @@ class Spheres:
         self.sigma = sigma
         self.radius = sigma/2
         self.inner_radius = self.radius
-        self.outer_radius = radius
+        self.outer_radius = self.radius
 
     def get_pos(self, id_i):
         return self.pos[id_i]
@@ -216,23 +216,31 @@ class Voxcels:
 
         self.links = []
 
-    # TODO only in 2D NOW!!! implement generally after debugging.
+   
     def get_vertices(self, coord_i):
         p = self.pos[coord_i]
 
-        def get_edge_points(p, axes, sign_p):
-            vertex_n = np.zeros(self.ndim)
-            vertex_n = p + sign_p[0]*axes[:, 0]/2. + sign_p[1]*axes[:, 1]/2.
-            return vertex_n
-
         if self.ndim == 2: 
+
+            def get_edge_points(p, axes, sign_p):
+                vertex_n = np.zeros(self.ndim)
+                vertex_n = p + sign_p[0]*axes[:, 0]/2. + sign_p[1]*axes[:, 1]/2.
+                return vertex_n
+
             vertices = np.zeros((4, self.ndim))
             vertices[0] = get_edge_points(p, self.axes, np.array([-1, -1]))
             vertices[1] = get_edge_points(p, self.axes, np.array([+1, -1]))
             vertices[2] = get_edge_points(p, self.axes, np.array([+1, +1]))
             vertices[3] = get_edge_points(p, self.axes, np.array([-1, +1]))
 
-       if self.ndim == 3: 
+        if self.ndim == 3: 
+
+            def get_edge_points(p, axes, sign_p):
+                vertex_n = np.zeros(self.ndim)
+                vertex_n = p + sign_p[0]*axes[:, 0]/2. + sign_p[1]*axes[:, 1]/2. + sign_p[2]*axes[:, 2]/2. 
+                
+                return vertex_n
+
             vertices = np.zeros((8, self.ndim))
             vertices[0] = get_edge_points(p, self.axes, np.array([-1, -1, +1]))
             vertices[1] = get_edge_points(p, self.axes, np.array([+1, -1, +1]))
@@ -382,10 +390,14 @@ def get_vdistance(pos_v, pos_c, blx):
     ndist = np.reshape(ndist, (n, m))
     return dist, ndist
 
+def get_measures(voxcels):
+    pass 
+
 
 def get_pore_volume(voxcels):
     G = nx.Graph()
     G.add_edges_from(voxcels.links)
+
     domains = list(nx.connected_components(G))
     domain_lengths = np.array([len(domain) for domain in domains])
     pore_volumes = voxcels.volume*domain_lengths

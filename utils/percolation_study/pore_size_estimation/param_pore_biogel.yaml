@@ -1,7 +1,7 @@
 dimension: 3 
 sigma: 1
-voxcels_per_cell: 4
-threshold_overlap: 0.25 
+voxcels_per_cell: 2
+threshold_overlap: 0.0
 outfile: "biogel_pore_sizes.dat"
 N_trial: 100 
 
