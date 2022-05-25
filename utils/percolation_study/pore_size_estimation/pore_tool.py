@@ -206,6 +206,15 @@ class Voxcels:
 
             self.axes = np.array([[1, 0], [0, 1]])*self.lx
 
+        # which basis elements are edge to edge neighbours
+        sums= np.sum(np.fabs(self.neighbour_cell_basis),axis=1)
+        self.neighbour_ete = np.zeros(len(self.neighbour_cell_basis))
+        self.neighbour_ete[np.where(sums==1)] = 1 
+
+        print(self.neighbour_cell_basis)
+        print()
+        print(self.neighbour_ete)
+
         self.pos = defaultdict(list)
         for ci in self.coords:
             self.pos[ci] = self.origin + self.lx*np.array(ci) + self.lx/2
@@ -215,8 +224,8 @@ class Voxcels:
             self.fill_state[ci] = 0
 
         self.links = []
+      
 
-   
     def get_vertices(self, coord_i):
         p = self.pos[coord_i]
 
@@ -273,10 +282,11 @@ class Voxcels:
     def get_links(self):
         for coord_vi in self.coords:
             if self.fill_state[coord_vi] == 0:
-                for coord_ni in self.get_neighbour_coords(coord_vi):
+                for coord_ni, ete in zip(self.get_neighbour_coords(coord_vi), self.neighbour_ete):
                     if (self.fill_state[coord_ni] == 0) and (coord_vi != coord_ni):
-                        self.links.append((coord_vi, coord_ni))
-
+                        data={'ete': ete}
+                        self.links.append((coord_vi, coord_ni,data))
+                      
 
 class Rhombi:
     def __init__(self, pos, orient, lx, ndim):
@@ -397,8 +407,10 @@ def get_measures(voxcels):
 def get_pore_volume(voxcels):
     G = nx.Graph()
     G.add_edges_from(voxcels.links)
+    nx.write_gpickle(G, "pore_network.gpickle")    
 
     domains = list(nx.connected_components(G))
     domain_lengths = np.array([len(domain) for domain in domains])
+   
     pore_volumes = voxcels.volume*domain_lengths
-    return pore_volumes, domain_lengths
+    return pore_volumes, domain_lengths, domains 

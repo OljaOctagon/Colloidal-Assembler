@@ -1,8 +1,9 @@
 dimension: 2 
+ptype: "double_manta_asymm_1"
 side_length: 1
 voxcels_per_cell: 7
-threshold_overlap: 0.25 
-outfile: "pore_sizes_yaml_test.dat"
+threshold_overlap: 0.25
+outfile: "pore_sizes_vs_7.dat"
 output_frame: True
 frame_name: "voxcels.png"
 N_trial: 100 

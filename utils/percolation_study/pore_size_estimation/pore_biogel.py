@@ -75,7 +75,7 @@ if __name__ == '__main__':
     voxcels.get_links()
 
     print("get all pore volumes and domain lengths ")
-    pore_volumes, domain_lengths = pt.get_pore_volume(voxcels)
+    pore_volumes, domain_lengths, domains = pt.get_pore_volume(voxcels)
 
     outfile = param['outfile']
     with open(outfile, 'w') as f:

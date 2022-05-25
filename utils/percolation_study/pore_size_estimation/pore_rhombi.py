@@ -9,10 +9,10 @@ import pore_tool as pt
 from math import ceil
 import yaml
 from yaml.loader import SafeLoader
+import struct 
 
 # TODO find better output format
 # TODO Think of how to run for all systems and output
-
 
 def draw(particles, voxcels, box, cells, frame_name):
     scale = 100
@@ -31,12 +31,48 @@ def draw(particles, voxcels, box, cells, frame_name):
     out = cv.resize(img, outsize)
     cv.imwrite(frame_name, out)
 
+def write_voxcel_edge_points(domains,voxcels):
+    arr=[]
+    for di, domain in enumerate(domains):
+        for coord_vi in domain:
+            vert_i = voxcels.get_vertices(coord_vi)
+            for vi in vert_i:
+                arr.append([di, vi[0],vi[1]])
+               
+    arr=np.array(arr)
+    arr.tofile("edge_points_voxcels.bin")
+
+def write_voxcel_pos(domains, voxcels):
+    arr=[]
+    for di, domain in enumerate(domains):
+        for coord_vi in domain:
+            pos_i = voxcels.pos[coord_vi]
+            arr.append([di, pos_i[0],pos_i[1]])
+
+    arr=np.array(arr)
+    arr.tofile("pos_voxcels.bin")
+
+def write_voxcel_coords(domains,voxcels):
+    arr=[]
+    for di, domain in enumerate(domains):
+        for coord_vi in domain:
+            arr.append([di, coord_vi[0],coord_vi[1]])
+
+    arr=np.array(arr)
+    print("aarrrrrr",arr)
+    arr.tofile("coord_voxcels.bin")
+
 
 if __name__ == '__main__':
 
+    with open('param_pore_rhombi.yaml') as f:
+        param = yaml.load(f, Loader=SafeLoader)
+
+
     print("read data...")
 
-    fdir = "example_data/rhombi"
+    ptype=param['ptype']
+    fdir = "example_data/rhombi/{}".format(ptype)
     pos_file = "positions.bin"
     orient_file = "orientations.bin"
     box_file = "Box.bin"
@@ -55,13 +91,13 @@ if __name__ == '__main__':
     orient = np.reshape(orient, (-1, 5))[:, 4]
 
     print("initialize variables...")
-    with open('param_pore_rhombi.yaml') as f:
-        param = yaml.load(f, Loader=SafeLoader)
+    
 
     ndim = int(param['dimension'])
 
     # generate particles object
     rlx = float(param['side_length'])
+    Np = len(pos)
     particles = pt.Rhombi(pos, orient, rlx, ndim)
 
     # generate box object
@@ -110,7 +146,7 @@ if __name__ == '__main__':
     voxcels.get_links()
 
     print("get all pore volumes and domain lengths ")
-    pore_volumes, domain_lengths = pt.get_pore_volume(voxcels)
+    pore_volumes, domain_lengths, domains = pt.get_pore_volume(voxcels)
 
     output_frame = param['output_frame']
     if output_frame:
@@ -121,3 +157,17 @@ if __name__ == '__main__':
     with open(outfile, 'w') as f:
         for v, d in zip(pore_volumes, domain_lengths):
             f.write("{},{}\n".format(v, d))
+
+    param_out = "parameters.yaml"
+    with open(param_out, 'w') as f:
+        f.write("ptype: {}\n".format(ptype))
+        f.write("cell_lx: {}\n".format(cells.lx))
+        f.write("cell_nx: {}\n".format(cells.nx))
+        f.write("voxcel_lx: {}\n".format(voxcels.lx)) 
+        f.write("voxcel_nx: {}\n".format(voxcels.nx))
+        f.write("N_particles: {}\n".format(Np))
+
+    write_voxcel_edge_points(domains,voxcels)
+    write_voxcel_pos(domains,voxcels)
+    write_voxcel_coords(domains,voxcels)
+
