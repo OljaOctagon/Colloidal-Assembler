@@ -59,7 +59,6 @@ def write_voxcel_coords(domains,voxcels):
             arr.append([di, coord_vi[0],coord_vi[1]])
 
     arr=np.array(arr)
-    print("aarrrrrr",arr)
     arr.tofile("coord_voxcels.bin")
 
 

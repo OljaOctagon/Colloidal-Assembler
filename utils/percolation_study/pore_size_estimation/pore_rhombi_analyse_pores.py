@@ -11,8 +11,6 @@ import imutils
 import struct 
 import sys 
 
-sys.setrecursionlimit(10000)
-
 def get_edge_points(p, axes, sign_p):
     vertex_n = np.zeros(2)
     vertex_n = p + sign_p[0]*axes[:, 0]/2. + sign_p[1]*axes[:, 1]/2.
@@ -50,30 +48,51 @@ def draw_pos(voxcel_pos, blx, frame_name,max_id,min_id,max_domain_id,axes):
     out = cv.resize(img, outsize)
     cv.imwrite(frame_name, out)
 
-def recurrsion(G,i, old_coords, new_coords):
+def stitch_cluster(G,next_i, old_coords, new_coords):
+    #print(list(G.nodes))
 
-    neigh = [n for n in G.neighbors(i)]
-    leftover_neigh = [elem_1 for elem_1 in neigh for elem_2 in old_coords if elem_1 == elem_2]
-
-    while leftover_neigh:
-        print(leftover_neigh)
-        ni = leftover_neigh[0]
-        nxi = i[0] - np.sign(i[0] - ni[0])
-        nyi = i[1] - np.sign(i[1] - ni[1])
-
-        new_ni = (nxi,nyi)
-        new_coords[ni] = new_ni
-        old_coords.remove(ni)
-        nx.relabel_nodes(G,{ni:new_ni},copy=False)
-
-        new_coords, old_coords  = recurrsion(G,new_ni,old_coords,new_coords)
-        
-        neigh = [n for n in G.neighbors(i)]
+    while len(old_coords)>0:
+        neigh = [n for n in G.neighbors(next_i)]
         leftover_neigh = [elem_1 for elem_1 in neigh for elem_2 in old_coords if elem_1 == elem_2]
-        print(new_coords)
-        i = new_coords[i]
-       
-    return new_coords, old_coords
+        for ni in leftover_neigh: 
+            nxi = ni[0]
+            nyi = ni[1]
+
+            dxi = next_i[0] - ni[0]
+            dyi = next_i[1] - ni[1]
+            
+            if np.abs(dxi) > 1:
+                nxi = next_i[0] - np.sign(nxi)
+            if np.abs(dyi) > 1:
+                nyi = next_i[1] - np.sign(nyi)
+            
+            new_ni = (nxi,nyi)
+            new_coords.append(new_ni)
+            old_coords.remove(ni)
+            nx.relabel_nodes(G,{ni:new_ni},copy=False)    
+        
+        next_i = new_ni 
+           
+        if len(leftover_neigh)==0:
+            #print("empty step")
+            
+            k=1 
+            
+            while len(leftover_neigh)==0:
+                last_i = new_coords[new_coords.index(next_i)-k]
+                neigh = [n for n in G.neighbors(last_i)]
+                i=0
+
+                while len(leftover_neigh)==0 and i<len(neigh):
+                    next_test = neigh[i]
+                    neighk = [n for n in G.neighbors(next_test)]
+                    leftover_neigh = [elem_1 for elem_1 in neighk for elem_2 in old_coords if elem_1 == elem_2]
+                    i+=1 
+
+                k+=1 
+            next_i = next_test 
+                           
+    return old_coords, new_coords
 
 if __name__ == '__main__':
 
@@ -114,20 +133,20 @@ if __name__ == '__main__':
 
     # stitch together cluster over pbcs by adapting voxcel pos and edge pos 
     voxcel_pos = []
+    #random.seed(10)
     for di in range(int(min_id),int(max_id)+1): 
         if di!=max_domain_id:
             coords = arr[arr[:,0]==di][:,1:3]
             old_coords = [ (i,j) for i,j in coords]
             rand_c = coords[random.randint(0,len(coords)-1)]
             ci = (rand_c[0],rand_c[1])
-            
-            new_coords = dict(zip(old_coords,old_coords))    
+            new_coords = [ci]   
             old_coords.remove(ci)
             
-            new_coords, old_coords = recurrsion(G,ci, old_coords,new_coords)
-
+            old_coords, new_coords = stitch_cluster(G,ci, old_coords,new_coords)
+            
             for entry in new_coords:
-                nni = new_coords[entry]
+                nni = entry 
                 vx = origin[0] + voxcel_lx*nni[0] + voxcel_lx/2 
                 vy = origin[1] + voxcel_lx*nni[1] + voxcel_lx/2 
                 voxcel_pos.append([di,vx,vy])
@@ -218,8 +237,6 @@ if __name__ == '__main__':
             hull.append([pore_area, chull.volume])
 
     hull = np.array(hull)
-    hull = np.sort(hull)
-    hull = hull[:-1]
     hull_ratio = hull[:,0]/hull[:,1]
 
     fig,ax=plt.subplots()
@@ -231,7 +248,7 @@ if __name__ == '__main__':
     plt.xlabel("$A_{p}/ A_{ch}$", size=15)
     plt.ylabel("P", size=15)
     plt.xlim([0,1])
-    plt.ylim([0,5])
+    plt.ylim([0,10])
     plt.savefig("compare_convex_hull.pdf")
 
     # 3.2 PCA 
@@ -253,7 +270,7 @@ if __name__ == '__main__':
     plt.xlabel("explained variance ratio largest component", size=15)
     plt.ylabel("P", size=15)
     plt.xlim([0,1])
-    plt.ylim([0,5])
+    plt.ylim([0,10])
     plt.savefig("pca_lambda.pdf")
 
     # 3.3 mean curvature

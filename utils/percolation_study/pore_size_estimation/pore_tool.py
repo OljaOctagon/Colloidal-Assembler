@@ -210,11 +210,7 @@ class Voxcels:
         sums= np.sum(np.fabs(self.neighbour_cell_basis),axis=1)
         self.neighbour_ete = np.zeros(len(self.neighbour_cell_basis))
         self.neighbour_ete[np.where(sums==1)] = 1 
-
-        print(self.neighbour_cell_basis)
-        print()
-        print(self.neighbour_ete)
-
+        
         self.pos = defaultdict(list)
         for ci in self.coords:
             self.pos[ci] = self.origin + self.lx*np.array(ci) + self.lx/2
