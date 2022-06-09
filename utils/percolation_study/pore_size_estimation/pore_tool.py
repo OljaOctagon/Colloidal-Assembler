@@ -303,6 +303,8 @@ class Rhombi:
         self.outer_radius = self.long_diagonal/2.
         self.inner_radius = self.lx*np.sin(self.alpha)/2.
 
+        self.area = self.lx*self.lx * np.sin(self.alpha)
+
         self.sigma = self.long_diagonal
         self.volume = self.lx*self.h
         self.N_edges = 4
@@ -402,10 +404,10 @@ def get_measures(voxcels):
 def get_pore_volume(voxcels):
     G = nx.Graph()
     G.add_edges_from(voxcels.links)
-    nx.write_gpickle(G, "pore_network.gpickle")    
+    #nx.write_gpickle(G, "pore_network.gpickle")    
 
     domains = list(nx.connected_components(G))
     domain_lengths = np.array([len(domain) for domain in domains])
    
     pore_volumes = voxcels.volume*domain_lengths
-    return pore_volumes, domain_lengths, domains 
+    return pore_volumes, domain_lengths, domains, G
