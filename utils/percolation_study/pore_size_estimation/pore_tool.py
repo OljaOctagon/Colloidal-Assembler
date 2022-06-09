@@ -125,7 +125,6 @@ class Spheres:
         return self.pos[id_i]
 
     def estimate_volume(self, voxcels, coord_vi, coord_pi, blx, Ntrial):
-        Ntrial = 100
         p_pos = np.reshape(self.pos[coord_pi], (self.ndim, 1))
         total_intersect = 0
         points = voxcels.lx*(0.5 - np.random.sample((Ntrial, voxcels.ndim)))
@@ -210,7 +209,7 @@ class Voxcels:
         sums= np.sum(np.fabs(self.neighbour_cell_basis),axis=1)
         self.neighbour_ete = np.zeros(len(self.neighbour_cell_basis))
         self.neighbour_ete[np.where(sums==1)] = 1 
-        
+
         self.pos = defaultdict(list)
         for ci in self.coords:
             self.pos[ci] = self.origin + self.lx*np.array(ci) + self.lx/2

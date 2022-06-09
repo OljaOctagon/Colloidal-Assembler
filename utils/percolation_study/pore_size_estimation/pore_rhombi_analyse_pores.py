@@ -52,6 +52,7 @@ def stitch_cluster(G,next_i, old_coords, new_coords):
     #print(list(G.nodes))
 
     while len(old_coords)>0:
+        #print("next_i", next_i)
         neigh = [n for n in G.neighbors(next_i)]
         leftover_neigh = [elem_1 for elem_1 in neigh for elem_2 in old_coords if elem_1 == elem_2]
         for ni in leftover_neigh: 
@@ -69,6 +70,7 @@ def stitch_cluster(G,next_i, old_coords, new_coords):
             new_ni = (nxi,nyi)
             new_coords.append(new_ni)
             old_coords.remove(ni)
+            #print("ni, new_ni", ni, new_ni)
             nx.relabel_nodes(G,{ni:new_ni},copy=False)    
         
         next_i = new_ni 
@@ -77,7 +79,7 @@ def stitch_cluster(G,next_i, old_coords, new_coords):
             #print("empty step")
             
             k=1 
-            
+            #print(old_coords)
             while len(leftover_neigh)==0:
                 last_i = new_coords[new_coords.index(next_i)-k]
                 neigh = [n for n in G.neighbors(last_i)]
@@ -91,6 +93,7 @@ def stitch_cluster(G,next_i, old_coords, new_coords):
 
                 k+=1 
             next_i = next_test 
+            #print("reduce, next_i", next_i)
                            
     return old_coords, new_coords
 

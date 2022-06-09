@@ -10,7 +10,6 @@ from yaml.loader import SafeLoader
 
 #TODO Write out a combo of 27 cells with particles and pores as spheres in different colors 
 
-
 if __name__ == '__main__':
 
     print("read data...")
