@@ -6,7 +6,6 @@ from collections import defaultdict
 import particle_tools as rt
 import numba
 
-
 @numba.jit(nopython=True)
 def numba_ray_tracing(x, y, poly):
     n = len(poly)
@@ -109,7 +108,7 @@ class Box:
         self.lx = lx
         self.ly = lx
         self.center = origin + self.lx/2*np.ones(self.ndim)
-
+        self.area = self.lx*self.ly 
 
 class Spheres:
    
