@@ -70,7 +70,7 @@ if __name__ == '__main__':
                 if overlap_volume_i > threshold_overlap:
                     voxcels.set_to_filled(vcoords[i])
 
-    print("generate links between empty voxcels...")
+    print("generate links between empty voxels ...")
     voxcels.get_links()
 
     print("get all pore volumes and domain lengths ")
@@ -97,5 +97,3 @@ if __name__ == '__main__':
                     #lprint(vertices)
                     for vert in vertices:
                         f.write("V   {}   {}   {}\n".format(vert[0],vert[1],vert[2]))
-
-   

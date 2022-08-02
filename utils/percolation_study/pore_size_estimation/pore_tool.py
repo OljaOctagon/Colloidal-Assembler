@@ -1,26 +1,23 @@
 import numpy as np
-import pandas as pd
 import networkx as nx
-import matplotlib as pyplot
 from collections import defaultdict
-import particle_tools as rt
 import numba
+import logging
+
 
 @numba.jit(nopython=True)
 def numba_ray_tracing(x, y, poly):
     n = len(poly)
     inside = False
-    p2x = 0.0
-    p2y = 0.0
     xints = 0.0
     p1x, p1y = poly[0]
-    for i in range(n+1):
+    for i in range(n + 1):
         p2x, p2y = poly[i % n]
         if y > min(p1y, p2y):
             if y <= max(p1y, p2y):
                 if x <= max(p1x, p2x):
                     if p1y != p2y:
-                        xints = (y-p1y)*(p2x-p1x)/(p2y-p1y)+p1x
+                        xints = (y - p1y) * (p2x - p1x) / (p2y - p1y) + p1x
                     if p1x == p2x or x <= xints:
                         inside = not inside
         p1x, p1y = p2x, p2y
@@ -30,8 +27,8 @@ def numba_ray_tracing(x, y, poly):
 
 class Cells:
     def __init__(self, lmin, box_lx, ndim):
-        self.nx = int(np.floor(box_lx/lmin))
-        self.lx = box_lx/self.nx
+        self.nx = int(np.floor(box_lx / lmin))
+        self.lx = box_lx / self.nx
 
         # generate neigbhour basis
         en = np.array([-1, 0, 1])
@@ -41,31 +38,30 @@ class Cells:
 
         if self.ndim == 2:
             cx, cy = np.meshgrid(en, en)
-            ccx = np.reshape(cx, (1, enl*enl))
-            ccy = np.reshape(cy, (1, enl*enl))
+            ccx = np.reshape(cx, (1, enl * enl))
+            ccy = np.reshape(cy, (1, enl * enl))
             arr = np.transpose(np.concatenate((ccx, ccy), axis=0))
             self.neighbour_cell_basis = [(i, j) for i, j in arr]
 
             xx, yy = np.meshgrid(range(self.nx), range(self.nx))
-            x = np.reshape(xx, (1, self.nx*self.nx))
-            y = np.reshape(yy, (1, self.nx*self.nx))
+            x = np.reshape(xx, (1, self.nx * self.nx))
+            y = np.reshape(yy, (1, self.nx * self.nx))
             arr = np.transpose(np.concatenate((x, y), axis=0))
             self.coords = [(i, j) for i, j in arr]
 
         if self.ndim == 3:
-
             cx, cy, cz = np.meshgrid(en, en, en)
-            ccx = np.reshape(cx, (1, enl*enl*enl))
-            ccy = np.reshape(cy, (1, enl*enl*enl))
-            ccz = np.reshape(cz, (1, enl*enl*enl))
+            ccx = np.reshape(cx, (1, enl * enl * enl))
+            ccy = np.reshape(cy, (1, enl * enl * enl))
+            ccz = np.reshape(cz, (1, enl * enl * enl))
             arr = np.transpose(np.concatenate((ccx, ccy, ccz), axis=0))
             self.neighbour_cell_basis = [(i, j, k) for i, j, k in arr]
 
             xx, yy, zz = np.meshgrid(
                 range(self.nx), range(self.nx), range(self.nx))
-            x = np.reshape(xx, (1, self.nx*self.nx*self.nx))
-            y = np.reshape(yy, (1, self.nx*self.nx*self.nx))
-            z = np.reshape(zz, (1, self.nx*self.nx*self.nx))
+            x = np.reshape(xx, (1, self.nx * self.nx * self.nx))
+            y = np.reshape(yy, (1, self.nx * self.nx * self.nx))
+            z = np.reshape(zz, (1, self.nx * self.nx * self.nx))
             arr = np.transpose(np.concatenate((x, y, z), axis=0))
             self.coords = [(i, j, k) for i, j, k in arr]
 
@@ -76,7 +72,7 @@ class Cells:
             idx = np.zeros(self.ndim)
             for dim_i in range(self.ndim):
                 idx[dim_i] = np.floor(
-                    (pos_i[dim_i] - origin[dim_i])/self.lx).astype(int)
+                    (pos_i[dim_i] - origin[dim_i]) / self.lx).astype(int)
 
             self.particle_list[tuple(idx)].append(i)
 
@@ -86,7 +82,7 @@ class Cells:
             idx = np.zeros(self.ndim)
             for dim_i in range(self.ndim):
                 idx[dim_i] = np.floor(
-                    (pos_i[dim_i] - origin[dim_i])/self.lx).astype(int)
+                    (pos_i[dim_i] - origin[dim_i]) / self.lx).astype(int)
 
             self.voxcel_list[tuple(idx)].append(coord_i)
 
@@ -107,16 +103,17 @@ class Box:
         self.origin = origin
         self.lx = lx
         self.ly = lx
-        self.center = origin + self.lx/2*np.ones(self.ndim)
-        self.area = self.lx*self.ly 
+        self.center = origin + self.lx / 2 * np.ones(self.ndim)
+        self.area = self.lx * self.ly
+
 
 class Spheres:
-   
-    def __init__(self, pos, ndim,sigma):
+
+    def __init__(self, pos, ndim, sigma):
         self.pos = pos
         self.ndim = ndim
         self.sigma = sigma
-        self.radius = sigma/2
+        self.radius = sigma / 2
         self.inner_radius = self.radius
         self.outer_radius = self.radius
 
@@ -124,9 +121,8 @@ class Spheres:
         return self.pos[id_i]
 
     def estimate_volume(self, voxcels, coord_vi, coord_pi, blx, Ntrial):
-        p_pos = np.reshape(self.pos[coord_pi], (self.ndim, 1))
-        total_intersect = 0
-        points = voxcels.lx*(0.5 - np.random.sample((Ntrial, voxcels.ndim)))
+
+        points = voxcels.lx * (0.5 - np.random.sample((Ntrial, voxcels.ndim)))
 
         for dim_i in range(voxcels.ndim):
             points[:, dim_i] = points[:, dim_i] + voxcels.pos[coord_vi][dim_i]
@@ -136,7 +132,7 @@ class Spheres:
         dist, ndist = get_vdistance(points, pos_c, blx)
 
         total_intersect = len(ndist[ndist < self.inner_radius].flatten())
-        overlap_volume = total_intersect/Ntrial
+        overlap_volume = total_intersect / Ntrial
 
         return overlap_volume
 
@@ -145,8 +141,8 @@ class Voxcels:
     def __init__(self, lx, vxn, origin, ndim):
         self.lx = lx
         self.ndim = ndim
-        self.outer_radius = lx*np.sqrt(self.ndim)/2
-        self.inner_radius = lx/2
+        self.outer_radius = lx * np.sqrt(self.ndim) / 2
+        self.inner_radius = lx / 2
         self.nx = vxn
         self.origin = origin
         self.volume = np.power(self.lx, self.ndim)
@@ -157,17 +153,21 @@ class Voxcels:
 
         if self.ndim == 3:
             cx, cy, cz = np.meshgrid(en, en, en)
-            ccx = np.reshape(cx, (1, enl*enl*enl))
-            ccy = np.reshape(cy, (1, enl*enl*enl))
-            ccz = np.reshape(cz, (1, enl*enl*enl))
+            ccx = np.reshape(cx, (1, enl * enl * enl))
+            ccy = np.reshape(cy, (1, enl * enl * enl))
+            ccz = np.reshape(cz, (1, enl * enl * enl))
             arr = np.transpose(np.concatenate((ccx, ccy, ccz), axis=0))
             self.neighbour_cell_basis = [(i, j, k) for i, j, k in arr]
 
+            brr = arr[np.where(arr[:, 2] == 0)]
+            self.neighbour_cell_basis_XY = [(i, j, k) for i, j, k in brr]
+            logging.debug("self.neighbour_cell_basis_XY", self.neighbour_cell_basis_XY)
+
             # initalize voxcel positions
             xx, yy, zz = np.meshgrid(range(vxn), range(vxn), range(vxn))
-            vx = np.reshape(xx, (1, self.nx*self.nx*self.nx))
-            vy = np.reshape(yy, (1, self.nx*self.nx*self.nx))
-            vz = np.reshape(zz, (1, self.nx*self.nx*self.nx))
+            vx = np.reshape(xx, (1, self.nx * self.nx * self.nx))
+            vy = np.reshape(yy, (1, self.nx * self.nx * self.nx))
+            vz = np.reshape(zz, (1, self.nx * self.nx * self.nx))
             vxyz = np.transpose(np.concatenate((vx, vy, vz), axis=0))
             self.coords = [(i, j, k) for i, j, k in vxyz]
 
@@ -179,19 +179,19 @@ class Voxcels:
             dz = np.reshape(x, (1, np.power(enl, self.ndim)))
             self.vertex_basis = np.transpose(np.concatenate((dx, dy), axis=0))
 
-            self.axes = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])*self.lx
+            self.axes = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]]) * self.lx
 
         if self.ndim == 2:
             cx, cy = np.meshgrid(en, en)
-            ccx = np.reshape(cx, (1, enl*enl))
-            ccy = np.reshape(cy, (1, enl*enl))
+            ccx = np.reshape(cx, (1, enl * enl))
+            ccy = np.reshape(cy, (1, enl * enl))
             arr = np.transpose(np.concatenate((ccx, ccy), axis=0))
             self.neighbour_cell_basis = [(i, j) for i, j in arr]
 
             # initalize voxcel positions
             xx, yy = np.meshgrid(range(vxn), range(vxn))
-            vx = np.reshape(xx, (1, self.nx*self.nx))
-            vy = np.reshape(yy, (1, self.nx*self.nx))
+            vx = np.reshape(xx, (1, self.nx * self.nx))
+            vy = np.reshape(yy, (1, self.nx * self.nx))
             vxy = np.transpose(np.concatenate((vx, vy), axis=0))
             self.coords = [(i, j) for i, j in vxy]
 
@@ -202,32 +202,30 @@ class Voxcels:
             dy = np.reshape(x, (1, np.power(enl, self.ndim)))
             self.vertex_basis = np.transpose(np.concatenate((dx, dy), axis=0))
 
-            self.axes = np.array([[1, 0], [0, 1]])*self.lx
+            self.axes = np.array([[1, 0], [0, 1]]) * self.lx
 
         # which basis elements are edge to edge neighbours
-        sums= np.sum(np.fabs(self.neighbour_cell_basis),axis=1)
+        sums = np.sum(np.fabs(self.neighbour_cell_basis), axis=1)
         self.neighbour_ete = np.zeros(len(self.neighbour_cell_basis))
-        self.neighbour_ete[np.where(sums==1)] = 1 
+        self.neighbour_ete[np.where(sums == 1)] = 1
 
         self.pos = defaultdict(list)
         for ci in self.coords:
-            self.pos[ci] = self.origin + self.lx*np.array(ci) + self.lx/2
+            self.pos[ci] = self.origin + self.lx * np.array(ci) + self.lx / 2
 
         self.fill_state = defaultdict(list)
         for ci in self.coords:
             self.fill_state[ci] = 0
 
         self.links = []
-      
 
     def get_vertices(self, coord_i):
         p = self.pos[coord_i]
 
-        if self.ndim == 2: 
-
+        if self.ndim == 2:
             def get_edge_points(p, axes, sign_p):
                 vertex_n = np.zeros(self.ndim)
-                vertex_n = p + sign_p[0]*axes[:, 0]/2. + sign_p[1]*axes[:, 1]/2.
+                vertex_n = p + sign_p[0] * axes[:, 0] / 2. + sign_p[1] * axes[:, 1] / 2.
                 return vertex_n
 
             vertices = np.zeros((4, self.ndim))
@@ -236,12 +234,13 @@ class Voxcels:
             vertices[2] = get_edge_points(p, self.axes, np.array([+1, +1]))
             vertices[3] = get_edge_points(p, self.axes, np.array([-1, +1]))
 
-        if self.ndim == 3: 
+            return vertices
 
+        if self.ndim == 3:
             def get_edge_points(p, axes, sign_p):
                 vertex_n = np.zeros(self.ndim)
-                vertex_n = p + sign_p[0]*axes[:, 0]/2. + sign_p[1]*axes[:, 1]/2. + sign_p[2]*axes[:, 2]/2. 
-                
+                vertex_n = p + sign_p[0] * axes[:, 0] / 2. + sign_p[1] * axes[:, 1] / 2. + sign_p[2] * axes[:, 2] / 2.
+
                 return vertex_n
 
             vertices = np.zeros((8, self.ndim))
@@ -255,13 +254,13 @@ class Voxcels:
             vertices[6] = get_edge_points(p, self.axes, np.array([+1, +1, -1]))
             vertices[7] = get_edge_points(p, self.axes, np.array([-1, +1, -1]))
 
-        return vertices
+            return vertices
 
     def set_to_filled(self, coord_i):
         self.fill_state[coord_i] = 1
 
     def set_to_empty(self, coord_i):
-        self.voxcel_state[coord_i] = 0
+        self.fill_state[coord_i] = 0
 
     def get_neighbour_coords(self, coord_i):
         # get particles from neighbour cells
@@ -273,14 +272,36 @@ class Voxcels:
             nncell.append(tuple(celli))
         return nncell
 
+    def get_neighbour_coords_XY(self, coord_i):
+        # get particles from neighbour cells
+        nncell = []
+        for ncell in self.neighbour_cell_basis_XY:
+            celli = np.array(coord_i) + np.array(ncell)
+            for dim_i in range(self.ndim):
+                celli[dim_i] = celli[dim_i] % self.nx
+            nncell.append(tuple(celli))
+        return nncell
+
+    def get_links_XY(self):
+        sums = np.sum(np.fabs(self.neighbour_cell_basis_XY), axis=1)
+        neighbour_ete_xy = np.zeros(len(self.neighbour_cell_basis_XY))
+        neighbour_ete_xy[np.where(sums == 1)] = 1
+
+        for coord_vi in self.coords:
+            if self.fill_state[coord_vi] == 0:
+                for coord_ni, ete in zip(self.get_neighbour_coords_XY(coord_vi), neighbour_ete_xy):
+                    if (self.fill_state[coord_ni] == 0) and (coord_vi != coord_ni):
+                        data = {'ete': ete}
+                        self.links.append((coord_vi, coord_ni, data))
+
     def get_links(self):
         for coord_vi in self.coords:
             if self.fill_state[coord_vi] == 0:
                 for coord_ni, ete in zip(self.get_neighbour_coords(coord_vi), self.neighbour_ete):
                     if (self.fill_state[coord_ni] == 0) and (coord_vi != coord_ni):
-                        data={'ete': ete}
-                        self.links.append((coord_vi, coord_ni,data))
-                      
+                        data = {'ete': ete}
+                        self.links.append((coord_vi, coord_ni, data))
+
 
 class Rhombi:
     def __init__(self, pos, orient, lx, ndim):
@@ -292,30 +313,30 @@ class Rhombi:
         self.Np = len(pos)
         self.pos = pos
         self.orient = orient
-        self.alpha = np.pi/3
+        self.alpha = np.pi / 3
         self.h = self.lx * np.sin(self.alpha)
         self.a_x = self.ly * np.cos(self.alpha)
 
-        self.long_diagonal = self.lx*np.sqrt(2+2*np.cos(self.alpha))
-        self.short_diagonal = self.lx*np.sqrt(2-2*np.cos(self.alpha))
+        self.long_diagonal = self.lx * np.sqrt(2 + 2 * np.cos(self.alpha))
+        self.short_diagonal = self.lx * np.sqrt(2 - 2 * np.cos(self.alpha))
 
-        self.outer_radius = self.long_diagonal/2.
-        self.inner_radius = self.lx*np.sin(self.alpha)/2.
+        self.outer_radius = self.long_diagonal / 2.
+        self.inner_radius = self.lx * np.sin(self.alpha) / 2.
 
-        self.area = self.lx*self.lx * np.sin(self.alpha)
+        self.area = self.lx * self.lx * np.sin(self.alpha)
 
         self.sigma = self.long_diagonal
-        self.volume = self.lx*self.h
+        self.volume = self.lx * self.h
         self.N_edges = 4
         self.N_patches = 4
 
         def get_edge_points(p, ax_n, sign_p):
             vertex_n = np.zeros(2)
-            vertex_n = p + sign_p[0]*ax_n[:, 0]/2. + sign_p[1]*ax_n[:, 1]/2.
+            vertex_n = p + sign_p[0] * ax_n[:, 0] / 2. + sign_p[1] * ax_n[:, 1] / 2.
             return vertex_n
 
-        sin60 = np.sin(np.pi/3.)
-        cos60 = np.cos(np.pi/3.)
+        sin60 = np.sin(np.pi / 3.)
+        cos60 = np.cos(np.pi / 3.)
 
         self.ax0 = np.array([[1, cos60], [0, sin60]])
         self.vertices = np.zeros((self.Np, 4, 2))
@@ -349,9 +370,8 @@ class Rhombi:
                 p, self.ax_n[i], np.array([-1, +1]))
 
     def estimate_volume(self, voxcels, coord_vi, coord_pi, blx, Ntrial):
-        p_pos = np.reshape(self.pos[coord_pi], (self.ndim, 1))
-        total_intersect = 0
-        points = voxcels.lx*(0.5 - np.random.sample((Ntrial, voxcels.ndim)))
+
+        points = voxcels.lx * (0.5 - np.random.sample((Ntrial, voxcels.ndim)))
 
         for dim_i in range(voxcels.ndim):
             points[:, dim_i] = points[:, dim_i] + voxcels.pos[coord_vi][dim_i]
@@ -369,19 +389,18 @@ class Rhombi:
             points[i, 0], points[i, 1], polygon) for i in overlap_cand[:, 0]]
         total_intersect += np.count_nonzero(inside1)
 
-        overlap_volume = total_intersect/Ntrial
+        overlap_volume = total_intersect / Ntrial
 
         return overlap_volume
 
 
 def get_distance(v_pos, p_pos, blx):
     dist = p_pos - v_pos
-    dist = dist - blx*np.rint(dist/blx)
+    dist = dist - blx * np.rint(dist / blx)
     return dist
 
 
 def get_vdistance(pos_v, pos_c, blx):
-
     m = len(pos_c)
     n = len(pos_v)
     ndim = pos_v.shape[1]
@@ -390,23 +409,24 @@ def get_vdistance(pos_v, pos_c, blx):
     pos_v_repeat = np.repeat(pos_v, m, axis=0)
 
     dist = pos_c_tiled - pos_v_repeat
-    dist = dist - blx*np.rint(dist/blx)
+    dist = dist - blx * np.rint(dist / blx)
     ndist = np.linalg.norm(dist, axis=1)
     dist = np.reshape(dist, (n, m, ndim))
     ndist = np.reshape(ndist, (n, m))
     return dist, ndist
 
+
 def get_measures(voxcels):
-    pass 
+    pass
 
 
 def get_pore_volume(voxcels):
     G = nx.Graph()
     G.add_edges_from(voxcels.links)
-    #nx.write_gpickle(G, "pore_network.gpickle")    
+    # nx.write_gpickle(G, "pore_network.gpickle")
 
     domains = list(nx.connected_components(G))
     domain_lengths = np.array([len(domain) for domain in domains])
-   
-    pore_volumes = voxcels.volume*domain_lengths
+
+    pore_volumes = voxcels.volume * domain_lengths
     return pore_volumes, domain_lengths, domains, G
