@@ -161,7 +161,7 @@ class Voxcels:
 
             brr = arr[np.where(arr[:, 2] == 0)]
             self.neighbour_cell_basis_XY = [(i, j, k) for i, j, k in brr]
-            logging.debug("self.neighbour_cell_basis_XY", self.neighbour_cell_basis_XY)
+            #logging.debug("self.neighbour_cell_basis_XY", self.neighbour_cell_basis_XY)
 
             # initalize voxcel positions
             xx, yy, zz = np.meshgrid(range(vxn), range(vxn), range(vxn))

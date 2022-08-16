@@ -4,6 +4,7 @@ import pore_tool as pt
 import yaml
 from yaml.loader import SafeLoader
 import logging
+logging.basicConfig(level=logging.NOTSET)
 
 
 def calculate_voxcel_state(cells, voxcels, particles):
@@ -49,7 +50,7 @@ if __name__ == '__main__':
 
     # initalize cells object
     # absolute lmin = particles.sigma
-    lmin = 3 * particles.sigma
+    lmin = particles.sigma
     cells = pt.Cells(lmin, box.lx, ndim)
 
     # initialize voxels object
@@ -57,6 +58,7 @@ if __name__ == '__main__':
     vxl = cells.lx / voxcels_per_cell
     vxn = cells.nx * voxcels_per_cell
     voxcels = pt.Voxcels(vxl, vxn, box.origin, ndim)
+    logging.info("length and number of voxcels", vxl, vxn)
 
     logging.info("generate cell lists...")
     # initalize cells object
@@ -72,9 +74,26 @@ if __name__ == '__main__':
     voxcels.get_links_XY()
 
     logging.info("get all pore volumes and domain lengths ")
-    pore_volumes, domain_lengths, domains = pt.get_pore_volume(voxcels)
+    pore_volumes, domain_lengths, domains, Graph = pt.get_pore_volume(voxcels)
 
-    logging.info("domain sizes per xy ", domain_lengths)
+    logging.info("domain sizes per xy ")
+    print(domain_lengths)
+
+    N_empty = np.sum(domain_lengths)
+    n=0 
+    with open('voxcels_biogel.xyz','w') as f:
+        f.write("{}\n".format(N_empty*8))
+        f.write("Voxcels for biogel (cubes)\n")
+        for ci in cells.coords:
+            vcoords = cells.voxcel_list[ci]
+            for vi in vcoords: 
+                if voxcels.fill_state[vi] == 0:
+                    n+=1 
+                    #pos = voxcels.pos[vi] 
+                    vertices = voxcels.get_vertices(vi)
+                    #lprint(vertices)
+                    for vert in vertices:
+                        f.write("V   {}   {}   {}\n".format(vert[0],vert[1],vert[2]))
 
    
 
