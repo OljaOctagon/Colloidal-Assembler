@@ -6,7 +6,6 @@ from yaml.loader import SafeLoader
 import logging
 logging.basicConfig(level=logging.NOTSET)
 
-
 def calculate_voxcel_state(cells, voxcels, particles):
     for ci in cells.coords:
         vcoords = cells.voxcel_list[ci]
