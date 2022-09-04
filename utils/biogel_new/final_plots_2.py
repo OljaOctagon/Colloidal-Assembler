@@ -198,11 +198,78 @@ def plot_mean_largest_cluster(df, p_params, ax=None):
     ax.set_xlim((p_params["xmin"], p_params["xmax"]))
 
 
+def plot_gr(df, ax):
+
+    if ax == None:
+        ax = plt.gca()
+
+    arr = df.values
+    epsi = [1, 1.5, 2, 3, 5]
+    ax.set_yscale("log")
+
+    for i in range(5):
+        ax.plot(
+            arr[:, i * 2],
+            arr[:, i * 2 + 1],
+            label="{} = {}".format("$\epsilon$", epsi[i]),
+            ms=0,
+        )
+
+    ax.set_xlabel("$r /\sigma$")
+    ax.set_ylabel("$g(r /\sigma$)")
+    ax.set_ylim((0.3, 100))
+    ax.set_xlim((0.7, 5))
+
+
+def plot_nbonded(df, ax):
+    arr = df[["epsilon", "nlinked"]].values
+    ax.plot(arr[:, 0], arr[:, 1], c="r")
+    ax.set_xlim((0.9, 5.1))
+    ax.set_ylim((0, 1))
+    ax.set_xlabel("$\epsilon$")
+    ax.set_ylabel("$n_{l}$")
+
+
+def plot_mean_pe(df, conditions, ax):
+
+    if ax == None:
+        ax = plt.gca()
+
+    for i, rho_x in enumerate(sorted(df["rho"].unique())):
+        conditions["rho"] = rho_x
+        df_filtered = filter_conditions(df, "epsilon", conditions)
+        arr = df_filtered[["epsilon", "mean_pe"]].values
+        ax.plot(arr[:, 0], arr[:, 1], label="$\\rho = {}$".format(rho_x))
+
+    ax.set_xlabel("$\epsilon$")
+    ax.set_ylabel("$E_{l} / [ \epsilon \cdot n_{b} ]$")
+
+
+def plot_pe(df, ax):
+    if ax == None:
+        ax = plt.gca()
+
+    arr = df.values
+    epsilons = [1, 1.5, 2, 3, 5]
+    ax.set_yscale("log")
+    for i, ei in enumerate(epsilons):
+        ax.plot(
+            arr[:, i * 2], arr[:, i * 2 + 1], ms=0, label="$\epsilon = {}$".format(ei)
+        )
+    ax.set_xlim((-1.0, 0))
+    ax.set_ylim((0.1, 50))
+    ax.set_xlabel("$E_{l}/\epsilon$")
+    ax.set_ylabel("P")
+
+
 if __name__ == "__main__":
     n = 5
     color_list = [plt.get_cmap("cmr.lavender_r")(1.0 * i / n) for i in range(n)]
     default_cycler = cycler(color=color_list)
     plt.rc("axes", prop_cycle=default_cycler)
+
+    color_list_alt = [plt.get_cmap("cmr.amber_r")(1.0 * i / n) for i in range(n)]
+    alt_cycler = cycler(color=color_list_alt)
 
     # Fig 2a,b,c - polymer properties std conditions
     df, df_param = parse_file("network_data_polymer_all_runs.pickle")
@@ -263,8 +330,8 @@ if __name__ == "__main__":
 
     plot_mean_largest_cluster(df_mean_largest, p_params, ax3)
 
-    plt.legend(ncol=1, bbox_to_anchor=(0.95, 0.5), loc="upper right", fontsize=16)
-    plt.savefig("degree_domain_epsilon_polymer_triple_plot.pdf")
+    plt.legend(ncol=1, bbox_to_anchor=(1.02, 0.5), loc="upper right", fontsize=16)
+    plt.savefig("fig_2abc.pdf")
 
     # Fig 3a,b,c - crosslinker properties for std conditions
     df, df_param = parse_file("network_data_crosslinker_all_runs.pickle")
@@ -311,9 +378,59 @@ if __name__ == "__main__":
 
     # g(r) plot
     df_gr = pd.read_csv("Fig2-grPs3.dat", header=None, delim_whitespace=True)
+    plot_gr(df_gr, ax3)
 
-    def plot_gr(df_gr, p_params, ax3):
-        pass
+    # inset to ax1 number of bonded linkers
 
-    plt.legend(ncol=1, bbox_to_anchor=(0.95, 0.5), loc="upper right", fontsize=16)
+    plt.legend(ncol=1, bbox_to_anchor=(1.02, 0.75), loc="upper right", fontsize=16)
+
+    df = pd.read_csv(
+        "Fig3-Nlinked.dat",
+        header=None,
+        names=["epsilon", "rho", "kb", "N", "plink", "nlinked"],
+        delim_whitespace=True,
+    )
+
+    df_filtered = filter_conditions(df, "epsilon", std_conditions)
+    axins = fig.add_axes([0.13, 0.5, 0.15, 0.3])
+    plot_nbonded(df_filtered, axins)
+
     plt.savefig("fig_3abc.pdf")
+
+# Fig 4abc mean potential and potential energy distribtuions per link and particle
+
+fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(15, 5))
+
+# mean potential
+df = pd.read_csv(
+    "Fig5a-epot2.dat",
+    header=None,
+    names=["epsilon", "rho", "kb", "N", "plink", "mean_pe"],
+    delim_whitespace=True,
+)
+
+plot_mean_pe(df, std_conditions, ax1)
+
+# ax1.legend(ncol=1, bbox_to_anchor=(1.02, 0.75), loc="upper right", fontsize=16)
+
+# mean potential probability for rho = 0.05
+# plt.rc("axes", prop_cycle=default_cycler)
+df = pd.read_csv(
+    "Fig5c-pepotB8Ps12.dat",
+    header=None,
+    names=["xe1", "pe1", "xe2", "pe2", "xe3", "pe3", "xe4", "pe4", "xe5", "pe5"],
+    delim_whitespace=True,
+)
+plot_pe(df, ax2)
+
+df = pd.read_csv(
+    "Fig5b-pepotB8Ps3.dat",
+    header=None,
+    names=["xe1", "pe1", "xe2", "pe2", "xe3", "pe3", "xe4", "pe4", "xe5", "pe5"],
+    delim_whitespace=True,
+)
+
+plot_pe(df, ax3)
+plt.legend(ncol=1, bbox_to_anchor=(0.75, 0.8), loc="upper right", fontsize=16)
+
+plt.savefig("fig_4abc.pdf")
