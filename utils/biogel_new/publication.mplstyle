@@ -5,8 +5,6 @@ lines.markersize: 7
 lines.marker: o
 xtick.labelsize: 14
 ytick.labelsize: 14
-axes.spines.top: False
-axes.spines.right: False
 errorbar.capsize: 5
 xtick.major.bottom: True
 ytick.major.left: True

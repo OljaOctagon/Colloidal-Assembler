@@ -6,6 +6,7 @@ import matplotlib as mpl
 import cmasher as cmr
 import pandas as pd
 from matplotlib import font_manager
+from matplotlib import gridspec
 
 fe = font_manager.FontEntry(
     fname="/Users/ada/Library/Fonts/Lato-Light.ttf", name="Lato Light"
@@ -235,14 +236,21 @@ def plot_mean_pe(df, conditions, ax):
     if ax == None:
         ax = plt.gca()
 
+    n = len(df["rho"].unique()) + 1
+    clist = [plt.get_cmap("cmr.fall_r")(1.0 * i / n) for i in range(n)]
+
     for i, rho_x in enumerate(sorted(df["rho"].unique())):
         conditions["rho"] = rho_x
         df_filtered = filter_conditions(df, "epsilon", conditions)
         arr = df_filtered[["epsilon", "mean_pe"]].values
-        ax.plot(arr[:, 0], arr[:, 1], label="$\\rho = {}$".format(rho_x))
+        ax.plot(
+            arr[:, 0], arr[:, 1], c=clist[i + 1], label="$\\rho = {}$".format(rho_x)
+        )
 
     ax.set_xlabel("$\epsilon$")
     ax.set_ylabel("$E_{l} / [ \epsilon \cdot n_{b} ]$")
+    ax.legend(ncol=1, bbox_to_anchor=(1, 1), loc="upper right")
+    plt.tight_layout()
 
 
 def plot_pe(df, ax):
@@ -260,6 +268,25 @@ def plot_pe(df, ax):
     ax.set_ylim((0.1, 50))
     ax.set_xlabel("$E_{l}/\epsilon$")
     ax.set_ylabel("P")
+    plt.tight_layout()
+
+
+def plot_local_density(df_dict, plot_params, ax):
+
+    if ax == None:
+        ax = plt.gca()
+
+    ax.set_yscale("log")
+
+    for epsi in df_dict:
+        arr = df_dict[epsi].values
+        ax.plot(arr[:, 0], arr[:, 1], ms=0, label="$\epsilon = {}$".format(epsi))
+
+    ax.set_xlim((plot_params["xmin"], plot_params["xmax"]))
+    ax.set_ylim((plot_params["ymin"], plot_params["ymax"]))
+    ax.set_xlabel("$\\rho_{l}$")
+    ax.set_ylabel("P")
+    plt.tight_layout()
 
 
 if __name__ == "__main__":
@@ -267,9 +294,6 @@ if __name__ == "__main__":
     color_list = [plt.get_cmap("cmr.lavender_r")(1.0 * i / n) for i in range(n)]
     default_cycler = cycler(color=color_list)
     plt.rc("axes", prop_cycle=default_cycler)
-
-    color_list_alt = [plt.get_cmap("cmr.amber_r")(1.0 * i / n) for i in range(n)]
-    alt_cycler = cycler(color=color_list_alt)
 
     # Fig 2a,b,c - polymer properties std conditions
     df, df_param = parse_file("network_data_polymer_all_runs.pickle")
@@ -399,7 +423,13 @@ if __name__ == "__main__":
 
 # Fig 4abc mean potential and potential energy distribtuions per link and particle
 
-fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(15, 5))
+# fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(15, 5))
+
+fig = plt.figure(figsize=(10, 5))
+
+ax1 = fig.add_subplot(1, 2, 1)
+ax2 = fig.add_subplot(2, 2, 2)
+ax3 = fig.add_subplot(2, 2, 4)
 
 # mean potential
 df = pd.read_csv(
@@ -414,7 +444,7 @@ plot_mean_pe(df, std_conditions, ax1)
 # ax1.legend(ncol=1, bbox_to_anchor=(1.02, 0.75), loc="upper right", fontsize=16)
 
 # mean potential probability for rho = 0.05
-# plt.rc("axes", prop_cycle=default_cycler)
+
 df = pd.read_csv(
     "Fig5c-pepotB8Ps12.dat",
     header=None,
@@ -431,6 +461,66 @@ df = pd.read_csv(
 )
 
 plot_pe(df, ax3)
-plt.legend(ncol=1, bbox_to_anchor=(0.75, 0.8), loc="upper right", fontsize=16)
-
+plt.legend(ncol=2, bbox_to_anchor=(0.8, 0.9), loc="upper right")
 plt.savefig("fig_4abc.pdf")
+
+# Fig local density
+
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 5))
+
+epsilon = [1, 1.5, 2, 3, 5]
+data_files = [
+    "Local2sigma.1.dat",
+    "Local2sigma.2.dat",
+    "Local2sigma.3.dat",
+    "Local2sigma.4.dat",
+    "Local2sigma.5.dat",
+]
+
+df_dict = {}
+for i, epsi in enumerate(epsilon):
+    df = pd.read_csv(
+        data_files[i],
+        header=None,
+        names=["x", "p_local"],
+        delim_whitespace=True,
+    )
+    df_dict[epsi] = df
+
+plot_params = {
+    "ymin": 1e-8,
+    "ymax": 1e-1,
+    "xmin": 0,
+    "xmax": 1.2,
+}
+
+plot_local_density(df_dict, plot_params, ax1)
+
+data_files = [
+    "Local15sigma.1.dat",
+    "Local15sigma.2.dat",
+    "Local15sigma.3.dat",
+    "Local15sigma.4.dat",
+    "Local15sigma.5.dat",
+]
+
+df_dict = {}
+for i, epsi in enumerate(epsilon):
+    df = pd.read_csv(
+        data_files[i],
+        header=None,
+        names=["x", "p_local"],
+        delim_whitespace=True,
+    )
+    df_dict[epsi] = df
+
+plot_params = {
+    "ymin": 1e-8,
+    "ymax": 5e-5,
+    "xmin": 0.15,
+    "xmax": 0.23,
+}
+
+plot_local_density(df_dict, plot_params, ax2)
+plt.legend(ncol=1, bbox_to_anchor=(0.4, 0.9), loc="upper right")
+plt.savefig("fig_5ab.pdf")

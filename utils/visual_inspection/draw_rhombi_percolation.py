@@ -7,6 +7,7 @@ import glob
 import networkx as nx
 import argparse
 import seaborn as sns
+import cmocean
 import matplotlib.style as style
 style.use('seaborn-poster') 
 mpl.rcParams['font.family'] = "sans-serif"
@@ -106,6 +107,9 @@ if __name__ == '__main__':
     hex_color[4] = '#8A2BE2'
     length_color_dict = dict(zip(np.arange(6),hex_color))
 
+    # colormap for orientation
+    cmap_orient=cmocean.cm.phase
+
     # network_arr format: network_arr.shape = ( frame_i, bond_rows_frame_i )
     #network_arr = read_bonds("patch_network.dat")
     # patch position calculation
@@ -159,7 +163,8 @@ if __name__ == '__main__':
         for i in range(N):
             #rhombus_color=domain_colors[i]
             #rhombus_color = type_color_dict[patch_i[i,0]]
-            rhombus_color = '#C17DCB'
+            #rhombus_color = '#C17DCB'
+            rhombus_color = cmap_orient(orient_i[i] + np.pi)
 
             rotmat_i = rotation_matrix(orient_i[i])
             ax_n = get_orient(ax0, rotmat_i)
