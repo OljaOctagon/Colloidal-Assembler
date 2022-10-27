@@ -133,7 +133,7 @@ if __name__ == '__main__':
         pos_i = pos_i[:, :2]
         orient_i = np.fromfile("orientations_{}.bin".format(val))
         orient_i = np.reshape(orient_i, (-1, 5))[:, 4]
-        N = len(pos_i)
+        N= len(pos_i)
 
         fig, ax = plt.subplots()
         ax.set_aspect('equal', 'box')
