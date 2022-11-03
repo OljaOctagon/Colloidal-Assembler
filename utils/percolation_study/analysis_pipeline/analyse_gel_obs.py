@@ -109,7 +109,7 @@ if __name__ == '__main__':
                                                return_counts=True)
 
                 N_particles = len(pos)
-                degrees_f = defaultdict(0)
+                degrees_f = defaultdict(lambda: 0)
                 for di, dn in zip(degrees, degrees_N):
                     degrees_f[di] = dn/N_particles
 
