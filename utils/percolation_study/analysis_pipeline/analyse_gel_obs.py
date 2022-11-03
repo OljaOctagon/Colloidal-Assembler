@@ -54,7 +54,7 @@ if __name__ == '__main__':
     parser.add_argument('-input', type=str, choices=['fsys'])
     parser.add_argument('-run_id', type=str)
     parser.add_argument('-eval_type', type=str,
-                        choices=['spanning, degree, energy'])
+                        choices=['spanning', 'degree'])
 
     args = parser.parse_args()
 
