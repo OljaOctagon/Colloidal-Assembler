@@ -53,18 +53,38 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-input', type=str, choices=['fsys'])
     parser.add_argument('-run_id', type=str)
-    parser.add_argument('-eval_type', type=str,
-                        choices=['spanning', 'degree'])
+    parser.add_argument('-spanning', type=bool, default=True)
+    parser.add_argument('-degree', type=bool, default=True)
+    parser.add_argument('-psi', type=bool, default=True)
 
     args = parser.parse_args()
 
     gen_fsys = generator_from_fsys(glob.glob("double*/double*/"))
     gen_dict = {'fsys': gen_fsys}
-
     columns = ['id', 'ptype', 'delta', 'phi', 'temperature',
-               'current_time', 'frac_largest', 'frac_largest_virtual']
-    df = pd.DataFrame(columns=columns)
+               'current_time']
 
+    print("Calculating for all double* files in dir ")
+    print("spanning: ", args.spanning)
+    print("degree: ", args.degree)
+    print("psi", args.psi)
+
+    if args.spanning == True:
+        columns.append('frac_largest')
+        columns.append('frac_largest_virtual')
+
+    if args.degree == True:
+        columns.append('frac_degree_0')
+        columns.append('frac_degree_1')
+        columns.append('frac_degree_2')
+        columns.append('frac_degree_3')
+        columns.append('frac_degree_3')
+
+    if args.psi == True:
+        columns.append("psi_all")
+        columns.append("psi_largest")
+
+    df = pd.DataFrame(columns=columns)
     gen = gen_dict[args.input]
 
     for ptype, phi, temperature, delta, last_time, pos, box in gen:
@@ -92,7 +112,7 @@ if __name__ == '__main__':
             G = nx.Graph()
             G.add_edges_from(connections)
 
-            if args.eval_type == 'spanning':
+            if args.spanning == True:
                 frac_largest, virtual_frac_largest = get_spanning(pos,
                                                                   box,
                                                                   connections,
@@ -100,7 +120,7 @@ if __name__ == '__main__':
                 new_results['frac_largest'] = frac_largest
                 new_results['frac_largest_virtual'] = virtual_frac_largest
 
-            if args.eval_type == 'degree':
+            if args.degree == True:
                 degree_sequence = sorted(
                     (d for n, d in G.degree()), reverse=True)
                 dmax = max(degree_sequence)
@@ -119,20 +139,33 @@ if __name__ == '__main__':
                 new_results['frac_degree_3'] = degrees_f[3]
                 new_results['frac_degree_4'] = degrees_f[4]
 
+            if args.psi == True:
+                file_psi = "{}/psi_op.dat".format(dir_name)
+                dg = pd.read_csv(file_psi, delim_whitespace=True,
+                                 names=['psi_all', 'psi_largest', 'N_largest'])
+
+                arr = dg.values
+                new_results['psi_all'] = arr[-1, 0]
+                new_results['psi_largest'] = arr[-1, 1]
+
         else:
             print("{}: doesn't exist".format(file_name))
-            if args.eval_type == 'spanning':
+            if args.spanning == True:
                 new_results['frac_largest'] = np.nan
                 new_results['frac_largest_virtual'] = np.nan
 
-            if args.eval_type == 'degree':
+            if args.degree == True:
                 new_results['frac_degree_0'] = np.nan
                 new_results['frac_degree_1'] = np.nan
                 new_results['frac_degree_2'] = np.nan
                 new_results['frac_degree_3'] = np.nan
                 new_results['frac_degree_4'] = np.nan
 
+            if args.psi == True:
+                new_results['psi_all'] = np.nan
+                new_results['psi_largest'] = np.nan
+
         df = df.append(new_results, ignore_index=True)
 
-    df.to_pickle("results_gel_{}_{}.pickle".format(
-        args.eval_type, args.run_id))
+    df.to_pickle("results_gel_{}.pickle".format(
+        args.run_id))
