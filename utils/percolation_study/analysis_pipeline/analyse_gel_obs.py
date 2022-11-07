@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 from os.path import exists
 import networkx as nx
 from collections import defaultdict
+import multiprocessing
 
 
 def generator_from_fsys(fsys_iterator):
@@ -53,9 +54,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-input', type=str, choices=['fsys'])
     parser.add_argument('-run_id', type=str)
-    parser.add_argument('-spanning', type=bool, default=True)
-    parser.add_argument('-degree', type=bool, default=True)
-    parser.add_argument('-psi', type=bool, default=True)
 
     args = parser.parse_args()
 
@@ -65,29 +63,21 @@ if __name__ == '__main__':
                'current_time']
 
     print("Calculating for all double* files in dir ")
-    print("spanning: ", args.spanning)
-    print("degree: ", args.degree)
-    print("psi", args.psi)
 
-    if args.spanning == True:
-        columns.append('frac_largest')
-        columns.append('frac_largest_virtual')
-
-    if args.degree == True:
-        columns.append('frac_degree_0')
-        columns.append('frac_degree_1')
-        columns.append('frac_degree_2')
-        columns.append('frac_degree_3')
-        columns.append('frac_degree_3')
-
-    if args.psi == True:
-        columns.append("psi_all")
-        columns.append("psi_largest")
+    columns.append('frac_largest')
+    columns.append('frac_largest_virtual')
+    columns.append('frac_degree_0')
+    columns.append('frac_degree_1')
+    columns.append('frac_degree_2')
+    columns.append('frac_degree_3')
+    columns.append('frac_degree_4')
+    columns.append("psi_all")
+    columns.append("psi_largest")
 
     df = pd.DataFrame(columns=columns)
     gen = gen_dict[args.input]
 
-    for ptype, phi, temperature, delta, last_time, pos, box in gen:
+    def calculate(ptype, phi, temperature, delta, last_time, pos, box):
         new_results = {}
         temp_str = "{0:.2f}".format(temperature)
         dir_name = "{}/{}_phi_{}_delta_{}_temp_{}".format(
@@ -112,58 +102,61 @@ if __name__ == '__main__':
             G = nx.Graph()
             G.add_edges_from(connections)
 
-            if args.spanning == True:
-                frac_largest, virtual_frac_largest = get_spanning(pos,
-                                                                  box,
-                                                                  connections,
-                                                                  G,)
-                new_results['frac_largest'] = frac_largest
-                new_results['frac_largest_virtual'] = virtual_frac_largest
+            frac_largest, virtual_frac_largest = get_spanning(pos,
+                                                              box,
+                                                              connections,
+                                                              G,)
+            new_results['frac_largest'] = frac_largest
+            new_results['frac_largest_virtual'] = virtual_frac_largest
 
-            if args.degree == True:
-                degree_sequence = sorted(
-                    (d for n, d in G.degree()), reverse=True)
-                dmax = max(degree_sequence)
+            degree_sequence = sorted((d for n, d in G.degree()), reverse=True)
+            dmax = max(degree_sequence)
 
-                degrees, degrees_N = np.unique(degree_sequence,
-                                               return_counts=True)
+            degrees, degrees_N = np.unique(degree_sequence,
+                                           return_counts=True)
 
-                N_particles = len(pos)
-                degrees_f = defaultdict(lambda: 0)
-                for di, dn in zip(degrees, degrees_N):
-                    degrees_f[di] = dn/N_particles
+            N_particles = len(pos)
+            degrees_f = defaultdict(lambda: 0)
+            for di, dn in zip(degrees, degrees_N):
+                degrees_f[di] = dn/N_particles
 
-                new_results['frac_degree_0'] = degrees_f[0]
-                new_results['frac_degree_1'] = degrees_f[1]
-                new_results['frac_degree_2'] = degrees_f[2]
-                new_results['frac_degree_3'] = degrees_f[3]
-                new_results['frac_degree_4'] = degrees_f[4]
+            new_results['frac_degree_0'] = degrees_f[0]
+            new_results['frac_degree_1'] = degrees_f[1]
+            new_results['frac_degree_2'] = degrees_f[2]
+            new_results['frac_degree_3'] = degrees_f[3]
+            new_results['frac_degree_4'] = degrees_f[4]
 
-            if args.psi == True:
-                file_psi = "{}/psi_op.dat".format(dir_name)
-                dg = pd.read_csv(file_psi, delim_whitespace=True,
-                                 names=['psi_all', 'psi_largest', 'N_largest'])
+            file_psi = "{}/psi_op.dat".format(dir_name)
+            dg = pd.read_csv(file_psi, delim_whitespace=True,
+                             names=['psi_all', 'psi_largest', 'N_largest'])
 
-                arr = dg.values
-                new_results['psi_all'] = arr[-1, 0]
-                new_results['psi_largest'] = arr[-1, 1]
+            arr = dg.values
+            new_results['psi_all'] = arr[-1, 0]
+            new_results['psi_largest'] = arr[-1, 1]
 
         else:
             print("{}: doesn't exist".format(file_name))
-            if args.spanning == True:
-                new_results['frac_largest'] = np.nan
-                new_results['frac_largest_virtual'] = np.nan
 
-            if args.degree == True:
-                new_results['frac_degree_0'] = np.nan
-                new_results['frac_degree_1'] = np.nan
-                new_results['frac_degree_2'] = np.nan
-                new_results['frac_degree_3'] = np.nan
-                new_results['frac_degree_4'] = np.nan
+            new_results['frac_largest'] = np.nan
+            new_results['frac_largest_virtual'] = np.nan
 
-            if args.psi == True:
-                new_results['psi_all'] = np.nan
-                new_results['psi_largest'] = np.nan
+            new_results['frac_degree_0'] = np.nan
+            new_results['frac_degree_1'] = np.nan
+            new_results['frac_degree_2'] = np.nan
+            new_results['frac_degree_3'] = np.nan
+            new_results['frac_degree_4'] = np.nan
+
+            new_results['psi_all'] = np.nan
+            new_results['psi_largest'] = np.nan
+
+        return new_results
+
+    #pool = multiprocessing.Pool(12)
+    #new_results = zip(*pool.map(calculate, gen))
+    for ptype, phi, temperature, delta, last_time, pos, box in gen:
+
+        new_results = calculate(ptype, phi, temperature,
+                                delta, last_time, pos, box)
 
         df = df.append(new_results, ignore_index=True)
 
