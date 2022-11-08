@@ -8,7 +8,6 @@ import re
 from scipy.optimize import curve_fit
 import pandas as pd
 import configparser
-import matplotlib.pyplot as plt
 from os.path import exists
 import networkx as nx
 from collections import defaultdict
@@ -48,17 +47,15 @@ def generator_from_fsys(fsys_iterator):
         yield (ptype, phi, temperature, delta, last_time, pos, box)
 
 def calculate(vals):
-
-        print("job start")
         ptype, phi, temperature, delta, last_time, pos, box = vals
-
+    
         new_results = {}
         temp_str = "{0:.2f}".format(temperature)
         dir_name = "{}/{}_phi_{}_delta_{}_temp_{}".format(
             ptype, ptype, phi, delta, temp_str)
         file_name = "{}/patch_network.dat".format(dir_name)
+        file_psi = "{}/psi_op.dat".format(dir_name)
 
-        print("Evaluating data of {}".format(dir_name))
         subdir_name = "{}_phi_{}_delta_{}_temp_{}".format(
             ptype, phi, delta, temperature)
 
@@ -99,16 +96,7 @@ def calculate(vals):
             new_results['frac_degree_2'] = degrees_f[2]
             new_results['frac_degree_3'] = degrees_f[3]
             new_results['frac_degree_4'] = degrees_f[4]
-
-            file_psi = "{}/psi_op.dat".format(dir_name)
-            dg = pd.read_csv(file_psi, delim_whitespace=True,
-                             names=['psi_all', 'psi_largest', 'N_largest'])
-
-            arr = dg.values
-            new_results['psi_all'] = arr[-1, 0]
-            new_results['psi_largest'] = arr[-1, 1]
-
-        else:
+        else: 
             print("{}: doesn't exist".format(file_name))
 
             new_results['frac_largest'] = np.nan
@@ -120,17 +108,28 @@ def calculate(vals):
             new_results['frac_degree_3'] = np.nan
             new_results['frac_degree_4'] = np.nan
 
+        if exists(file_psi):
+            dg = pd.read_csv(file_psi, delim_whitespace=True,
+                             names=['psi_all', 'psi_largest', 'N_largest'])
+
+            arr = dg.values
+            new_results['psi_all'] = arr[-1, 0]
+            new_results['psi_largest'] = arr[-1, 1]
+
+        else:
+            print("{}: doesn't exist".format(file_psi))
             new_results['psi_all'] = np.nan
             new_results['psi_largest'] = np.nan
 
+        new_results = pd.DataFrame.from_dict(new_results, orient="index").T
         return new_results
 
 if __name__ == '__main__':
 
     # read data either through files system via glob or via db
     parser = argparse.ArgumentParser()
-    parser.add_argument('-input', type=str, choices=['fsys'])
     parser.add_argument('-run_id', type=str)
+    parser.add_argument('-ncores', type=int)
 
     args = parser.parse_args()
 
@@ -152,14 +151,27 @@ if __name__ == '__main__':
     columns.append("psi_largest")
 
     df = pd.DataFrame(columns=columns)
-    gen = gen_dict[args.input]
+    gen = gen_dict['fsys']
 
-    N_CORES=12
-    pool = multiprocessing.Pool(N_CORES)
-    new_results = zip(*pool.map(calculate, gen))
-    #for ptype, phi, temperature, delta, last_time, pos, box in gen:
-    # new_results = calculate(vals)
+    N_CORES=int(args.ncores)
+    N_CORES_MAX = 12 
 
-    df = df.append(new_results, ignore_index=True)
+    if N_CORES>1 and N_CORES<=N_CORES_MAX:
+        print("Multiprocessing with {} cores".format(N_CORES))
+        pool = multiprocessing.Pool(N_CORES)
+        new_results = pool.map(calculate, gen)
+        pool.close()
+        pool.join()
+        df = pd.concat(new_results)
+    
+    if N_CORES == 1:
+        print("single core job")
+        for vals in gen:
+            new_results = calculate(vals)
+            df = df.append(new_results, ignore_index=True)
+
+    if N_CORES > N_CORES_MAX:
+        print("Too many cores allocated, please do not use more than {} cores".format(N_CORES_MAX))
+
     df.to_pickle("results_gel_{}.pickle".format(
         args.run_id))
