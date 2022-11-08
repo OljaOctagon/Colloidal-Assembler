@@ -45,39 +45,13 @@ def generator_from_fsys(fsys_iterator):
         box_file = "{}Box_{}.bin".format(dir_i, last_time)
         box = np.fromfile(box_file)
 
-        yield ptype, phi, temperature, delta, last_time, pos, box
+        yield (ptype, phi, temperature, delta, last_time, pos, box)
 
+def calculate(vals):
 
-if __name__ == '__main__':
+        print("job start")
+        ptype, phi, temperature, delta, last_time, pos, box = vals
 
-    # read data either through files system via glob or via db
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-input', type=str, choices=['fsys'])
-    parser.add_argument('-run_id', type=str)
-
-    args = parser.parse_args()
-
-    gen_fsys = generator_from_fsys(glob.glob("double*/double*/"))
-    gen_dict = {'fsys': gen_fsys}
-    columns = ['id', 'ptype', 'delta', 'phi', 'temperature',
-               'current_time']
-
-    print("Calculating for all double* files in dir ")
-
-    columns.append('frac_largest')
-    columns.append('frac_largest_virtual')
-    columns.append('frac_degree_0')
-    columns.append('frac_degree_1')
-    columns.append('frac_degree_2')
-    columns.append('frac_degree_3')
-    columns.append('frac_degree_4')
-    columns.append("psi_all")
-    columns.append("psi_largest")
-
-    df = pd.DataFrame(columns=columns)
-    gen = gen_dict[args.input]
-
-    def calculate(ptype, phi, temperature, delta, last_time, pos, box):
         new_results = {}
         temp_str = "{0:.2f}".format(temperature)
         dir_name = "{}/{}_phi_{}_delta_{}_temp_{}".format(
@@ -151,14 +125,41 @@ if __name__ == '__main__':
 
         return new_results
 
-    #pool = multiprocessing.Pool(12)
-    #new_results = zip(*pool.map(calculate, gen))
-    for ptype, phi, temperature, delta, last_time, pos, box in gen:
+if __name__ == '__main__':
 
-        new_results = calculate(ptype, phi, temperature,
-                                delta, last_time, pos, box)
+    # read data either through files system via glob or via db
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-input', type=str, choices=['fsys'])
+    parser.add_argument('-run_id', type=str)
 
-        df = df.append(new_results, ignore_index=True)
+    args = parser.parse_args()
 
+    gen_fsys = generator_from_fsys(glob.glob("double*/double*/"))
+    gen_dict = {'fsys': gen_fsys}
+    columns = ['id', 'ptype', 'delta', 'phi', 'temperature',
+               'current_time']
+
+    print("Calculating for all double* files in dir ")
+
+    columns.append('frac_largest')
+    columns.append('frac_largest_virtual')
+    columns.append('frac_degree_0')
+    columns.append('frac_degree_1')
+    columns.append('frac_degree_2')
+    columns.append('frac_degree_3')
+    columns.append('frac_degree_4')
+    columns.append("psi_all")
+    columns.append("psi_largest")
+
+    df = pd.DataFrame(columns=columns)
+    gen = gen_dict[args.input]
+
+    N_CORES=12
+    pool = multiprocessing.Pool(N_CORES)
+    new_results = zip(*pool.map(calculate, gen))
+    #for ptype, phi, temperature, delta, last_time, pos, box in gen:
+    # new_results = calculate(vals)
+
+    df = df.append(new_results, ignore_index=True)
     df.to_pickle("results_gel_{}.pickle".format(
         args.run_id))
