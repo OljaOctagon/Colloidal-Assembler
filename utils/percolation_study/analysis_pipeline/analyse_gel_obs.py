@@ -13,7 +13,6 @@ import networkx as nx
 from collections import defaultdict
 import multiprocessing
 
-
 def generator_from_fsys(fsys_iterator):
 
     for dir_i in fsys_iterator:
@@ -122,7 +121,7 @@ def calculate(vals):
             new_results['psi_largest'] = np.nan
 
         new_results = pd.DataFrame.from_dict(new_results, orient="index").T
-        return new_results
+        return new_results 
 
 if __name__ == '__main__':
 
@@ -150,6 +149,7 @@ if __name__ == '__main__':
     columns.append("psi_all")
     columns.append("psi_largest")
 
+    
     df = pd.DataFrame(columns=columns)
     gen = gen_dict['fsys']
 
