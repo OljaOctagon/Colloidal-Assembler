@@ -13,6 +13,7 @@ import networkx as nx
 from collections import defaultdict
 import multiprocessing
 
+
 def generator_from_fsys(fsys_iterator):
 
     for dir_i in fsys_iterator:
@@ -45,83 +46,103 @@ def generator_from_fsys(fsys_iterator):
 
         yield (ptype, phi, temperature, delta, last_time, pos, box)
 
+
+def calculate_np(connections_patch, orient_dict):
+    orientd = [orient_dict[(i, j)] for i, j in connections_patch]
+    frac_np = np.sum(orientd)/len(orientd)
+    return frac_np
+
+
 def calculate(vals):
-        ptype, phi, temperature, delta, last_time, pos, box = vals
-    
-        new_results = {}
-        temp_str = "{0:.2f}".format(temperature)
-        dir_name = "{}/{}_phi_{}_delta_{}_temp_{}".format(
-            ptype, ptype, phi, delta, temp_str)
-        file_name = "{}/patch_network.dat".format(dir_name)
-        file_psi = "{}/psi_op.dat".format(dir_name)
+    ptype, phi, temperature, delta, last_time, pos, box = vals
 
-        subdir_name = "{}_phi_{}_delta_{}_temp_{}".format(
-            ptype, phi, delta, temperature)
+    new_results = {}
+    temp_str = "{0:.2f}".format(temperature)
+    dir_name = "{}/{}_phi_{}_delta_{}_temp_{}".format(
+        ptype, ptype, phi, delta, temp_str)
+    file_name = "{}/patch_network.dat".format(dir_name)
+    file_psi = "{}/psi_op.dat".format(dir_name)
 
-        new_results['id'] = subdir_name
-        new_results['ptype'] = ptype
-        new_results['delta'] = delta
-        new_results['phi'] = phi
-        new_results['temperature'] = temperature
-        new_results['current_time'] = last_time
+    subdir_name = "{}_phi_{}_delta_{}_temp_{}".format(
+        ptype, phi, delta, temperature)
 
-        if exists(file_name):
+    new_results['id'] = subdir_name
+    new_results['ptype'] = ptype
+    new_results['delta'] = delta
+    new_results['phi'] = phi
+    new_results['temperature'] = temperature
+    new_results['current_time'] = last_time
 
-            connections = gt.read_bonds(file_name)[-1]
-            connections = connections[:, :2]
-            G = nx.Graph()
-            G.add_edges_from(connections)
+    # 0: parallel
+    # 1: non-parallel
+    orient_dict = {(0, 0): 0, (0, 1): 1, (0, 2): 1, (0, 3): 0,
+                   (1, 1): 0, (1, 2): 0, (1, 3): 1, (2, 2): 0,
+                   (2, 3): 1, (3, 3): 0}
 
-            frac_largest, virtual_frac_largest = get_spanning(pos,
-                                                              box,
-                                                              connections,
-                                                              G,)
-            new_results['frac_largest'] = frac_largest
-            new_results['frac_largest_virtual'] = virtual_frac_largest
+    if exists(file_name):
 
-            degree_sequence = sorted((d for n, d in G.degree()), reverse=True)
-            dmax = max(degree_sequence)
+        connections = gt.read_bonds(file_name)[-1]
 
-            degrees, degrees_N = np.unique(degree_sequence,
-                                           return_counts=True)
+        frac_np = calculate_np(connections[:, 2:], orient_dict)
+        new_results['frac_np'] = frac_np
 
-            N_particles = len(pos)
-            degrees_f = defaultdict(lambda: 0)
-            for di, dn in zip(degrees, degrees_N):
-                degrees_f[di] = dn/N_particles
+        connections_pid = connections[:, :2]
+        G = nx.Graph()
+        G.add_edges_from(connections_pid)
 
-            new_results['frac_degree_0'] = degrees_f[0]
-            new_results['frac_degree_1'] = degrees_f[1]
-            new_results['frac_degree_2'] = degrees_f[2]
-            new_results['frac_degree_3'] = degrees_f[3]
-            new_results['frac_degree_4'] = degrees_f[4]
-        else: 
-            print("{}: doesn't exist".format(file_name))
+        frac_largest, virtual_frac_largest = get_spanning(pos,
+                                                          box,
+                                                          connections_pid,
+                                                          G,)
+        new_results['frac_largest'] = frac_largest
+        new_results['frac_largest_virtual'] = virtual_frac_largest
 
-            new_results['frac_largest'] = np.nan
-            new_results['frac_largest_virtual'] = np.nan
+        degree_sequence = sorted((d for n, d in G.degree()), reverse=True)
+        dmax = max(degree_sequence)
 
-            new_results['frac_degree_0'] = np.nan
-            new_results['frac_degree_1'] = np.nan
-            new_results['frac_degree_2'] = np.nan
-            new_results['frac_degree_3'] = np.nan
-            new_results['frac_degree_4'] = np.nan
+        degrees, degrees_N = np.unique(degree_sequence,
+                                       return_counts=True)
 
-        if exists(file_psi):
-            dg = pd.read_csv(file_psi, delim_whitespace=True,
-                             names=['psi_all', 'psi_largest', 'N_largest'])
+        N_particles = len(pos)
+        degrees_f = defaultdict(lambda: 0)
+        for di, dn in zip(degrees, degrees_N):
+            degrees_f[di] = dn/N_particles
 
-            arr = dg.values
-            new_results['psi_all'] = arr[-1, 0]
-            new_results['psi_largest'] = arr[-1, 1]
+        new_results['frac_degree_0'] = degrees_f[0]
+        new_results['frac_degree_1'] = degrees_f[1]
+        new_results['frac_degree_2'] = degrees_f[2]
+        new_results['frac_degree_3'] = degrees_f[3]
+        new_results['frac_degree_4'] = degrees_f[4]
+    else:
+        print("{}: doesn't exist".format(file_name))
 
-        else:
-            print("{}: doesn't exist".format(file_psi))
-            new_results['psi_all'] = np.nan
-            new_results['psi_largest'] = np.nan
+        new_results['frac_largest'] = np.nan
+        new_results['frac_largest_virtual'] = np.nan
 
-        new_results = pd.DataFrame.from_dict(new_results, orient="index").T
-        return new_results 
+        new_results['frac_degree_0'] = np.nan
+        new_results['frac_degree_1'] = np.nan
+        new_results['frac_degree_2'] = np.nan
+        new_results['frac_degree_3'] = np.nan
+        new_results['frac_degree_4'] = np.nan
+
+        new_results['frac_np'] = np.nan
+
+    if exists(file_psi):
+        dg = pd.read_csv(file_psi, delim_whitespace=True,
+                         names=['psi_all', 'psi_largest', 'N_largest'])
+
+        arr = dg.values
+        new_results['psi_all'] = arr[-1, 0]
+        new_results['psi_largest'] = arr[-1, 1]
+
+    else:
+        print("{}: doesn't exist".format(file_psi))
+        new_results['psi_all'] = np.nan
+        new_results['psi_largest'] = np.nan
+
+    new_results = pd.DataFrame.from_dict(new_results, orient="index").T
+    return new_results
+
 
 if __name__ == '__main__':
 
@@ -149,21 +170,20 @@ if __name__ == '__main__':
     columns.append("psi_all")
     columns.append("psi_largest")
 
-    
     df = pd.DataFrame(columns=columns)
     gen = gen_dict['fsys']
 
-    N_CORES=int(args.ncores)
-    N_CORES_MAX = 12 
+    N_CORES = int(args.ncores)
+    N_CORES_MAX = 12
 
-    if N_CORES>1 and N_CORES<=N_CORES_MAX:
+    if N_CORES > 1 and N_CORES <= N_CORES_MAX:
         print("Multiprocessing with {} cores".format(N_CORES))
         pool = multiprocessing.Pool(N_CORES)
         new_results = pool.map(calculate, gen)
         pool.close()
         pool.join()
         df = pd.concat(new_results)
-    
+
     if N_CORES == 1:
         print("single core job")
         for vals in gen:
@@ -171,7 +191,8 @@ if __name__ == '__main__':
             df = df.append(new_results, ignore_index=True)
 
     if N_CORES > N_CORES_MAX:
-        print("Too many cores allocated, please do not use more than {} cores".format(N_CORES_MAX))
+        print("Too many cores allocated, please do not use more than {} cores".format(
+            N_CORES_MAX))
 
     df.to_pickle("results_gel_{}.pickle".format(
         args.run_id))
