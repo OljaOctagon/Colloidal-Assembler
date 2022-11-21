@@ -1,5 +1,3 @@
-dimension: 2 
-ptype: "delta_test_dma_as1/delta_0.4"
 side_length: 1
 voxcels_per_cell: 7
 threshold_overlap: 0.25
