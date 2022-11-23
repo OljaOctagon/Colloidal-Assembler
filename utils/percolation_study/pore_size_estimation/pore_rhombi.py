@@ -56,11 +56,29 @@ def generator_from_fsys(fsys_iterator):
         yield (ptype, phi, temperature, delta, last_time, pos, orient, box)
 
 
+def get_edge_points(p, axes, sign_p):
+    vertex_n = np.zeros(2)
+    vertex_n = p + sign_p[0]*axes[:, 0]/2. + sign_p[1]*axes[:, 1]/2.
+    return vertex_n
+
+
+def get_vertices(p, axes):
+    vertices = np.zeros((4, 2))
+    vertices[0] = get_edge_points(p, axes, np.array([-1, -1]))
+    vertices[1] = get_edge_points(p, axes, np.array([+1, -1]))
+    vertices[2] = get_edge_points(p, axes, np.array([+1, +1]))
+    vertices[3] = get_edge_points(p, axes, np.array([-1, +1]))
+
+    return vertices
+
+
 def draw_pos(voxcel_pos, blx, frame_name, max_id, min_id, max_domain_id, voxcels):
 
     scale = 100
     img = np.full(
         (ceil(blx * scale), ceil(blx * scale), 3), 255, np.uint8)
+
+    axes = np.array([[1, 0], [0, 1]])*voxcels.lx
 
     for di in range(int(min_id), int(max_id)+1):
         if di != max_domain_id:
@@ -71,7 +89,7 @@ def draw_pos(voxcel_pos, blx, frame_name, max_id, min_id, max_domain_id, voxcels
                      random.randint(0, 255))
 
             for p in points:
-                vert_i = voxcels.get_vertices(p)
+                vert_i = get_vertices(p, axes)
                 cv.rectangle(img, np.int32(
                     vert_i[2] * scale), np.int32(vert_i[0] * scale), color, 2)
 
