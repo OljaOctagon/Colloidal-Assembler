@@ -84,9 +84,9 @@ def get_voxel_array(domains, voxcels):
     arr = []
     for di, domain in enumerate(domains):
         for coord_vi in domain:
-            vert_i = voxcels.get_vertices(coord_vi)
-            for vi in vert_i:
-                arr.append([di, vi[0], vi[1]])
+            arr.append([di, coord_vi[0], coord_vi[1]])
+
+    arr = np.array(arr)
 
     arr = np.array(arr)
     arr = np.reshape(arr, (-1, 3))
