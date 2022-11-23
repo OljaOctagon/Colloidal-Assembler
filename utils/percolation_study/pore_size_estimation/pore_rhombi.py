@@ -372,6 +372,7 @@ if __name__ == '__main__':
         print("Multiprocessing with {} cores".format(N_CORES))
         pool = multiprocessing.Pool(N_CORES)
         meta_data, results = pool.map(calculate, gen_fsys)
+        print(meta_data, results)
         pool.close()
         pool.join()
         #df = pd.concat(new_results)
