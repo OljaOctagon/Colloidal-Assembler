@@ -351,6 +351,10 @@ def calculate(vals):
     df['circumference'] = circumferences
 
     meta = {}
+
+    fid = fid.split("/")[1]
+    print(fid)
+
     meta["fid"] = "{}_{}".format(fid, last_time)
     meta["ptype"] = ptype
     meta["phi"] = ptype
