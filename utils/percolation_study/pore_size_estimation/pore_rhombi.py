@@ -164,6 +164,7 @@ def stitch_cluster(G, next_i, old_coords, new_coords):
 
 def get_stitched_pos(voxcels, box, domain_obs, G, arr):
 
+    axes = np.array([[1, 0], [0, 1]])*voxcels.lx
     min_id, max_id, max_domain_id = domain_obs
     voxcel_pos = []
     # random.seed(10)
@@ -194,7 +195,7 @@ def get_stitched_pos(voxcels, box, domain_obs, G, arr):
         if di != max_domain_id:
             coords = voxcel_pos[voxcel_pos[:, 0] == di][:, 1:3]
             for coord_vi in coords:
-                vert_i = voxcels.get_vertices(coord_vi)
+                vert_i = get_vertices(coord_vi, axes)
                 for vi in vert_i:
                     edge_pos.append([di, vi[0], vi[1]])
 
