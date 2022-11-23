@@ -16,6 +16,7 @@ import multiprocessing
 import glob
 import re
 import argparse
+import random
 
 
 def generator_from_fsys(fsys_iterator):
@@ -54,33 +55,87 @@ def generator_from_fsys(fsys_iterator):
         yield (ptype, phi, temperature, delta, last_time, pos, orient, box)
 
 
-def draw(particles, voxcels, box, cells, frame_name):
+def draw_pos(voxcel_pos, blx, frame_name, max_id, min_id, max_domain_id, voxcels):
+
     scale = 100
     img = np.full(
-        (ceil(box.lx * scale), ceil(box.ly * scale), 3), 255, np.uint8)
-    for vert_i in particles.vertices:
-        cv.fillPoly(img, np.int32([vert_i * scale]), (0, 0, 0))
+        (ceil(blx * scale), ceil(blx * scale), 3), 255, np.uint8)
 
-    for coord_vi in voxcels.coords:
-        if voxcels.fill_state[coord_vi] == 0:
-            vert_i = voxcels.get_vertices(coord_vi)
-            cv.rectangle(img, np.int32(
-                vert_i[2] * scale), np.int32(vert_i[0] * scale), (255, 0, 0), 2)
+    for di in range(int(min_id), int(max_id)+1):
+        if di != max_domain_id:
+            points = voxcel_pos[voxcel_pos[:, 0] == di][:, 1:3]
+
+            color = (random.randint(0, 255),
+                     random.randint(0, 255),
+                     random.randint(0, 255))
+
+            for p in points:
+                vert_i = voxcels.get_vertices(p)
+                cv.rectangle(img, np.int32(
+                    vert_i[2] * scale), np.int32(vert_i[0] * scale), color, 2)
 
     outsize = (10000, 10000)
     out = cv.resize(img, outsize)
     cv.imwrite(frame_name, out)
 
 
+def stitch_cluster(G, next_i, old_coords, new_coords):
+    # print(list(G.nodes))
+
+    while len(old_coords) > 0:
+        #print("next_i", next_i)
+        neigh = [n for n in G.neighbors(next_i)]
+        leftover_neigh = [
+            elem_1 for elem_1 in neigh for elem_2 in old_coords if elem_1 == elem_2]
+        for ni in leftover_neigh:
+            nxi = ni[0]
+            nyi = ni[1]
+
+            dxi = next_i[0] - ni[0]
+            dyi = next_i[1] - ni[1]
+
+            if np.abs(dxi) > 1:
+                nxi = next_i[0] - np.sign(nxi)
+            if np.abs(dyi) > 1:
+                nyi = next_i[1] - np.sign(nyi)
+
+            new_ni = (nxi, nyi)
+            new_coords.append(new_ni)
+            old_coords.remove(ni)
+            #print("ni, new_ni", ni, new_ni)
+            nx.relabel_nodes(G, {ni: new_ni}, copy=False)
+
+        next_i = new_ni
+
+        if len(leftover_neigh) == 0:
+            #print("empty step")
+
+            k = 1
+            # print(old_coords)
+            while len(leftover_neigh) == 0:
+                last_i = new_coords[new_coords.index(next_i)-k]
+                neigh = [n for n in G.neighbors(last_i)]
+                i = 0
+
+                while len(leftover_neigh) == 0 and i < len(neigh):
+                    next_test = neigh[i]
+                    neighk = [n for n in G.neighbors(next_test)]
+                    leftover_neigh = [
+                        elem_1 for elem_1 in neighk for elem_2 in old_coords if elem_1 == elem_2]
+                    i += 1
+
+                k += 1
+            next_i = next_test
+            #print("reduce, next_i", next_i)
+
+    return old_coords, new_coords
+
+
 def calculate(vals):
     ptype, phi, temperature, delta, last_time, pos, orient, box = vals
 
     print("read data...")
-
-    box_x_center = box[0]
-    box_y_center = box[1]
     blx = box[3]
-    box_ly = box[4]
 
     print("initialize variables...")
     ndim = 2
@@ -140,7 +195,56 @@ def calculate(vals):
     print("get all pore volumes and domain lengths ")
     pore_areas, domain_lengths, domains, G = pt.get_pore_volume(voxcels)
 
-    print("write output")
+    arr = []
+    for di, domain in enumerate(domains):
+        for coord_vi in domain:
+            vert_i = voxcels.get_vertices(coord_vi)
+            for vi in vert_i:
+                arr.append([di, vi[0], vi[1]])
+
+    arr = np.array(arr)
+    arr = np.reshape(arr, (-1, 3))
+
+    min_id = np.min(arr[:, 0])
+    max_id = np.max(arr[:, 0])
+    uniques, counts = np.unique(arr[:, 0], return_counts=True)
+    max_domain_id = uniques[np.argmax(counts)]
+
+    # stitch together cluster over pbcs by adapting voxcel pos and edge pos
+    voxcel_pos = []
+    # random.seed(10)
+    for di in range(int(min_id), int(max_id)+1):
+        if di != max_domain_id:
+            coords = arr[arr[:, 0] == di][:, 1:3]
+            old_coords = [(i, j) for i, j in coords]
+            rand_c = coords[random.randint(0, len(coords)-1)]
+            ci = (rand_c[0], rand_c[1])
+            new_coords = [ci]
+            old_coords.remove(ci)
+
+            old_coords, new_coords = stitch_cluster(
+                G, ci, old_coords, new_coords)
+
+            for entry in new_coords:
+                nni = entry
+                vx = box.origin[0] + voxcels.lx*nni[0] + voxcels.lx/2
+                vy = box.origin[1] + voxcels.lx*nni[1] + voxcels.lx/2
+                voxcel_pos.append([di, vx, vy])
+
+    voxcel_pos = np.array(voxcel_pos)
+    draw_pos(voxcel_pos, box.lx, "voxcels_shifted.png",
+             max_id, min_id, max_domain_id, voxcels)
+
+    edge_pos = []
+    for di in range(int(min_id), int(max_id)+1):
+        if di != max_domain_id:
+            coords = voxcel_pos[voxcel_pos[:, 0] == di][:, 1:3]
+            for coord_vi in coords:
+                vert_i = voxcels.get_vertices(coord_vi)
+                for vi in vert_i:
+                    edge_pos.append([di, vi[0], vi[1]])
+
+    edge_pos = np.array(edge_pos)
 
 
 if __name__ == '__main__':
