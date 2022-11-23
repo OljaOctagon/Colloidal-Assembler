@@ -17,6 +17,7 @@ import glob
 import re
 import argparse
 import random
+import h5py
 
 
 def generator_from_fsys(fsys_iterator):
@@ -184,7 +185,10 @@ def get_stitched_pos(voxcels, box, domain_obs, G, arr):
     return voxcel_pos, edge_pos
 
 
-def get_ALL_circumferences(G, domains, n_edges, vlx):
+def get_ALL_circumferences(G, domains, n_edges, domain_obs, vlx):
+
+    min_id, max_id, max_domain_id = domain_obs
+
     def ete_degree(G):
         degree = defaultdict(int)
         for u, v in ((u, v) for u, v, d in G.edges(data=True) if d['ete'] == 1):
@@ -198,8 +202,9 @@ def get_ALL_circumferences(G, domains, n_edges, vlx):
         return degree_dict[u]
 
     domain_dg = []
-    for domain in domains:
-        domain_dg.append(list(map(get_ete_degree, domain)))
+    for di in range(int(min_id), int(max_id)+1):
+        if di != max_domain_id:
+            domain_dg.append(list(map(get_ete_degree, domains[di])))
 
     def get_circumference(domain_dgi):
         arr = (n_edges - np.array(domain_dgi))*vlx
@@ -275,30 +280,34 @@ def calculate(vals):
     print("get all pore volumes and domain lengths ")
     pore_areas, domain_lengths, domains, G = pt.get_pore_volume(voxcels)
 
-    # RESULT: pore circumference
-    circumferences = get_ALL_circumferences(G, domains,
-                                            particles.N_edges,
-                                            voxcels.lx)
-
-    # get PBC stitched clusters for convex hull to get asymmetry measures:
     arr = get_voxel_array(domains, voxcels)
 
     min_id = np.min(arr[:, 0])
     max_id = np.max(arr[:, 0])
     uniques, counts = np.unique(arr[:, 0], return_counts=True)
     max_domain_id = uniques[np.argmax(counts)]
+    max_domain = np.max(pore_areas)
 
     domain_obs = (min_id, max_id, max_domain_id)
 
+    # RESULT: pore circumference
+    circumferences = get_ALL_circumferences(G, domains,
+                                            particles.N_edges,
+                                            domain_obs,
+                                            voxcels.lx)
+
+    # get PBC stitched clusters for convex hull to get asymmetry measures:
     # stitch together cluster over pbcs by adapting voxcel pos and edge pos
     voxcel_pos, edge_pos = get_stitched_pos(voxcels, box, domain_obs, G, arr)
 
     # RESULT: ratio pore volume and convex hull: general asymmetry measure
     hull = []
+    pore_area_no_max = []
     for di in range(int(min_id), int(max_id)+1):
         if di != max_domain_id:
             points = edge_pos[edge_pos[:, 0] == di][:, 1:3]
             pore_area = (len(points)/particles.N_edges)*np.power(voxcels.lx, 2)
+            pore_area_no_max.append(pore_area)
             chull = ConvexHull(points)
             hull.append([pore_area, chull.volume])
 
@@ -314,6 +323,16 @@ def calculate(vals):
             points = edge_pos[edge_pos[:, 0] == di][:, 1:3]
             pca.fit(points)
             xlambda.append(pca.explained_variance_ratio_[0])
+
+    df = pd.DataFrame()
+    df['pore area'] = pore_area_no_max
+    df['percent_explained_variance'] = xlambda
+    df['convex_hull_ratio'] = hull_ratio
+    df['circumference'] = circumferences
+
+    meta = (ptype, phi, temperature, delta, last_time, max_domain)
+
+    return meta, df
 
 
 if __name__ == '__main__':
@@ -333,16 +352,17 @@ if __name__ == '__main__':
     if N_CORES > 1 and N_CORES <= N_CORES_MAX:
         print("Multiprocessing with {} cores".format(N_CORES))
         pool = multiprocessing.Pool(N_CORES)
-        new_results = pool.map(calculate, gen_fsys)
+        meta_data, results = pool.map(calculate, gen_fsys)
         pool.close()
         pool.join()
-        df = pd.concat(new_results)
+        #df = pd.concat(new_results)
 
     if N_CORES == 1:
         print("single core job")
         for vals in gen_fsys:
-            new_results = calculate(vals)
-            df = df.append(new_results, ignore_index=True)
+            meta_data, results = calculate(vals)
+            print(meta_data, results)
+            #df = df.append(new_results, ignore_index=True)
 
     if N_CORES > N_CORES_MAX:
         print("Too many cores allocated, please do not use more than {} cores".format(
