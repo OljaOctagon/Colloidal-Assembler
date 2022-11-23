@@ -63,11 +63,11 @@ for dir in subdirs:
         sgrp.attrs['random_state-0'] = 'xxx'
         sgrp.attrs['random_state-1'] = 'xxx'
 
-        dset_pos = sgrp.create_dataset("positions".format(
-            j), (x_extent, pos_dim), dtype='f')
+        dset_pos = sgrp.create_dataset(
+            "positions_{}".format(j), (x_extent, pos_dim), dtype='f')
 
-        dset_orient = sgrp.create_dataset("orientations".format(
-            j), (x_extent), dtype='f')
+        dset_orient = sgrp.create_dataset(
+            "orientations_{}".format(j), (x_extent), dtype='f')
 
         pos_i = np.fromfile("{}/positions_{}.bin".format(dir, val))
         pos_i = np.reshape(pos_i, (-1, 3))

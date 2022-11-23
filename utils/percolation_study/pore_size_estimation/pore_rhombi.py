@@ -52,8 +52,9 @@ def generator_from_fsys(fsys_iterator):
 
         box_file = "{}Box_{}.bin".format(dir_i, last_time)
         box = np.fromfile(box_file)
+        fid = dir_i
 
-        yield (ptype, phi, temperature, delta, last_time, pos, orient, box)
+        yield (fid, ptype, phi, temperature, delta, last_time, pos, orient, box)
 
 
 def get_edge_points(p, axes, sign_p):
@@ -235,7 +236,7 @@ def get_ALL_circumferences(G, domains, n_edges, domain_obs, vlx):
 
 
 def calculate(vals):
-    ptype, phi, temperature, delta, last_time, pos, orient, box = vals
+    fid, ptype, phi, temperature, delta, last_time, pos, orient, box = vals
 
     print("read data...")
     blx = box[3]
@@ -349,8 +350,15 @@ def calculate(vals):
     df['convex_hull_ratio'] = hull_ratio
     df['circumference'] = circumferences
 
-    meta = (ptype, phi, temperature, delta, last_time, max_domain)
-
+    meta = {}
+    meta["fid"] = "{}_{}".format(fid, last_time)
+    meta["ptype"] = ptype
+    meta["phi"] = ptype
+    meta["temperature"] = temperature
+    meta["delta"] = delta
+    meta["last_time"] = last_time
+    meta["run_id"] = 0
+    meta["max_domain"] = max_domain
     return meta, df
 
 
@@ -366,24 +374,39 @@ if __name__ == '__main__':
     gen_fsys = generator_from_fsys(glob.glob("double*/double*/"))
 
     N_CORES = int(args.ncores)
-    N_CORES_MAX = 12
+    N_CORES_MAX = 8
 
     if N_CORES > 1 and N_CORES <= N_CORES_MAX:
         print("Multiprocessing with {} cores".format(N_CORES))
         pool = multiprocessing.Pool(N_CORES)
-        meta_data, results = pool.map(calculate, gen_fsys)
-        print(meta_data, results)
+        results = pool.map(calculate, gen_fsys)
         pool.close()
         pool.join()
+
         #df = pd.concat(new_results)
 
     if N_CORES == 1:
         print("single core job")
         for vals in gen_fsys:
-            meta_data, results = calculate(vals)
-            print(meta_data, results)
+            results = calculate(vals)
             #df = df.append(new_results, ignore_index=True)
 
     if N_CORES > N_CORES_MAX:
         print("Too many cores allocated, please do not use more than {} cores".format(
             N_CORES_MAX))
+        exit()
+
+    # create hd5f file
+    f = h5py.File("test.h5", 'w')
+    for i, res in enumerate(results):
+        grp = f.create_group(res[0]['fid'])
+
+        for key in res[0]:
+            grp.attrs[key] = res[0][key]
+
+        dfi = res[1]
+        for col in dfi.columns:
+            dset = grp.create_dataset(col, len(dfi), dtype='f')
+            dset[...] = dfi[col]
+
+    f.close()
