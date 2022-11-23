@@ -79,6 +79,19 @@ def draw_pos(voxcel_pos, blx, frame_name, max_id, min_id, max_domain_id, voxcels
     cv.imwrite(frame_name, out)
 
 
+def get_voxel_array(domains, voxcels):
+    arr = []
+    for di, domain in enumerate(domains):
+        for coord_vi in domain:
+            vert_i = voxcels.get_vertices(coord_vi)
+            for vi in vert_i:
+                arr.append([di, vi[0], vi[1]])
+
+    arr = np.array(arr)
+    arr = np.reshape(arr, (-1, 3))
+    return arr
+
+
 def stitch_cluster(G, next_i, old_coords, new_coords):
     # print(list(G.nodes))
 
@@ -109,7 +122,6 @@ def stitch_cluster(G, next_i, old_coords, new_coords):
 
         if len(leftover_neigh) == 0:
             #print("empty step")
-
             k = 1
             # print(old_coords)
             while len(leftover_neigh) == 0:
@@ -129,6 +141,73 @@ def stitch_cluster(G, next_i, old_coords, new_coords):
             #print("reduce, next_i", next_i)
 
     return old_coords, new_coords
+
+
+def get_stitched_pos(voxcels, box, domain_obs, G, arr):
+
+    min_id, max_id, max_domain_id = domain_obs
+    voxcel_pos = []
+    # random.seed(10)
+    for di in range(int(min_id), int(max_id)+1):
+        if di != max_domain_id:
+            coords = arr[arr[:, 0] == di][:, 1:3]
+            old_coords = [(i, j) for i, j in coords]
+            rand_c = coords[random.randint(0, len(coords)-1)]
+            ci = (rand_c[0], rand_c[1])
+            new_coords = [ci]
+            old_coords.remove(ci)
+
+            old_coords, new_coords = stitch_cluster(
+                G, ci, old_coords, new_coords)
+
+            for entry in new_coords:
+                nni = entry
+                vx = box.origin[0] + voxcels.lx*nni[0] + voxcels.lx/2
+                vy = box.origin[1] + voxcels.lx*nni[1] + voxcels.lx/2
+                voxcel_pos.append([di, vx, vy])
+
+    voxcel_pos = np.array(voxcel_pos)
+    draw_pos(voxcel_pos, box.lx, "voxcels_shifted.png",
+             max_id, min_id, max_domain_id, voxcels)
+
+    edge_pos = []
+    for di in range(int(min_id), int(max_id)+1):
+        if di != max_domain_id:
+            coords = voxcel_pos[voxcel_pos[:, 0] == di][:, 1:3]
+            for coord_vi in coords:
+                vert_i = voxcels.get_vertices(coord_vi)
+                for vi in vert_i:
+                    edge_pos.append([di, vi[0], vi[1]])
+
+    edge_pos = np.array(edge_pos)
+
+    return voxcel_pos, edge_pos
+
+
+def get_ALL_circumferences(G, domains, n_edges, vlx):
+    def ete_degree(G):
+        degree = defaultdict(int)
+        for u, v in ((u, v) for u, v, d in G.edges(data=True) if d['ete'] == 1):
+            degree[u] += 1
+            degree[v] += 1
+        return degree
+
+    degree_dict = ete_degree(G)
+
+    def get_ete_degree(u):
+        return degree_dict[u]
+
+    domain_dg = []
+    for domain in domains:
+        domain_dg.append(list(map(get_ete_degree, domain)))
+
+    def get_circumference(domain_dgi):
+        arr = (n_edges - np.array(domain_dgi))*vlx
+        cf = np.sum(arr)
+        return cf
+
+    circumferences = [get_circumference(dd) for dd in domain_dg]
+    return circumferences
 
 
 def calculate(vals):
@@ -192,59 +271,49 @@ def calculate(vals):
     print("generate links between empty voxcels...")
     voxcels.get_links()
 
+    # RESULT: pore area/ domain sizes
     print("get all pore volumes and domain lengths ")
     pore_areas, domain_lengths, domains, G = pt.get_pore_volume(voxcels)
 
-    arr = []
-    for di, domain in enumerate(domains):
-        for coord_vi in domain:
-            vert_i = voxcels.get_vertices(coord_vi)
-            for vi in vert_i:
-                arr.append([di, vi[0], vi[1]])
+    # RESULT: pore circumference
+    circumferences = get_ALL_circumferences(G, domains,
+                                            particles.N_edges,
+                                            voxcels.lx)
 
-    arr = np.array(arr)
-    arr = np.reshape(arr, (-1, 3))
+    # get PBC stitched clusters for convex hull to get asymmetry measures:
+    arr = get_voxel_array(domains, voxcels)
 
     min_id = np.min(arr[:, 0])
     max_id = np.max(arr[:, 0])
     uniques, counts = np.unique(arr[:, 0], return_counts=True)
     max_domain_id = uniques[np.argmax(counts)]
 
+    domain_obs = (min_id, max_id, max_domain_id)
+
     # stitch together cluster over pbcs by adapting voxcel pos and edge pos
-    voxcel_pos = []
-    # random.seed(10)
+    voxcel_pos, edge_pos = get_stitched_pos(voxcels, box, domain_obs, G, arr)
+
+    # RESULT: ratio pore volume and convex hull: general asymmetry measure
+    hull = []
     for di in range(int(min_id), int(max_id)+1):
         if di != max_domain_id:
-            coords = arr[arr[:, 0] == di][:, 1:3]
-            old_coords = [(i, j) for i, j in coords]
-            rand_c = coords[random.randint(0, len(coords)-1)]
-            ci = (rand_c[0], rand_c[1])
-            new_coords = [ci]
-            old_coords.remove(ci)
+            points = edge_pos[edge_pos[:, 0] == di][:, 1:3]
+            pore_area = (len(points)/particles.N_edges)*np.power(voxcels.lx, 2)
+            chull = ConvexHull(points)
+            hull.append([pore_area, chull.volume])
 
-            old_coords, new_coords = stitch_cluster(
-                G, ci, old_coords, new_coords)
+    hull = np.array(hull)
+    hull_ratio = hull[:, 0]/hull[:, 1]
 
-            for entry in new_coords:
-                nni = entry
-                vx = box.origin[0] + voxcels.lx*nni[0] + voxcels.lx/2
-                vy = box.origin[1] + voxcels.lx*nni[1] + voxcels.lx/2
-                voxcel_pos.append([di, vx, vy])
-
-    voxcel_pos = np.array(voxcel_pos)
-    draw_pos(voxcel_pos, box.lx, "voxcels_shifted.png",
-             max_id, min_id, max_domain_id, voxcels)
-
-    edge_pos = []
+    # RESULT: explained variance by largest principal component:
+    # how elongated are pores
+    pca = PCA(n_components=2)
+    xlambda = []
     for di in range(int(min_id), int(max_id)+1):
         if di != max_domain_id:
-            coords = voxcel_pos[voxcel_pos[:, 0] == di][:, 1:3]
-            for coord_vi in coords:
-                vert_i = voxcels.get_vertices(coord_vi)
-                for vi in vert_i:
-                    edge_pos.append([di, vi[0], vi[1]])
-
-    edge_pos = np.array(edge_pos)
+            points = edge_pos[edge_pos[:, 0] == di][:, 1:3]
+            pca.fit(points)
+            xlambda.append(pca.explained_variance_ratio_[0])
 
 
 if __name__ == '__main__':
