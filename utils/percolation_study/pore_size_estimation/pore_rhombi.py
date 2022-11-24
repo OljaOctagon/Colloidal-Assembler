@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 import networkx as nx
-import matplotlib as pyplot
 from collections import defaultdict
 import cv2 as cv
 import pore_tool as pt
@@ -237,11 +236,7 @@ def get_ALL_circumferences(G, domains, n_edges, domain_obs, vlx):
 
 def calculate(vals):
     fid, ptype, phi, temperature, delta, last_time, pos, orient, box = vals
-
-    print("read data...")
     blx = box[3]
-
-    print("initialize variables...")
     ndim = 2
     side_length = 1
     voxcels_per_cell = 7
@@ -250,30 +245,29 @@ def calculate(vals):
     frame_name = "voxcels.png"
     N_trial = 100
 
-    # generate particles object
+    # Generate particles object
     rlx = side_length
     Np = len(pos)
     particles = pt.Rhombi(pos, orient, rlx, ndim)
 
-    # generate box object
+    # Generate box object
     origin = box[:2] - blx/2.
     box = pt.Box(origin, blx, ndim)
 
-    # initalize cells object
-    # absolute lmin = particles.sigma
+    # Initalize cells object
+    # Absolute lmin = particles.sigma
     lmin = particles.sigma
     cells = pt.Cells(lmin, box.lx, ndim)
 
-    # initialize voxels object
+    # Initialize voxels object
     vxl = cells.lx/voxcels_per_cell
     vxn = cells.nx*voxcels_per_cell
     voxcels = pt.Voxcels(vxl, vxn, box.origin, ndim)
 
-    # initalize cells object
-    print("generate cell lists...")
+    # Initalize cells object
     cells.list_generate(particles.pos, voxcels.coords, voxcels.pos, box.origin)
 
-    print("calculate voxcel state...")
+    # Calculate voxcel state
     for ci in cells.coords:
 
         vcoords = cells.voxcel_list[ci]
@@ -293,11 +287,10 @@ def calculate(vals):
                 if overlap_volume_i > threshold_overlap:
                     voxcels.set_to_filled(vcoords[i])
 
-    print("generate links between empty voxcels...")
+    # Generate links between empty voxcels
     voxcels.get_links()
 
     # RESULT: pore area/ domain sizes
-    print("get all pore volumes and domain lengths ")
     pore_areas, domain_lengths, domains, G = pt.get_pore_volume(voxcels)
 
     arr = get_voxel_array(domains, voxcels)
@@ -316,8 +309,8 @@ def calculate(vals):
                                             domain_obs,
                                             voxcels.lx)
 
-    # get PBC stitched clusters for convex hull to get asymmetry measures:
-    # stitch together cluster over pbcs by adapting voxcel pos and edge pos
+    # Get PBC stitched clusters for convex hull to get asymmetry measures:
+    # Stitch together cluster over pbcs by adapting voxcel pos and edge pos
     voxcel_pos, edge_pos = get_stitched_pos(voxcels, box, domain_obs, G, arr)
 
     # RESULT: ratio pore volume and convex hull: general asymmetry measure
@@ -345,7 +338,7 @@ def calculate(vals):
             xlambda.append(pca.explained_variance_ratio_[0])
 
     df = pd.DataFrame()
-    df['pore area'] = pore_area_no_max
+    df['pore_area'] = pore_area_no_max
     df['percent_explained_variance'] = xlambda
     df['convex_hull_ratio'] = hull_ratio
     df['circumference'] = circumferences
@@ -387,13 +380,10 @@ if __name__ == '__main__':
         pool.close()
         pool.join()
 
-        #df = pd.concat(new_results)
-
     if N_CORES == 1:
         print("single core job")
         for vals in gen_fsys:
             results = calculate(vals)
-            #df = df.append(new_results, ignore_index=True)
 
     if N_CORES > N_CORES_MAX:
         print("Too many cores allocated, please do not use more than {} cores".format(
