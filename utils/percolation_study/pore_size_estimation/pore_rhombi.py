@@ -391,7 +391,7 @@ if __name__ == '__main__':
         exit()
 
     # create hd5f file
-    f = h5py.File("pore_measures.h5", 'w')
+    f = h5py.File("pore_measures_{}.h5".format(args.run_id), 'w')
     for i, res in enumerate(results):
         grp = f.create_group(res[0]['fid'])
 
