@@ -187,8 +187,8 @@ def get_stitched_pos(voxcels, box, domain_obs, G, arr):
                 voxcel_pos.append([di, vx, vy])
 
     voxcel_pos = np.array(voxcel_pos)
-    draw_pos(voxcel_pos, box.lx, "voxcels_shifted.png",
-             max_id, min_id, max_domain_id, voxcels)
+    # draw_pos(voxcel_pos, box.lx, "voxcels_shifted.png",
+    #         max_id, min_id, max_domain_id, voxcels)
 
     edge_pos = []
     for di in range(int(min_id), int(max_id)+1):
