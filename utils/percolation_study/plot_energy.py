@@ -43,9 +43,11 @@ for delta in Delta:
             axi = ax[i, j]
             axi.set_yscale("log")
             for ri in range(1, 9):
+                print(ri)
                 file_i = '{}_phi_{}_delta_{}_temp_{}_run_{}/Energy.dat'.format(
                     pdict[args.ptype], phi, delta, ti, ri)
 
+                print(file_i)
                 arr = pd.read_csv(file_i, delim_whitespace=True).values
                 arr[:, 1] = -1*arr[:, 1]
                 axi.plot(arr[:, 0], arr[:, 1], lw=0.3,
