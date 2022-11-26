@@ -50,12 +50,14 @@ for delta in Delta:
                 print(file_i)
                 arr = pd.read_csv(file_i, delim_whitespace=True).values
                 arr[:, 1] = -1*arr[:, 1]
-                axi.plot(arr[:, 0], arr[:, 1], lw=0.3,
+                axi.plot(arr[:, 0], arr[:, 1]/1000, lw=0.3,
                          label="run id = {}".format(ri))
 
-            axi.set_title("$\phi$={},T={}".format(phi, ti))
-            axi.set_xlabel("sweeps")
-            axi.set_ylabel("abs(U)")
+            axi.set_title("$\phi$={},T={}".format(phi, ti), size=10)
+            axi.set_xlabel("sweeps", size=10)
+            axi.set_ylabel("abs(U)", size=10)
+            axi.tick_params(axis='both', which='major', labelsize=10)
+            axi.set_ylim((0, 5))
             box = axi.get_position()
             axi.set_position(
                 [box.x0, box.y0, box.width * 0.65, box.height*0.8])
