@@ -4,6 +4,7 @@ from glob import glob
 import argparse
 import pandas as pd
 import re
+from matplotlib.ticker import NullFormatter
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-ptype', type=str,
@@ -57,7 +58,9 @@ for delta in Delta:
             axi.set_xlabel("sweeps", size=5)
             axi.set_ylabel("abs(U)", size=5)
             axi.tick_params(axis='both', which='major', labelsize=5)
-            axi.set_yticklabels([])
+
+            axi.yaxis.set_major_formatter(NullFormatter())
+            axi.yaxis.set_minor_formatter(NullFormatter())
 
             axi.set_ylim((0, 5))
             box = axi.get_position()
