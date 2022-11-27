@@ -41,7 +41,7 @@ for delta in Delta:
     for i, ti in enumerate(Temps):
         for j, phi in enumerate(Phi):
             axi = ax[i, j]
-            axi.set_yscale("log")
+            # axi.set_yscale("log")
             for ri in range(1, 9):
                 print(ri)
                 file_i = '{}_phi_{}_delta_{}_temp_{}_run_{}/Energy.dat'.format(
@@ -53,7 +53,7 @@ for delta in Delta:
                 axi.plot(arr[:, 0], arr[:, 1]/1000, lw=0.3,
                          label="run id = {}".format(ri))
 
-            axi.set_title("$\phi$={},T={}".format(phi, ti), size=10)
+            axi.set_title("$\phi$={},T={}".format(phi, ti), size=5)
             axi.set_xlabel("sweeps", size=5)
             axi.set_ylabel("abs(U)", size=5)
             axi.tick_params(axis='both', which='major', labelsize=5)
