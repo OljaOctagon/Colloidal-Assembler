@@ -47,12 +47,13 @@ for delta in Delta:
                 print(ri)
                 file_i = '{}_phi_{}_delta_{}_temp_{}_run_{}/Energy.dat'.format(
                     pdict[args.ptype], phi, delta, ti, ri)
-
-                print(file_i)
-                arr = pd.read_csv(file_i, delim_whitespace=True).values
-                arr[:, 1] = -1*arr[:, 1]
-                axi.plot(arr[:, 0], arr[:, 1]/1000, lw=0.3,
-                         label="run id = {}".format(ri))
+                try:
+                    arr = pd.read_csv(file_i, delim_whitespace=True).values
+                    arr[:, 1] = -1*arr[:, 1]
+                    axi.plot(arr[:, 0], arr[:, 1]/1000, lw=0.3,
+                             label="run id = {}".format(ri))
+                except:
+                    print("file {} does not exist".format(file_i))
 
             axi.set_title("$\phi$={},T={}".format(phi, ti), size=5)
             axi.set_xlabel("sweeps", size=5)
