@@ -57,6 +57,8 @@ for delta in Delta:
             axi.set_xlabel("sweeps", size=5)
             axi.set_ylabel("abs(U)", size=5)
             axi.tick_params(axis='both', which='major', labelsize=5)
+            ax.set_yticklabels([])
+
             axi.set_ylim((0, 5))
             box = axi.get_position()
             axi.set_position(
