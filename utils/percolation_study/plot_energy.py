@@ -54,9 +54,9 @@ for delta in Delta:
                          label="run id = {}".format(ri))
 
             axi.set_title("$\phi$={},T={}".format(phi, ti), size=10)
-            axi.set_xlabel("sweeps", size=10)
-            axi.set_ylabel("abs(U)", size=10)
-            axi.tick_params(axis='both', which='major', labelsize=10)
+            axi.set_xlabel("sweeps", size=5)
+            axi.set_ylabel("abs(U)", size=5)
+            axi.tick_params(axis='both', which='major', labelsize=5)
             axi.set_ylim((0, 5))
             box = axi.get_position()
             axi.set_position(
