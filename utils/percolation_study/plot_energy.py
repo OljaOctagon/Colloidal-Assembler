@@ -46,7 +46,6 @@ for delta in Delta:
             axi = ax[i, j]
             axi.set_yscale("log")
             for ri in range(1, 9):
-                print(ri)
                 file_i = '{}_phi_{}_delta_{}_temp_{}_run_{}/Energy.dat'.format(
                     pdict[args.ptype], phi, delta, ti, ri)
                 try:
