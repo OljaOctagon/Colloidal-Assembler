@@ -5,6 +5,8 @@ import argparse
 import pandas as pd
 import re
 from matplotlib.ticker import NullFormatter
+import warnings
+warnings.filterwarnings("ignore")
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-ptype', type=str,
