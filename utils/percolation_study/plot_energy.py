@@ -41,7 +41,7 @@ for delta in Delta:
     for i, ti in enumerate(Temps):
         for j, phi in enumerate(Phi):
             axi = ax[i, j]
-            # axi.set_yscale("log")
+            axi.set_yscale("log")
             for ri in range(1, 9):
                 print(ri)
                 file_i = '{}_phi_{}_delta_{}_temp_{}_run_{}/Energy.dat'.format(
