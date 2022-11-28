@@ -112,10 +112,8 @@ def get_voxel_array(domains, voxcels):
 
 
 def stitch_cluster(G, next_i, old_coords, new_coords):
-    # print(list(G.nodes))
 
     while len(old_coords) > 0:
-        #print("next_i", next_i)
         neigh = [n for n in G.neighbors(next_i)]
         leftover_neigh = [
             elem_1 for elem_1 in neigh for elem_2 in old_coords if elem_1 == elem_2]
@@ -126,15 +124,14 @@ def stitch_cluster(G, next_i, old_coords, new_coords):
             dxi = next_i[0] - ni[0]
             dyi = next_i[1] - ni[1]
 
-            if np.abs(dxi) > 1:
-                nxi = next_i[0] - np.sign(nxi)
-            if np.abs(dyi) > 1:
-                nyi = next_i[1] - np.sign(nyi)
+            if abs(dxi) > 1:
+                nxi = next_i[0] + np.sign(dxi)
+            if abs(dyi) > 1:
+                nyi = next_i[1] + np.sign(dyi)
 
             new_ni = (nxi, nyi)
             new_coords.append(new_ni)
             old_coords.remove(ni)
-            #print("ni, new_ni", ni, new_ni)
             nx.relabel_nodes(G, {ni: new_ni}, copy=False)
 
         next_i = new_ni
