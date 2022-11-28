@@ -302,8 +302,8 @@ def calculate(vals):
     # Generate links between empty voxcels
     voxcels.get_links()
 
-    draw(particles, voxcels, box, cells, frame_name):
-        # RESULT: pore area/ domain sizes
+    draw(particles, voxcels, box, cells, frame_name)
+    # RESULT: pore area/ domain sizes
     pore_areas, domain_lengths, domains, G = pt.get_pore_volume(voxcels)
 
     arr = get_voxel_array(domains, voxcels)
