@@ -198,10 +198,6 @@ def get_stitched_pos(voxcels, box, domain_obs, G, arr):
                 vy = box.origin[1] + voxcels.lx*nni[1] + voxcels.lx/2
                 voxcel_pos.append([di, vx, vy])
 
-    voxcel_pos = np.array(voxcel_pos)
-    draw_pos(voxcel_pos, box.lx, "voxcels_shifted.png",
-             max_id, min_id, max_domain_id, voxcels)
-
     edge_pos = []
     for di in range(int(min_id), int(max_id)+1):
         if di != max_domain_id:
@@ -301,7 +297,7 @@ def calculate(vals):
 
     # Generate links between empty voxcels
     voxcels.get_links()
-
+    frame_name = "{}_{}".format(fid, frame_name)
     draw(particles, voxcels, box, cells, frame_name)
     # RESULT: pore area/ domain sizes
     pore_areas, domain_lengths, domains, G = pt.get_pore_volume(voxcels)
@@ -325,6 +321,11 @@ def calculate(vals):
     # Get PBC stitched clusters for convex hull to get asymmetry measures:
     # Stitch together cluster over pbcs by adapting voxcel pos and edge pos
     voxcel_pos, edge_pos = get_stitched_pos(voxcels, box, domain_obs, G, arr)
+
+    voxcel_pos = np.array(voxcel_pos)
+    shifted_frame_name = "{}_voxcels_shifted.png".format(fid)
+    draw_pos(voxcel_pos, box.lx, shifted_frame_name,
+             max_id, min_id, max_domain_id, voxcels)
 
     # RESULT: ratio pore volume and convex hull: general asymmetry measure
     hull = []
@@ -359,7 +360,6 @@ def calculate(vals):
     meta = {}
 
     fid = fid.split("/")[1]
-    print(fid)
 
     meta["fid"] = "{}_{}".format(fid, last_time)
     meta["ptype"] = ptype
