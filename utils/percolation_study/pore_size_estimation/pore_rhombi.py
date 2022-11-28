@@ -72,6 +72,24 @@ def get_vertices(p, axes):
     return vertices
 
 
+def draw(particles, voxcels, box, cells, frame_name):
+    scale = 100
+    img = np.full(
+        (ceil(box.lx * scale), ceil(box.ly * scale), 3), 255, np.uint8)
+    for vert_i in particles.vertices:
+        cv.fillPoly(img, np.int32([vert_i * scale]), (0, 0, 0))
+
+    for coord_vi in voxcels.coords:
+        if voxcels.fill_state[coord_vi] == 0:
+            vert_i = voxcels.get_vertices(coord_vi)
+            cv.rectangle(img, np.int32(
+                vert_i[2] * scale), np.int32(vert_i[0] * scale), (255, 0, 0), 2)
+
+    outsize = (10000, 10000)
+    out = cv.resize(img, outsize)
+    cv.imwrite(frame_name, out)
+
+
 def draw_pos(voxcel_pos, blx, frame_name, max_id, min_id, max_domain_id, voxcels):
 
     scale = 100
@@ -137,9 +155,7 @@ def stitch_cluster(G, next_i, old_coords, new_coords):
         next_i = new_ni
 
         if len(leftover_neigh) == 0:
-            #print("empty step")
             k = 1
-            # print(old_coords)
             while len(leftover_neigh) == 0:
                 last_i = new_coords[new_coords.index(next_i)-k]
                 neigh = [n for n in G.neighbors(last_i)]
@@ -154,7 +170,6 @@ def stitch_cluster(G, next_i, old_coords, new_coords):
 
                 k += 1
             next_i = next_test
-            #print("reduce, next_i", next_i)
 
     return old_coords, new_coords
 
@@ -184,8 +199,8 @@ def get_stitched_pos(voxcels, box, domain_obs, G, arr):
                 voxcel_pos.append([di, vx, vy])
 
     voxcel_pos = np.array(voxcel_pos)
-    # draw_pos(voxcel_pos, box.lx, "voxcels_shifted.png",
-    #         max_id, min_id, max_domain_id, voxcels)
+    draw_pos(voxcel_pos, box.lx, "voxcels_shifted.png",
+             max_id, min_id, max_domain_id, voxcels)
 
     edge_pos = []
     for di in range(int(min_id), int(max_id)+1):
@@ -287,7 +302,8 @@ def calculate(vals):
     # Generate links between empty voxcels
     voxcels.get_links()
 
-    # RESULT: pore area/ domain sizes
+    draw(particles, voxcels, box, cells, frame_name):
+        # RESULT: pore area/ domain sizes
     pore_areas, domain_lengths, domains, G = pt.get_pore_volume(voxcels)
 
     arr = get_voxel_array(domains, voxcels)
