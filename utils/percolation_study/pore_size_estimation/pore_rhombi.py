@@ -298,7 +298,7 @@ def calculate(vals):
 
     # Generate links between empty voxcels
     voxcels.get_links()
-    frame_name = "{}_{}_{}_{}_{}".format(
+    frame_name = "{}_phi_{}_delta_{}_temp_{}_{}".format(
         ptype, phi, delta, temperature, frame_name)
     draw(particles, voxcels, box, cells, frame_name)
     # RESULT: pore area/ domain sizes
@@ -324,7 +324,7 @@ def calculate(vals):
     # Stitch together cluster over pbcs by adapting voxcel pos and edge pos
     voxcel_pos, edge_pos = get_stitched_pos(voxcels, box, domain_obs, G, arr)
 
-    shifted_frame_name = "{}_{}_{}_{}_voxcels_shifted.png".format(
+    shifted_frame_name = "{}_phi_{}_delta_{}_temp_{}_voxcels_shifted.png".format(
         ptype, phi, delta, temperature)
 
     draw_pos(voxcel_pos, box.lx, shifted_frame_name,
