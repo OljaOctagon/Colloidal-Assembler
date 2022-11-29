@@ -4,6 +4,7 @@ import glob
 from math import ceil
 import pore_tool as pt
 import multiprocessing
+import argparse
 
 
 def generator_from_fsys(fsys_iterator):
