@@ -198,6 +198,7 @@ def get_stitched_pos(voxcels, box, domain_obs, G, arr):
                 vy = box.origin[1] + voxcels.lx*nni[1] + voxcels.lx/2
                 voxcel_pos.append([di, vx, vy])
 
+    voxcel_pos = np.array(voxcel_pos)
     edge_pos = []
     for di in range(int(min_id), int(max_id)+1):
         if di != max_domain_id:
@@ -322,7 +323,6 @@ def calculate(vals):
     # Stitch together cluster over pbcs by adapting voxcel pos and edge pos
     voxcel_pos, edge_pos = get_stitched_pos(voxcels, box, domain_obs, G, arr)
 
-    voxcel_pos = np.array(voxcel_pos)
     shifted_frame_name = "{}_voxcels_shifted.png".format(fid)
     draw_pos(voxcel_pos, box.lx, shifted_frame_name,
              max_id, min_id, max_domain_id, voxcels)
