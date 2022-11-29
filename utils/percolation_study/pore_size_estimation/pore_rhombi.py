@@ -301,7 +301,7 @@ def calculate(vals):
     frame_name = "{}_phi_{}_delta_{}_temp_{}_{}".format(
         ptype, phi, delta, temperature, frame_name)
     draw(particles, voxcels, box, cells, frame_name)
-    # RESULT: pore area/ domain sizes
+    # RESULT: pore a rea/ domain sizes
     pore_areas, domain_lengths, domains, G = pt.get_pore_volume(voxcels)
 
     arr = get_voxel_array(domains, voxcels)
