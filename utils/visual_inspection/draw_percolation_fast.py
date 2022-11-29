@@ -115,7 +115,7 @@ def get_all_frames(vals):
     origin = box[:2] - blx/2.
     box = pt.Box(origin, blx, ndim)
 
-    frame_name = "rhombi_{}.png".format(stime)
+    frame_name = "frame_{}.png".format(stime)
 
     draw(particles, box, frame_name)
 
