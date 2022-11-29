@@ -59,11 +59,11 @@ def generator_from_single_dir():
         pos = np.fromfile(pos_file)
         pos = np.reshape(pos, (-1, 3))
         pos = pos[:, :2]
-        orient_file = "{}orientations_{}.bin".format(stime)
+        orient_file = "orientations_{}.bin".format(stime)
         orient = np.fromfile(orient_file)
         orient = np.reshape(orient, (-1, 5))[:, 4]
 
-        box_file = "{}Box_{}.bin".format(stime)
+        box_file = "Box_{}.bin".format(stime)
         box = np.fromfile(box_file)
 
         yield (stime, pos, orient, box)
