@@ -72,7 +72,7 @@ def get_frames(vals):
     origin = box[:2] - blx/2.
     box = pt.Box(origin, blx, ndim)
 
-    frame_name = frame_name = "{}_phi_{}_delta_{}_temp_{}_rhombi".format(
+    frame_name = "{}_phi_{}_delta_{}_temp_{}_rhombi.png".format(
         ptype, phi, delta, temperature)
 
     draw(particles, box, frame_name)
@@ -94,14 +94,14 @@ if __name__ == '__main__':
     if N_CORES > 1 and N_CORES <= N_CORES_MAX:
         print("Multiprocessing with {} cores".format(N_CORES))
         pool = multiprocessing.Pool(N_CORES)
-        results = pool.map(get_frames, gen_fsys)
+        pool.map(get_frames, gen_fsys)
         pool.close()
         pool.join()
 
     if N_CORES == 1:
         print("single core job")
         for vals in gen_fsys:
-            results = get_frame(vals)
+            results = get_frames(vals)
 
     if N_CORES > N_CORES_MAX:
         print("Too many cores allocated, please do not use more than {} cores".format(
