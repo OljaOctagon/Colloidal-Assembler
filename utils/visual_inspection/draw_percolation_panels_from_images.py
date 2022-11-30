@@ -28,7 +28,7 @@ if __name__ == '__main__':
     for row, pi in zip(ax, phi):
         for col, ti in zip(row, temperature):
             fname = "{}_phi_{}_delta_{}_temp_{}_rhombi.png".format(
-                args.ptype, phi, args.delta, temperature)
+                args.ptype, pi, args.delta, ti)
             print(fname)
             print(col)
             col.spines['top'].set_visible(False)
