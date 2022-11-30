@@ -16,7 +16,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    temperature = ['0.10', '0.05']
+    temperature = ['0.1', '0.05']
     phi = ['0.1', '0.2']
 
     N_temperature = len(temperature)
