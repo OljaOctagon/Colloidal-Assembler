@@ -366,7 +366,7 @@ def calculate(vals):
 
     meta["fid"] = "{}_{}".format(fid, last_time)
     meta["ptype"] = ptype
-    meta["phi"] = ptype
+    meta["phi"] = phi
     meta["temperature"] = temperature
     meta["delta"] = delta
     meta["last_time"] = last_time

@@ -76,7 +76,7 @@ def get_frames(vals):
     meta = {}
     meta["fid"] = "{}_{}".format(fid, last_time)
     meta["ptype"] = ptype
-    meta["phi"] = ptype
+    meta["phi"] = phi
     meta["temperature"] = temperature
     meta["delta"] = delta
     meta["last_time"] = last_time
@@ -116,6 +116,7 @@ if __name__ == '__main__':
             N_CORES_MAX))
         exit()
 
+    print("assembly image panels and write out image files")
     N_delta = 3
     delta = [0.2, 0.3, 0.4]
 
@@ -129,7 +130,7 @@ if __name__ == '__main__':
     N_phi = len(phi)
 
     from collections import defaultdict
-    img_dict = defaultdict(np.empty((N_phi, N_temperature)))
+    img_dict = defaultdict(lambda: np.empty((N_phi, N_temperature)))
     for res in img_results:
         tag = "{}_{}".format(res[0]['ptype'], res[0]['delta'])
         phi_i = res[0]['phi']
