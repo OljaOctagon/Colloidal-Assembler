@@ -134,7 +134,7 @@ if __name__ == '__main__':
     for res in img_results:
         tag = "{}_{}".format(res[0]['ptype'], res[0]['delta'])
         phi_i = res[0]['phi']
-        temp_i = res[0][temperature]
+        temp_i = res[0]['temperature']
 
         if phi_i in phi and temp_i in temperature:
             index_i = phi.index(phi_i)
