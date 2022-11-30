@@ -40,7 +40,6 @@ if __name__ == '__main__':
             col.get_yaxis().set_visible(False)
 
             img = cv.imread(fname)
-            col.set_title("$\phi=${},$T=${}".format(pi, ti))
             col.imshow(img)
 
-    plt.savefig("{}_{}_snapshot.png".format(args.ptype, args.delta))
+    plt.savefig("{}_{}_snapshot.pdf".format(args.ptype, args.delta))
