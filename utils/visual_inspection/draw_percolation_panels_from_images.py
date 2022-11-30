@@ -25,8 +25,8 @@ if __name__ == '__main__':
     fig, ax = plt.subplots(N_temperature, N_phi)
 
     print("start drawing")
-    for row, pi in zip(ax, phi):
-        for col, ti in zip(row, temperature):
+    for row, ti in zip(ax, temperature):
+        for col, pi in zip(row, phi):
             fname = "{}_phi_{}_delta_{}_temp_{}_rhombi.png".format(
                 args.ptype, pi, args.delta, ti)
             print(fname)
@@ -42,4 +42,4 @@ if __name__ == '__main__':
             img = cv.imread(fname)
             col.imshow(img)
 
-    plt.savefig("{}_{}_snapshot.pdf".format(args.ptype, args.delta))
+    plt.savefig("{}_{}_snapshot.png".format(args.ptype, args.delta), dpi=3000)
