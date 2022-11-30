@@ -30,6 +30,7 @@ if __name__ == '__main__':
             fname = "{}_phi_{}_delta_{}_temp_{}_rhombi.png".format(
                 args.ptype, phi, args.delta, temperature)
 
+            print(col)
             col.spines['top'].set_visible(False)
             col.spines['right'].set_visible(False)
             col.spines['left'].set_visible(False)
