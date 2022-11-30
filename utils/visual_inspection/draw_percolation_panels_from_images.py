@@ -36,6 +36,9 @@ if __name__ == '__main__':
             col.spines['left'].set_visible(False)
             col.spines['bottom'].set_visible(False)
 
+            col.get_xaxis().set_visible(False)
+            col.get_yaxis().set_visible(False)
+
             img = cv.imread(fname)
             col.set_title("$\phi=${},$T=${}".format(pi, ti))
             col.imshow(img)
