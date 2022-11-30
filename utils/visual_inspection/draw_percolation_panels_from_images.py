@@ -22,8 +22,9 @@ if __name__ == '__main__':
     N_temperature = len(temperature)
     N_phi = len(phi)
 
-    fig, ax = plt.subplot(N_temperature, N_phi)
+    fig, ax = plt.subplots(N_temperature, N_phi)
 
+    print("start drawing")
     for row, pi in zip(ax, phi):
         for col, ti in zip(row, temperature):
             fname = "{}_phi_{}_delta_{}_temp_{}_rhombi.png".format(
