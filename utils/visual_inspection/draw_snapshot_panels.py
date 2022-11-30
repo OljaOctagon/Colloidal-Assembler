@@ -139,7 +139,8 @@ if __name__ == '__main__':
         if phi_i in phi and temp_i in temperature:
             index_i = phi.index(phi_i)
             index_j = temperature.index(temp_i)
-
+            print(res[1])
+            print(len(res[1]))
             img_dict[tag][index_i][index_j] = res[1]
 
     for key in img_dict:
