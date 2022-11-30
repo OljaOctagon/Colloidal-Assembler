@@ -76,7 +76,7 @@ def draw(particles, box, frame_name):
     for vert_i in particles.vertices:
         cv.fillPoly(img, np.int32([vert_i * scale]), (255, 153, 153))
 
-    outsize = (10000, 10000)
+    outsize = (1000, 1000)
     out = cv.resize(img, outsize)
     cv.imwrite(frame_name, out)
 
@@ -144,7 +144,6 @@ if __name__ == '__main__':
     if N_CORES > 1 and N_CORES <= N_CORES_MAX:
         print("Multiprocessing with {} cores".format(N_CORES))
         pool = multiprocessing.Pool(N_CORES)
-        #pool.map(get_frames, gen_fsys)
         pool.map(gframes, gen_fsys)
         pool.close()
         pool.join()
