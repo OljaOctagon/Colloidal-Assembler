@@ -1,10 +1,6 @@
 import numpy as np
-import pandas as pd
-import argparse
 import gel_tools as gt
 import networkx as nx
-import glob
-import os
 from itertools import islice
 from itertools import cycle
 
