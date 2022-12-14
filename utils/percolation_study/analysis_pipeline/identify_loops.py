@@ -18,6 +18,7 @@ def generator_from_fsys(dir_string):
     fsys_iterator = glob.glob(dir_string)
     for dir_i in fsys_iterator:
         config = configparser.ConfigParser()
+        print(dir_i)
         config.read('{}para.ini'.format(dir_i))
 
         N = int(config['System']['Number_of_Particles'])
@@ -48,7 +49,7 @@ def generator_from_fsys(dir_string):
         box = np.fromfile(box_file)
         fid = dir_i
         
-        file_patch_network = "{}patch_network.dat"
+        file_patch_network = "{}patch_network.dat".format(dir_i)
         connections = gt.read_bonds(file_patch_network)[-1]
 
         yield (fid, ptype, phi, temperature, delta, last_time, pos, orient, box, connections)
@@ -90,7 +91,7 @@ def get_domains(G, N_particles):
     particle_did = np.empty((N_particles, 2))
     for di, domain in enumerate(domains):
         for pi in domain:
-            particle_did[pi] = domain_size_type[di]
+            particle_did[pi] = domain_sizes_types[di]
 
     return domain_sizes_types, particle_did   
 
@@ -176,6 +177,7 @@ def calculate(vals):
 
     meta = {}
     fid = fid.split("/")[1]
+    print("get for fid: {}".format(fid))
 
     meta["fid"] = "{}_{}".format(fid, last_time)
     meta["ptype"] = ptype
@@ -204,9 +206,9 @@ if __name__ == '__main__':
     parser.add_argument('-run_id', type=str)
     parser.add_argument('-ptype', type=str)
     parser.add_argument('-delta', type=float)
-    parser.add_argument('-temperature', type=float)
+    parser.add_argument('-temperature', type=str)
     parser.add_argument('-phi', type=float)
-    parser.add_argument('-ncores', type_int)
+    parser.add_argument('-ncores', type=int)
 
     args = parser.parse_args()
     para = defaultdict(lambda: '*')
@@ -214,9 +216,11 @@ if __name__ == '__main__':
         if arg is not None:
             para[arg] = getattr(args,arg) 
 
-    dir_string = "double_{}/double_{}_phi_{}_delta_{}_temp_{}".format(
+    dir_string = "{}/{}_phi_{}_delta_{}_temp_{}/".format(
         para['ptype'], para['ptype'], para['phi'],
         para['delta'], para['temperature'],)
+
+    print("files", dir_string)
     
     gen_fsys = generator_from_fsys(dir_string)
 
@@ -231,9 +235,10 @@ if __name__ == '__main__':
         pool.join()
 
     if N_CORES == 1:
+        results=[]
         print("single core job")
         for vals in gen_fsys:
-            results = calculate(vals)
+            results.append(calculate(vals))
 
     if N_CORES > N_CORES_MAX:
         print("Too many cores allocated, please do not use more than {} cores".format(
@@ -251,6 +256,6 @@ if __name__ == '__main__':
         for key in res[1]:
             dset = grp.create_dataset(key, res[1][key].shape, dtype='f')
             dset[...] = res[1][key]
-            
+
     f.close()
 
