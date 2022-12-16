@@ -67,7 +67,7 @@ def get_bond_type_domains(G, bond_type):
     '''
 
     S = nx.Graph(((source, target, attr) for source, target,
-                attr in G.edges_iter(data=True) if attr['bond_type'] == bond_type))
+                attr in G.edges(data=True) if attr['bond_type'] == bond_type))
 
     domains = list(nx.connected_components(S))
 
@@ -97,15 +97,19 @@ def get_domains(G, N_particles):
 
 
 def get_loops(G,N_particles):
-    DG = nx.Digraph(G)
+
+    print("make digraph and remove self loops")
+    DG = nx.DiGraph(G)
     DG.remove_edges_from(nx.selfloop_edges(DG))
 
+    print("simple cycles")
     loops = list(nx.simple_cycles(DG))
     loop_types = np.empty(len(loops))
     loop_sizes = np.empty(len(loops))
 
     particle_loop_types = np.empty((N_particles,2))
 
+    print("get different loops types")
     for li, loop in enumerate(loops):
         l=len(loop)
         node_cycles = [ ( loop[i], loop[(i+1)%l] ) for i in range(l)]
@@ -143,7 +147,11 @@ def identify_loops(connections, N_particles):
     connections[ientry][3]: connecting patch of id2
     '''
 
+    print("start loop identification")
+
     G = nx.Graph()
+
+    print("make graph")
     G.add_edges_from(connections[:, :2])
     attrs = {}
     '''
@@ -159,11 +167,14 @@ def identify_loops(connections, N_particles):
     bond_type_str = {0: "P", 1: "NP"}
 
     for entry in connections:
-        attrs[(entry[0], entry[1])] = orient_dict[(entry[2], entry[3])]
+                attrs[(entry[0], entry[1])] = orient_dict[(entry[2], entry[3])]
 
+    print("add edge attributes")
     nx.set_edge_attributes(G, attrs, name="bond_type")
-   
+    
+    print("get domain sizes")
     domain_sizes_types, pdt = get_domains(G, N_particles)
+    print("get loops")
     loop_sizes_types, plt = get_loops(G, N_particles)
 
     return domain_sizes_types, loop_sizes_types, pdt, plt
@@ -173,6 +184,7 @@ def calculate(vals):
     fid, ptype, phi, temperature, delta, last_time, pos, orient, box, connections = vals
 
     N_particles = len(pos)
+    
     domain_sizes_types, loop_sizes_types, pdt, plt = identify_loops(connections, N_particles)
 
     meta = {}
